@@ -35,36 +35,38 @@ if ($this->intro != '') {
 }
 // Generate the seven entries at the top of the page, as a table with a single row
 // The current day is shown in bold, others as buttons
-//echo '<table style="margin-right: auto; margin-left: auto;">';
-echo '<div class="table-responsive">' . PHP_EOL;
-echo '<table>';
-echo "<tr>";
-$week = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-for ($i = 0;
-        $i < 7;
-        $i++) {
-    echo "<td>";
-    $weekday = $week[$i];
-    $target = 'index.php?option=com_ra_tools&view=programme_day&day=' . $weekday . '&Itemid=' . $this->menu_id;
+if ($this->dayswitcher == '1') {
+    //echo '<table style="margin-right: auto; margin-left: auto;">';
+    echo '<div class="table-responsive">' . PHP_EOL;
+    echo '<table>';
+    echo "<tr>";
+    $week = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+    for ($i = 0;
+            $i < 7;
+            $i++) {
+        echo "<td>";
+        $weekday = $week[$i];
+        $target = 'index.php?option=com_ra_tools&view=programme_day&day=' . $weekday . '&Itemid=' . $this->menu_id;
 
-//    $link = URI::base() . $target;
-    $link = $target;
-    if ($this->day == $weekday) {
-        echo '<b>' . $this->day . '<b>';
-    } else {
-        if ($i < 5) {
-            $colour = 'p7474';
+    //    $link = URI::base() . $target;
+        $link = $target;
+        if ($this->day == $weekday) {
+            echo '<b>' . $this->day . '<b>';
         } else {
-            $colour = 'p0555';
+            if ($i < 5) {
+                $colour = 'p7474';
+            } else {
+                $colour = 'p0555';
+            }
+    //echo $objHelper->buildLink($target . $weekday, $weekday, False, "link-button button-" . $colour);
+            echo $objHelper->buildLink($link, $weekday, False, "link-button button-" . $colour);
         }
-//echo $objHelper->buildLink($target . $weekday, $weekday, False, "link-button button-" . $colour);
-        echo $objHelper->buildLink($link, $weekday, False, "link-button button-" . $colour);
+        echo "</td>";
     }
-    echo "</td>";
+    echo "</tr>";
+    echo "</table>";
+    echo '</div>' . PHP_EOL;    // table-responsive
 }
-echo "</tr>";
-echo "</table>";
-echo '</div>' . PHP_EOL;    // table-responsive
 $options = new RJsonwalksFeedoptions($this->group);
 $objFeed = new RJsonwalksFeed($options);
 

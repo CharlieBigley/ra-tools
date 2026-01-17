@@ -38,10 +38,14 @@
                                 <option value="Saturday">Saturday</option>
                                 <option value="Sunday">Sunday</option>
                             </field> 
+                            <field name="dayswitcher" type="radio" default="1" label="Show Day switcher">
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </field>  
                             <field name="show_cancelled" type="radio" default="0" label="Include cancelled walks">
                                 <option value="1">Yes</option>
                                 <option value="0">No</option>
-                            </field>                                 
+                            </field>                               
                             <field name="restrict_walks"
                                    type="radio"
                                    default="2"
