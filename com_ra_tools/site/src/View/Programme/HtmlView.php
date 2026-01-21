@@ -1,10 +1,12 @@
 <?php
 
 /*
+ * @version     3.5.1
  * 02/09/23 CB optionally restrict by lookahead_weeks
  * 20/11/23 CB allow display of specified group or area
  * 24/10/24 CB correct lookupArea
  * 16/12/24 CB show_criteria
+ * 19/01/26 CB Changes to implement new radius selection
  */
 
 namespace Ramblers\Component\Ra_tools\Site\View\Programme;
@@ -21,12 +23,13 @@ class HtmlView extends BaseHtmlView {
     protected $centre_point;
     protected $show_cancelled = 0;
     protected $display_type;
+    protected $filter_type;
     protected $group;
     protected $intro;
     protected $limit = 0;
     protected $lookahead_weeks = 0;
     protected $show_criteria;
-    public $objHelper;
+    public $toolsHelper;
     protected $params;
     protected $menu_params;
     protected $radius;
@@ -39,14 +42,22 @@ class HtmlView extends BaseHtmlView {
         $params = ComponentHelper::getParams('com_ra_tools');
         $app = Factory::getApplication();
         $this->user = Factory::getApplication()->getIdentity();
-        $this->objHelper = new ToolsHelper;
+        $this->toolsHelper = new ToolsHelper;
         $menu = $app->getMenu()->getActive();
         if (is_null($menu)) {
 
         } else {
             $menu_params = $menu->getParams();
         }
+        $this->filter_type = $menu_params->get('filter_type', 'group');
+        if ($this->filter_type == 'radius') {
+            $this->group = $menu_params->get('centre_point', '');
+             $this->radius = $menu_params->get('radius', '25');
+        } else {
+            $this->group = $menu_params->get('code', '');
+        }
         $this->group = Factory::getApplication()->input->getCmd('group', '');
+
         if ($this->group == '') {
             // we have been called from a menu
             $this->intro = $menu_params->get('intro');
@@ -54,7 +65,7 @@ class HtmlView extends BaseHtmlView {
 
             $this->show_cancelled = $menu_params->get('show_cancelled', '0');
             $group_type = $menu_params->get('group_type', 'single');
-            if ($group_type == "single") {
+            if (($group_type == "single") or ($this->filter_type == "radius")) {
                 $this->group = $params->get('default_group');
             } elseif ($group_type == "specified") {
                 $this->group = $menu_params->get('code');
@@ -84,10 +95,10 @@ class HtmlView extends BaseHtmlView {
             $title = 'Walks for ';
             if (strlen($this->group) == 2) {
                 // Area
-                $title .= $this->objHelper->lookupArea($this->group);
-                $this->group = $this->objHelper->expandArea($this->group);
+                $title .= $this->toolsHelper->lookupArea($this->group);
+                $this->group = $this->toolsHelper->expandArea($this->group);
             } else {
-                $title .= $this->objHelper->lookupGroup($this->group);
+                $title .= $this->toolsHelper->lookupGroup($this->group);
             }
             $layout = Factory::getApplication()->input->getCmd('layout', '');
             if ($layout == 'radius') {

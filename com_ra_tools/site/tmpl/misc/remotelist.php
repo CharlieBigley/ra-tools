@@ -17,7 +17,6 @@ use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
 
 defined('_JEXEC') or die;
-$toolsHelper = new ToolsHelper;
 echo '<h2>' . $this->params->get('page_title') . '</h2>';
 
 $app = JFactory::getApplication();
@@ -30,7 +29,7 @@ $show_details = $this->menu_params->get('show_details', '');
 
 $sql = 'SELECT url,token, colour FROM #__ra_api_sites ';
 $sql .= 'WHERE id=' . $site_id;
-$site = $toolsHelper->getItem($sql);
+$site = $this->toolsHelper->getItem($sql);
 
 $website = $site->url;
 $token = $site->token;
@@ -100,7 +99,7 @@ for ($i = 0; $i < count($articles); $i++) {
     $modified = $attributes['modified'];
     $title = $attributes['title'];
     $text = $attributes['text'];
-    $link = $toolsHelper->buildLink($target . $id, $title, true);
+    $link = $this->toolsHelper->buildLink($target . $id, $title, true);
     $objTable->add_item($link);
     $details = strip_tags($text);
     $objTable->add_item(substr($details, 0, 100) . '...');
@@ -113,7 +112,7 @@ $objTable->generate_table();
 echo'</div>';
 if ($show_details == 'Y') {
     echo "<i>(Showing $count published articles from ";
-    echo $toolsHelper->buildLink($website, $website, true);
+    echo $this->toolsHelper->buildLink($website, $website, true);
     echo "  where category = $category_id)</i><br>";
 }
 return;                 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

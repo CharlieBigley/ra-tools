@@ -446,7 +446,7 @@ class ToolsHelper {
         $app->close();
     }
 
-    function feedbackButton($encoded) {
+    public function feedbackButton($encoded) {
         echo $this->buildLink("components/com_ra_tools/Feedback.php?ref=" . $encoded, "Feedback", True, "link-button button-p1815");
     }
 
@@ -502,7 +502,7 @@ class ToolsHelper {
         return $result;
     }
 
-    function getAreaCode($group_code) {
+    public function getAreaCode($group_code) {
         $sql = "SELECT id FROM #__ra_areas WHERE code='";
         return $this->getValue($sql . substr($group_code, 0, 2) . "'");
     }
@@ -536,14 +536,13 @@ class ToolsHelper {
         return explode(',', $db->loadResult());
     }
 
-    function getItem($sql) {
+    public function getItem($sql) {
         try {
             $db = Factory::getContainer()->get(DatabaseInterface::class);
             $query = $db->getQuery(true);
             $db->setQuery($sql);
             $db->execute();
             $this->rows = $db->getNumRows();
-//            print_r($this->rows);
             $item = $db->loadObject();
             return $item;
         } catch (Exception $ex) {
@@ -555,7 +554,7 @@ class ToolsHelper {
         }
     }
 
-    function getJson($sql) {
+    public function getJson($sql) {
         $this->rows = 0;
         try {
             $db = Factory::getContainer()->get(DatabaseInterface::class);
@@ -575,7 +574,7 @@ class ToolsHelper {
         }
     }
 
-    function getRows($sql) {
+    public function getRows($sql) {
         /*
           $objTable->add_header("aa,bb");
           $rows = $this->objHelper->getRows($sql);
@@ -1449,6 +1448,7 @@ class ToolsHelper {
             $target = "https://www.google.com/maps?q=";
             $target .= $latitude;
             $target .= "," . $longitude;
+            $target .= "&z=9";
             return $this->imageButton("GO", $target, True);
         } elseif ($mode == 'S') {
             // 27/05/24 CB Strretmap prefers to have Nothing / Eas                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ting

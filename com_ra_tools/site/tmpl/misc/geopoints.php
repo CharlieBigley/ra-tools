@@ -19,7 +19,6 @@ use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 // No direct access
 defined('_JEXEC') or die;
 
-$objHelper = new ToolsHelper;
 echo '<h2>' . $this->params->get('page_title') . '</h2>';
 
 //  Find any introduction for the page
@@ -63,12 +62,12 @@ if ($show_file == 'Y') {
     echo 'File is ' . $target;
 }
 if ($download == 'Y') {
-    echo $this->objHelper->buildLink($target, 'Download', False, 'link-button button-p0186');
+    echo $this->toolsHelper->buildLink($target, 'Download', False, 'link-button button-p0186');
 }
 //echo 'user ' . $this->user->id;
 //if ($this->user->id > 0) {
 //    if ($this->canDo->get('core.edit' == true)) {
-//      echo $this->objHelper->buildLink($target, 'Download', False, 'link-button button-p0186');
+//      echo $this->toolsHelper->buildLink($target, 'Download', False, 'link-button button-p0186');
 //    }
 //}
 echo '<br>';

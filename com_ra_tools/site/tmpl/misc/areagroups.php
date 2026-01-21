@@ -21,7 +21,6 @@ defined('_JEXEC') or die;
 // use Joomla\CMS\Factory;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 
-$objHelper = new ToolsHelper;
 $app = JFactory::getApplication();
 
 //$menu_params = $app->getMenu()->getActive()->getParams();
@@ -43,38 +42,38 @@ if ($programme !== '0') {
 }
 
 $sql = "SELECT * FROM #__ra_areas WHERE code='" . $area . "'";
-$item = $objHelper->getItem($sql);
+$item = $this->toolsHelper->getItem($sql);
 echo "<h2>" . $item->name . " of the Ramblers</h2>";
 if (!$page_intro == '') {
     echo $page_intro;
 }
 if ($area_info == 1) {
     if ($item->website == '') {
-        echo $objHelper->buildLink($item->co_url, $item->co_url) . '<br>';
+        echo $this->toolsHelper->buildLink($item->co_url, $item->co_url) . '<br>';
     } else {
-        echo $objHelper->buildLink($item->website, $item->website) . '<br>';
+        echo $this->toolsHelper->buildLink($item->website, $item->website) . '<br>';
     }
     echo $item->details;
 }
 //echo "<h3>Groups in " . $item->name . "</h3>";
 $sql = "SELECT * FROM #__ra_groups WHERE code like '" . $area . "%' ORDER BY name";
-$rows = $objHelper->getRows($sql);
+$rows = $this->toolsHelper->getRows($sql);
 if ($rows === False) {
     echo 'No data found for ' . $sql . '<br>';
 }
 foreach ($rows as $row) {
     $heading = '<h4>' . $row->name . ' ' . $row->code;
     if ($programme !== '0') {
-        $heading .= $objHelper->buildLink($target_walks . $row->code, ' Show walks');
+        $heading .= $this->toolsHelper->buildLink($target_walks . $row->code, ' Show walks');
     }
     $heading .= '</h4>';
     echo $heading;
 
     echo '<p style="padding-left: 30px;">' . $row->details . '<br>';
     if ($row->website == '') {
-        echo $objHelper->buildLink($row->co_url, $row->co_url, True) . '<br>';
+        echo $$this->toolsHelper->buildLink($row->co_url, $row->co_url, True) . '<br>';
     } else {
-        echo $objHelper->buildLink($row->website, $row->website, True) . '</p>';
+        echo $this->toolsHelper->buildLink($row->website, $row->website, True) . '</p>';
     }
 }
 echo "<!-- End of code from ' . __FILE__ . ' -->" . PHP_EOL;

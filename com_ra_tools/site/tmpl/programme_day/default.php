@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     4.3.2
+ * @version     3.5.2
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2021. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -15,6 +15,8 @@
  * 22/01/24 CB use LookaheadWeeks
  * 13/04/24 CB correct spelling of responsive
  * 13/10/25 CB Don't allow restrict by number
+ * 19/01/26 CB Changes to implement new radius selection
+ * 20/11/26 CB show radius distance as miles
  */
 // No direct access
 defined('_JEXEC') or die;
@@ -23,11 +25,7 @@ use Joomla\CMS\Date\Date;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\Uri\Uri;
-use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 
-//use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
-
-$objHelper = new ToolsHelper;
 // Load the component params
 //echo "Displaying $this->display_type for $this->group, day=$this->day, intro=$this->intro<br>";
 if ($this->intro != '') {
@@ -58,8 +56,7 @@ if ($this->dayswitcher == '1') {
             } else {
                 $colour = 'p0555';
             }
-    //echo $objHelper->buildLink($target . $weekday, $weekday, False, "link-button button-" . $colour);
-            echo $objHelper->buildLink($link, $weekday, False, "link-button button-" . $colour);
+            echo $this->toolsHelper->buildLink($link, $weekday, False, "link-button button-" . $colour);
         }
         echo "</td>";
     }
@@ -67,7 +64,16 @@ if ($this->dayswitcher == '1') {
     echo "</table>";
     echo '</div>' . PHP_EOL;    // table-responsive
 }
-$options = new RJsonwalksFeedoptions($this->group);
+
+// Handle filter type - group or radius
+if ($this->filter_type == 'group') {
+    $options = new RJsonwalksFeedoptions($this->group);
+} else {
+    // filter_type = radius
+    $item = $this->toolsHelper->getItem('SELECT latitude, longitude from #__ra_groups where code="' . $this->group . '"');
+    $options = new RJsonwalksFeedoptions();
+    $options->addWalksManagerGroupsInArea($item->latitude,$item->longitude,$this->radius);
+}
 $objFeed = new RJsonwalksFeed($options);
 
 if ($this->show_cancelled == '0') {
@@ -88,6 +94,10 @@ if ($this->restrict_walks == "2") {
     }
 }
 $objFeed->filterDayofweek(array($this->day));
+if ($this->extra_filter != '') {
+    $objFeed->$$this->extra_filter;
+    echo "Applying extra filter: " . $this->extra_filter . "<br>";
+}
 /*
   if (!$days == "0") {
   $datefrom = new DateTime(); // set date to today
@@ -130,14 +140,22 @@ $objFeed->Display($display);           // display walks information
 if (($this->show_criteria == '2')
         OR (($this->show_criteria == '1') AND ($this->user->id > 0))) {
 
-    echo "group=" . $this->group;
+    if ($this->filter_type == 'radius') {
+        echo "Within " . $this->radius . " miles of " . $this->group;
+        // Link to view the circle map
+        $target = 'index.php?option=com_ra_tools&view=misc&layout=circle&group=' . $this->group . '&radius=' . $this->radius;
+        echo $this->toolsHelper->imageButton('I',$target,true);    
+    } else {        
+        echo "Group=" . $this->group;
+    }
+    echo ", day=" . $this->day;
     if ($this->restrict_walks == "2") {
         if ($this->lookahead_weeks > "0") {
             echo ', Dates from ' . date_format($datefrom, 'd/m/Y') . ' to ' . date_format($dateto, 'd/m/Y');
         }
     } else {
         if ($this->limit > 0) {
-            echo ', limit=' . $this->limit;
+            echo ', Limit=' . $this->limit;
         }
     }
 //    if (JDEBUG) {

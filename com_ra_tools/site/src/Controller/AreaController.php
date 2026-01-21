@@ -317,7 +317,7 @@ class AreaController extends FormController {
         echo '<b>Head office site </b>' . $toolsHelper->buildLink($item->co_url, $item->co_url, true) . '<br>';
         echo '<b>Latitude</b> ' . $item->latitude . '<br>';
         echo '<b>Longitude </b> ' . $item->longitude . '<br>';
-        echo '<b>Location </b> ' . $toolsHelper->showLocation($item->latitude, $item->longitude, 'O') . '<br>';
+        echo '<b>Location </b> ' . $toolsHelper->showLocation($item->latitude, $item->longitude, 'G') . '<br>';
 
         $jsonHelper = new JsonHelper;
 

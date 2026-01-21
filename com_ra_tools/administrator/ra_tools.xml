@@ -11,21 +11,22 @@
 14/04/25 CB 3.1.0: view users
 29/04/25 CB 3.2.0 Date matrix, add <element>, change <name> to RA Tools
 13/06/25 CB new dashboard option for import_reports
+19/01/26 CB Changes to implement new radius selection, plus reinstate scriptfile
 -->
 <extension type="component" method="upgrade">
     <name>RA Tools</name>
     <element>com_ra_tools</element>
-    <creationDate>03 Nov 25</creationDate>
+    <creationDate>21 Jan 26</creationDate>
     <copyright>2024 Charlie Bigley</copyright>
     <license>GNU General Public License version 3 or later; see LICENSE.txt</license>
     <author>Charlie Bigley</author>
     <authorEmail>webmaster@bigley.me.uk</authorEmail>
     <authorUrl>https://staffordshireramblers.org</authorUrl>
-    <version>3.4.6</version>
+    <version>3.5.1</version>
     <description>Ramblers Tools and Utilities</description>
     <namespace path="src">Ramblers\Component\Ra_tools</namespace>
     
-    <!--scriptfile>script.php</scriptfile -->
+    <scriptfile>script.php</scriptfile>
     
     <install> <!-- Runs on install -->
         <sql>

@@ -16,7 +16,6 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use \Joomla\Uri\Uri;
-use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
 
 //$app = JFactory::getApplication();
@@ -118,7 +117,7 @@ for ($row = 0; ($row + 1) <= $max_rows; $row++) {
                 $details = $this->objHelper->buildLink($target, $value, true);
                 if ($this->canDo->get('core.delete')) {
 //                  echo 'delete' . $target_delete;
-                    $details .= $this->objHelper->buildLink($target_delete . $value, '<i class="icon-trash" ></i>');
+                    $details .= $this->toolsHelper->buildLink($target_delete . $value, '<i class="icon-trash" ></i>');
                 }
             }
         } else {
@@ -133,7 +132,7 @@ $objTable->generate_table();
  * end of common code
  */
 $back = 'index.php?option=com_ra_tools&view=misc&layout=routes&Itemid=' . $this->menu_id;
-echo $this->objHelper->backButton($back);
+echo $this->toolsHelper->backButton($back);
 ?>
 
 

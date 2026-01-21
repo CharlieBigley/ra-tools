@@ -29,7 +29,7 @@ $show_email = $menu_params->get('show_email', 1);
 $show_images = $menu_params->get('show_images', 0);
 
 //$sql = 'SELECT title FROM #__categories WHERE id=' . $category_id;
-//$category = $objHelper->getValue($sql);
+//$category = $this->toolsHelper->getValue($sql);
 if (!$intro == '') {
     echo $intro;
 }
@@ -71,7 +71,7 @@ if (JDEBUG) {
     JFactory::getApplication()->enqueueMessage('sql=' . $sql, 'message');
 }
 
-$rows = $objHelper->getRows($sql);
+$rows = $this->toolsHelper->getRows($sql);
 foreach ($rows as $row) {
     if ($sort == 'name') {
         $objTable->add_item($row->name);
@@ -98,7 +98,7 @@ foreach ($rows as $row) {
             $objTable->add_item(JHtml::_('email.cloak', $row->email_to, 1, 'Send email', 0));
         }
     } else {
-        $objTable->add_item($objHelper->buildLink($target . $row->id, "Email"));
+        $objTable->add_item($this->toolsHelper->buildLink($target . $row->id, "Email"));
     }
     $objTable->generate_line();
 }

@@ -24,15 +24,14 @@
                             <option value="role">Role</option>
                             <option value="ordering">Manual ordering</option>
                          </field>
-                        <field
-			    name="page_intro"
+                        <field name="page_intro"
                             type="editor"
-            		    label="Page Introduction"
+            		        label="Page Introduction"
                             description="Text to be shown before table of members"
                             filter="raw"
                             rows="8"
                             cols="80"
-			    default=""
+			                default=""
                         />  
                             <field name="show_phone" type="radio" default="0" label="Display phone numbers">
                                 <option value="1">Yes</option>

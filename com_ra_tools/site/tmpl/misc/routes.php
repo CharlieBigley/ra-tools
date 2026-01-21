@@ -35,7 +35,7 @@ if (strlen($home_group == 2)) {
 }
 $sql .= ' WHERE code="' . $home_group . '"';
 
-$item = $this->objHelper->getItem($sql);
+$item = $this->toolsHelper->getItem($sql);
 $latitude = $item->latitude;
 $longitude = (float) $item->longitude;
 
@@ -135,11 +135,11 @@ if ($display_type == 'P') {
         }
         if (!$this->canDo->get('core.create')) {
             $target = 'index.php?option=com_ra_tools&view=misc&layout=routes_clean&Itemid=' . $this->menu_id;
-            echo $this->objHelper->buildButton($target, 'Clean waypoints', False, 'red');
+            echo $this->toolsHelper->buildButton($target, 'Clean waypoints', False, 'red');
         }
         $target = 'index.php?option=com_ra_tools&view=misc&layout=routesprint&Itemid=' . $this->menu_id;
         $target .= '&tmpl=component';
-        echo $this->objHelper->buildButton($target, 'Print file list', False, 'mintcake');
+        echo $this->toolsHelper->buildButton($target, 'Print file list', False, 'mintcake');
     } else {  // display_type = S
         $map = new RLeafletGpxMap();  // standard software to read json feed and decode file
         $map->linecolour = '#782327'; // optionally set the route's line colour

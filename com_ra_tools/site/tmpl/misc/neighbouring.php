@@ -23,8 +23,6 @@ use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
 
 defined('_JEXEC') or die;
-//JLoader::register('ToolsHelper', JPATH_BASE . '/components/com_ra_tools/helpers/helper.php');
-$toolsHelper = new ToolsHelper;
 //if ($this->params->get('show_page_heading') == 1) {
 echo '<h2>' . $this->params->get('page_title') . '</h2>';
 //}
@@ -73,7 +71,7 @@ if ($show_area == "1") {
     $objTable->generate_header();
     // See if a website can be found for the home Area
     $area_code = strtoupper(substr($groups[0], 0, 2));
-    $item = $toolsHelper->getItem("SELECT name, details, website, co_url from #__ra_areas WHERE code='" . $area_code . "'");
+    $item = $this->toolsHelper->getItem("SELECT name, details, website, co_url from #__ra_areas WHERE code='" . $area_code . "'");
     if ($item == '') {
         $objTable->add_item($area_code);
         $objTable->add_item('');
@@ -85,13 +83,13 @@ if ($show_area == "1") {
         }
         $objTable->add_item($details);
         if ($item->website == "") {
-            $objTable->add_item($toolsHelper->buildLink($item->co_url, $item->co_url, True, ""));
+            $objTable->add_item($this->toolsHelper->buildLink($item->co_url, $item->co_url, True, ""));
         } else {
-            $objTable->add_item($toolsHelper->buildLink($item->website, $item->website, True, ""));
+            $objTable->add_item($this->toolsHelper->buildLink($item->website, $item->website, True, ""));
         }
     }
     if ($programme == '1') {
-        $objTable->add_item($toolsHelper->imageButton('W', $target . $area_code, true));
+        $objTable->add_item($this->toolsHelper->imageButton('W', $target . $area_code, true));
     }
 
     $objTable->generate_line();
@@ -118,7 +116,7 @@ foreach ($groups as $group) {
     if ($group !== $default_group) {
         $sql = "SELECT code, name, details, website, co_url from $lookup_table WHERE code='" . $group . "'";
 //    echo $sql . '<br>';
-        $item = $toolsHelper->getItem($sql);
+        $item = $this->toolsHelper->getItem($sql);
         if ($item == '') {
             if ($show_desc == '1') {
                 $details = '<b>' . $group . '</b><br>' . $item->details;
@@ -140,13 +138,13 @@ foreach ($groups as $group) {
 //        $objTable->add_item($item->name);
             //echo $item->name . ' ' . $item->code . '<br>';
             if ($item->website == "") {
-                $detail = $toolsHelper->buildLink($item->co_url, $item->co_url, True) . '<br>';
+                $detail = $this->toolsHelper->buildLink($item->co_url, $item->co_url, True) . '<br>';
             } else {
-                $detail = $toolsHelper->buildLink($item->website, $item->website, True) . '<br>';
+                $detail = $this->toolsHelper->buildLink($item->website, $item->website, True) . '<br>';
             }
             $objTable->add_item($detail);
             if ($programme == '1') {
-                $detail = $toolsHelper->imageButton('W', $target . $item->code, true);
+                $detail = $this->toolsHelper->imageButton('W', $target . $item->code, true);
                 $objTable->add_item($detail);
             }
         }
