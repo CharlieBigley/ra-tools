@@ -284,7 +284,7 @@ class Com_Ra_toolsInstallerScript {
         if ($type == 'install') {
             return true;
         }
-        $this->version_required = '3.4.3';
+        $this->version_required = '3.5.1';
         $reconfigure_message = false;
         $this->deleteFiles[] = 'components/com_ra_tools/tmpl/emailform/default.xml';
         if (version_compare($this->current_version, $this->version_required, 'ge')) {

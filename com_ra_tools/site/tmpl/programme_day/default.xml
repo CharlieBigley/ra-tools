@@ -18,11 +18,14 @@
                                    type="editor" 
                                    filter="raw"
                                    label="Introduction (optional)" 
-                                   default="This includes walks for our neighbouring groups" 
+                                   default="This includes walks for ..." 
                                    description="Any introductory text for the page" />    
-                            <field name="filter_type" type="radio" default="group" label="Filter type">
-                                <option value="group">Filter by Group</option>
+                            <field name="filter_type" 
+                                type="radio" 
+                                default="radius" 
+                                label="Filter type">                          
                                 <option value="radius">Filter by radius</option>
+                                <option value="group">Filter by Group</option>
                             </field>
                             <field name="group_type" 
                                 type="radio" default="list" 
@@ -39,7 +42,8 @@
                                 <option value="list">Use the list of Groups</option>
                              </field>
                             <field name="radius" 
-                                type="list" default="25" 
+                                type="list" 
+                                default="30" 
                                 label="Search radius (miles)" 
                                 showon="filter_type:radius">
                                 <option value="0">0</option>

@@ -63,6 +63,7 @@ class HtmlView extends BaseHtmlView {
                 $group_type = $menu_params->get('group_type', 'single');
                 if (($group_type == "single")) {
                     $this->group = $params->get('default_group');
+                    echo 'single group: ' . $this->group . '<br>';
                 } elseif ($group_type == "list") {
                     $this->group = $params->get('group_list');
                 } else {
@@ -79,10 +80,7 @@ class HtmlView extends BaseHtmlView {
             }
             $this->show_criteria = $menu_params->get('show_criteria', '2'); // default to Always
         } else {
-            // if called from frop_lis, layout will have been set to radius
-            $layout = Factory::getApplication()->input->getCmd('layout', '');
 
-            // called from neighbouring groups etc
             // get the defaults from the component parameters
             $this->intro = $params->get('intro');
             $this->display_type = $params->get('display_type', 'simple');

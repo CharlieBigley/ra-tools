@@ -9,7 +9,8 @@
  * 24/10/24 CB change default group_type to list
  * 16/12/24 CB show_criteria
  * 19/01/26 CB Changes to implement new radius selection
- * 20/011/26 CB show radius distance as miles
+ * 20/01/26 CB show radius distance as miles
+ * 21/02/26 CB correct selection of group from menu
  */
 
 namespace Ramblers\Component\Ra_tools\Site\View\Programme_day;
@@ -71,10 +72,15 @@ class HtmlView extends BaseHtmlView {
                 $item = $this->toolsHelper->getItem('SELECT latitude, longitude from #__ra_groups where code="' . $this->group . '"');
                 $this->radius = $menu_params->get('radius', '25');
                 $this->group = $params->get('default_group', '');
-                echo 'Default group ' . $this->group . '<br>';
             } else {
-                $this->group = $menu_params->get('code', '');
-                $this->group_type = $menu_params->get('group_type', 'single');
+                $this->group_type = $menu_params->get('group_type', 'list');
+              if (($this->group_type == "single")) {
+                    $this->group = $params->get('default_group');
+                } elseif ($this->group_type == "list") {
+                    $this->group = $params->get('group_list');
+                } else {
+                    $this->group = $params->get('code');
+                }
             }
             $this->display_type = $menu_params->get('display_type', 'simple'); 
             $this->dayswitcher = $menu_params->get('dayswitcher', '1');
