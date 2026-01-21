@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    3.4.1
+ * @version    3.5.1
  * @package    com_ra_tools
  * @author     Charlie Bigley <webmaster@bigley.me.uk>
  * @copyright  2024 Charlie Bigley
@@ -317,7 +317,7 @@ class AreaController extends FormController {
         echo '<b>Head office site </b>' . $toolsHelper->buildLink($item->co_url, $item->co_url, true) . '<br>';
         echo '<b>Latitude</b> ' . $item->latitude . '<br>';
         echo '<b>Longitude </b> ' . $item->longitude . '<br>';
-        echo '<b>Location </b> ' . $toolsHelper->showLocation($item->latitude, $item->longitude, 'G') . '<br>';
+        echo '<b>Location </b> ' . $toolsHelper->showLocation($item->latitude, $item->longitude, 'Ggit status') . '<br>';
 
         $jsonHelper = new JsonHelper;
 

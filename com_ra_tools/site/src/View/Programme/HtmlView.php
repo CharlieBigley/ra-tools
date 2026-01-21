@@ -49,38 +49,34 @@ class HtmlView extends BaseHtmlView {
         } else {
             $menu_params = $menu->getParams();
         }
-        $this->filter_type = $menu_params->get('filter_type', 'group');
-        if ($this->filter_type == 'radius') {
-            $this->group = $menu_params->get('centre_point', '');
-             $this->radius = $menu_params->get('radius', '25');
-        } else {
-            $this->group = $menu_params->get('code', '');
-        }
+
         $this->group = Factory::getApplication()->input->getCmd('group', '');
 
         if ($this->group == '') {
             // we have been called from a menu
             $this->intro = $menu_params->get('intro');
-            $this->display_type = $menu_params->get('display_type', 'simple');
-
-            $this->show_cancelled = $menu_params->get('show_cancelled', '0');
-            $group_type = $menu_params->get('group_type', 'single');
-            if (($group_type == "single") or ($this->filter_type == "radius")) {
-                $this->group = $params->get('default_group');
-            } elseif ($group_type == "specified") {
-                $this->group = $menu_params->get('code');
+            $this->filter_type = $menu_params->get('filter_type', 'group');
+            if ($this->filter_type == 'radius') {
+                $this->radius = $menu_params->get('radius', '25');
+                $this->group = $params->get('default_group', '');
             } else {
-                $this->group = $params->get('group_list');
+                $group_type = $menu_params->get('group_type', 'single');
+                if (($group_type == "single")) {
+                    $this->group = $params->get('default_group');
+                } elseif ($group_type == "list") {
+                    $this->group = $params->get('group_list');
+                } else {
+                    $this->group = $params->get('code');
+                }
             }
+            $this->display_type = $menu_params->get('display_type', 'simple');
+            $this->show_cancelled = $menu_params->get('show_cancelled', '0');
             $this->restrict_walks = $menu_params->get('restrict_walks', '0');
             if ($this->restrict_walks == 1) {
                 $this->limit = $menu_params->get('limit', '100');
             } elseif ($this->restrict_walks == 2) {
                 $this->lookahead_weeks = $menu_params->get('lookahead_weeks', '12');
             }
-            // parameters for view radius
-            $this->radius = $menu_params->get('radius', '0');
-            $this->centre_point = $menu_params->get('centre_point', '');
             $this->show_criteria = $menu_params->get('show_criteria', '2'); // default to Always
         } else {
             // if called from frop_lis, layout will have been set to radius

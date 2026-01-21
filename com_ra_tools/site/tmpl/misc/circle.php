@@ -12,13 +12,11 @@
 // No direct access
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Component\ComponentHelper;
-use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
+use \Joomla\CMS\Factory;
+use \Joomla\CMS\Component\ComponentHelper;
 
 // Load the component params
 $params = ComponentHelper::getParams('com_ra_tools');
-$toolsHelper = new ToolsHelper;
 // Get parameters for circle map layout
 $group = $this->app->input->getCmd('group', '');
 if ($group == '') {
@@ -43,7 +41,7 @@ $wa->registerAndUseStyle('leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaf
 $wa->registerAndUseScript('leaflet', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.js');
 
 // Get the item with latitude and longitude
-$item = $toolsHelper->getItem('SELECT latitude, longitude from #__ra_groups where code="' . $group . '"');
+$item = $this->toolsHelper->getItem('SELECT latitude, longitude from #__ra_groups where code="' . $group . '"');
 
 // Display Leaflet map with radius circle
 echo '<div id="map" style="height: 400px; margin: 20px 0;"></div>' . PHP_EOL;

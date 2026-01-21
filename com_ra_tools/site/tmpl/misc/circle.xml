@@ -22,7 +22,7 @@
                             cols="80"
 			                default=""
                         />  
-                <field name="radius_km" type="text" label="Radius (km)" description="The search radius in kilometers"/>
+                <field name="radius_miles" type="text" label="Radius (miles)" description="The search radius in miles"/>
             </fieldset>
         </fields>
     </config>

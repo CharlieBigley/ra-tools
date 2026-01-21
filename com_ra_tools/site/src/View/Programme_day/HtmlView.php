@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     3.5.2
+ * @version     3.5.1
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2021. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt

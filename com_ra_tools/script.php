@@ -32,7 +32,7 @@ class Com_Ra_toolsInstallerScript {
     private $minimumJoomlaVersion = '4.0';
     private $minimumPHPVersion = JOOMLA_MINIMUM_PHP;
     private $reconfigure_message;
-    private $required_version;
+    private $version_required;
 
     function buildButton($url, $text, $newWindow = 0, $colour = '') {
         if ($colour == '') {
@@ -241,7 +241,7 @@ class Com_Ra_toolsInstallerScript {
             return true;
         }
         echo '<p>com_ra_tools is now at ' . $this->getVersion() . '</p>';
-        $this->removeFiles();
+//        $this->removeFiles();
         if ($reconfigure_message == true) {
             echo '<p>Version was originally ' . $this->current_version . ', ';
             echo 'Requires version >= ' . $this->version_required . '</p>';
@@ -293,7 +293,7 @@ class Com_Ra_toolsInstallerScript {
             echo '<p>Version was originally ' . $this->current_version . ', ';
             echo 'Requires version >= ' . $this->version_required . '</p>';
             if (version_compare($this->current_version, '3.5.2', 'le')) {
-                $this->checkColumn('ra_emails', 'addressee_email', 'U, 'TEXT; ');
+                $this->checkColumn('ra_emails', 'addressee_email', 'U','TEXT; ');
                 $this->checkColumn('ra_clusters', 'website', 'A', 'VARCHAR(100) NOT NULL AFTER area_list; ');
             }
             if (version_compare($this->current_version, '3.4.2', 'le')) {
