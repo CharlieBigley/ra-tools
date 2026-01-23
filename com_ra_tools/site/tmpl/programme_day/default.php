@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     3.5.2
+ * @version     3.5.3
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2021. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -16,7 +16,8 @@
  * 13/04/24 CB correct spelling of responsive
  * 13/10/25 CB Don't allow restrict by number
  * 19/01/26 CB Changes to implement new radius selection
- * 20/11/26 CB show radius distance as miles
+ * 20/01/26 CB show radius distance as miles
+ * 22/01/26 CB show extra_filter
  */
 // No direct access
 defined('_JEXEC') or die;
@@ -94,10 +95,6 @@ if ($this->restrict_walks == "2") {
     }
 }
 $objFeed->filterDayofweek(array($this->day));
-if ($this->extra_filter != '') {
-    $objFeed->$$this->extra_filter;
-    echo "Applying extra filter: " . $this->extra_filter . "<br>";
-}
 /*
   if (!$days == "0") {
   $datefrom = new DateTime(); // set date to today

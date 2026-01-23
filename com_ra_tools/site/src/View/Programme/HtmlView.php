@@ -1,7 +1,7 @@
 <?php
 
 /*
- * @version     3.5.1
+ * @version     3.5.3
  * 02/09/23 CB optionally restrict by lookahead_weeks
  * 20/11/23 CB allow display of specified group or area
  * 24/10/24 CB correct lookupArea
@@ -66,8 +66,9 @@ class HtmlView extends BaseHtmlView {
                     echo 'single group: ' . $this->group . '<br>';
                 } elseif ($group_type == "list") {
                     $this->group = $params->get('group_list');
-                } else {
-                    $this->group = $params->get('code');
+                } else {                	
+                    $this->group = $menu_params->get('code');
+                    echo 'Getting specified ' . $this->group  . '<br>';
                 }
             }
             $this->display_type = $menu_params->get('display_type', 'simple');

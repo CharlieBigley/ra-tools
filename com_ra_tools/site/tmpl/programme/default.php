@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     3.5.2
+ * @version     3.5.3
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2021. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -19,6 +19,7 @@
  * 16/12/24 CB show selection criteria
  * 19/01/26 CB Changes to implement new radius selection
  * 20/11/26 CB show radius distance as miles
+ * 22/01/26 CB extra_filter
  */
 // No direct access
 defined('_JEXEC') or die;

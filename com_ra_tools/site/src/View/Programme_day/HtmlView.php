@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     3.5.1
+ * @version     3.5.3
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2021. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -26,7 +26,6 @@ class HtmlView extends BaseHtmlView {
     protected $day;
     protected $dayswitcher;
     protected $display_type;
-    protected $extra_filter;
     protected $filter_type;
     protected $group;
     protected $group_type;
@@ -83,8 +82,7 @@ class HtmlView extends BaseHtmlView {
                 }
             }
             $this->display_type = $menu_params->get('display_type', 'simple'); 
-            $this->dayswitcher = $menu_params->get('dayswitcher', '1');
-            $this->extra_filter = $menu_params->get('extra_filter', '');                 
+            $this->dayswitcher = $menu_params->get('dayswitcher', '1');               
             $this->show_cancelled = $menu_params->get('show_cancelled', '0');
             $this->restrict_walks = $menu_params->get('restrict_walks');
             $this->limit = (int) $menu_params->get('limit');
@@ -112,7 +110,6 @@ class HtmlView extends BaseHtmlView {
             $this->radius = $app->getUserState($context . 'radius');
             $this->display_type = $app->getUserState($context . 'display_type');
             $this->dayswitcher = $app->getUserState($context . 'dayswitcher');
-            $this->extra_filter = $app->getUserState($context . 'extra_filter');
             $this->show_cancelled = $app->getUserState($context . 'show_cancelled');
             $this->restrict_walks = $app->getUserState($context . 'restrict_walks');
             $this->limit = $app->getUserState($context . 'limit');

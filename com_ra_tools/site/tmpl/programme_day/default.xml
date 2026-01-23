@@ -87,10 +87,6 @@
                                 <option value="1">Yes</option>
                                 <option value="0">No</option>
                             </field>  
-                            <field name="extra_filter" 
-                                type="text" 
-                                label="Extra filters" 
-                                description="Additional filter criteria eg filterWalksDistance(5,10)"/>
                             <field name="show_cancelled" type="radio" default="0" label="Include cancelled walks">
                                 <option value="1">Yes</option>
                                 <option value="0">No</option>
