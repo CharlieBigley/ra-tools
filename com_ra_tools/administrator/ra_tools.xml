@@ -16,13 +16,13 @@
 <extension type="component" method="upgrade">
     <name>RA Tools</name>
     <element>com_ra_tools</element>
-    <creationDate>21 Jan 26</creationDate>
+    <creationDate>22 Jan 26</creationDate>
     <copyright>2024 Charlie Bigley</copyright>
     <license>GNU General Public License version 3 or later; see LICENSE.txt</license>
     <author>Charlie Bigley</author>
     <authorEmail>webmaster@bigley.me.uk</authorEmail>
     <authorUrl>https://staffordshireramblers.org</authorUrl>
-    <version>3.5.1</version>
+    <version>3.5.2</version>
     <description>Ramblers Tools and Utilities</description>
     <namespace path="src">Ramblers\Component\Ra_tools</namespace>
     
