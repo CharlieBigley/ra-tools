@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Download Code for Development</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 25px;
+        }
+        .step {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.2em;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>How to Download Code for Development</h1>
+    
+    <p>This guide explains how to download and prepare the ra-tools codebase for development. After cloning the repository, you may need to fetch the latest changes and set up your local environment.</p>
+
+    <h2>Prerequisites</h2>
+    <ul>
+        <li>Git installed and configured</li>
+        <li>The ra-tools repository cloned to your local machine</li>
+        <li>Terminal or command prompt access</li>
+    </ul>
+
+    <h2>Fetching the Latest Code</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 1:</span> Navigate to your local repository</p>
+        <div class="code-block">cd ~/git/ra-tools</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 2:</span> Check your current branch</p>
+        <div class="code-block">git branch</div>
+        <p>This will show all your local branches, with an asterisk (*) next to the current branch.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 3:</span> Ensure you're on the main branch</p>
+        <div class="code-block">git checkout main</div>
+        <p>This switches you to the main branch, which contains the stable codebase.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 4:</span> Fetch the latest changes from the remote repository</p>
+        <div class="code-block">git fetch origin</div>
+        <p>This downloads the latest changes from GitHub without modifying your local files.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 5:</span> Pull the latest changes</p>
+        <div class="code-block">git pull origin main</div>
+        <p>This merges the latest changes from the remote main branch into your local main branch.</p>
+    </div>
+
+    <div class="tip">
+        <strong>Tip:</strong> You can combine fetch and pull by simply running:
+        <div class="code-block">git pull</div>
+        <p>If you have the upstream configured, Git will automatically fetch and merge changes from the tracked remote branch.</p>
+    </div>
+
+    <h2>Understanding Repository Structure</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 6:</span> Explore the codebase structure</p>
+        <p>The ra-tools repository is organized as follows:</p>
+        <ul>
+            <li><code>com_ra_tools/</code> - The main Joomla component
+                <ul>
+                    <li><code>site/</code> - Frontend component files</li>
+                    <li><code>administrator/</code> - Backend administrator files</li>
+                    <li><code>media/</code> - CSS, JavaScript, and image assets</li>
+                </ul>
+            </li>
+            <li><code>mod_ra_tools/</code> - Joomla module files</li>
+            <li><code>build.sh</code> - Build script for packaging</li>
+            <li><code>setup-joomla-symlinks.sh</code> - Development setup script</li>
+        </ul>
+    </div>
+
+    <h2>Downloading Specific Versions or Tags</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 7:</span> List available tags (releases)</p>
+        <div class="code-block">git tag -l</div>
+        <p>This shows all tagged releases in the repository.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 8:</span> Checkout a specific tag or version</p>
+        <p>To work with a specific release:</p>
+        <div class="code-block">git checkout tags/v1.0.0</div>
+        <p>Replace <code>v1.0.0</code> with the actual tag name.</p>
+    </div>
+
+    <div class="warning">
+        <strong>Warning:</strong> Checking out a tag puts you in a "detached HEAD" state. This is fine for viewing code, but if you want to make changes, create a new branch first:
+        <div class="code-block">git checkout -b my-feature tags/v1.0.0</div>
+    </div>
+
+    <h2>Viewing Remote Branches</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 9:</span> List all branches (local and remote)</p>
+        <div class="code-block">git branch -a</div>
+        <p>This shows all local branches and remote branches (prefixed with <code>remotes/origin/</code>).</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 10:</span> Checkout a remote branch</p>
+        <p>To work with a branch that exists on GitHub but not locally:</p>
+        <div class="code-block">git checkout -b feature-branch origin/feature-branch</div>
+        <p>This creates a local branch that tracks the remote branch.</p>
+    </div>
+
+    <h2>Verifying Your Download</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 11:</span> Check repository status</p>
+        <div class="code-block">git status</div>
+        <p>Should show: "Your branch is up to date with 'origin/main'"</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 12:</span> View the commit history</p>
+        <div class="code-block">git log --oneline -10</div>
+        <p>This shows the last 10 commits in a condensed format.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 13:</span> Verify file integrity</p>
+        <p>List all files in the repository:</p>
+        <div class="code-block">ls -la</div>
+        <p>Or use Git to show tracked files:</p>
+        <div class="code-block">git ls-files</div>
+    </div>
+
+    <h2>Keeping Your Fork Updated (If Applicable)</h2>
+
+    <div class="note">
+        <strong>Note:</strong> If you forked the repository, you'll want to keep your fork synchronized with the original repository.
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 14:</span> Add the upstream repository</p>
+        <div class="code-block">git remote add upstream https://github.com/CharlieBigley/ra-tools.git</div>
+        <p>This adds the original repository as a remote called "upstream".</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 15:</span> Fetch from upstream</p>
+        <div class="code-block">git fetch upstream</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 16:</span> Merge upstream changes</p>
+        <div class="code-block">git checkout main<br>git merge upstream/main</div>
+        <p>This brings your local main branch up to date with the original repository.</p>
+    </div>
+
+    <h2>What's Next?</h2>
+    <p>With the latest code downloaded, you're ready to:</p>
+    <ul>
+        <li>Create a new branch for your changes</li>
+        <li>Start making modifications to the code</li>
+        <li>Test your changes locally</li>
+    </ul>
+
+    <h2>Troubleshooting</h2>
+
+    <h3>Merge Conflicts</h3>
+    <p>If you encounter merge conflicts when pulling:</p>
+    <ol>
+        <li>Git will mark the conflicted files</li>
+        <li>Open each file and resolve the conflicts (look for <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> markers)</li>
+        <li>After resolving, stage the files: <code>git add &lt;filename&gt;</code></li>
+        <li>Complete the merge: <code>git commit</code></li>
+    </ol>
+
+    <h3>Uncommitted Changes Preventing Pull</h3>
+    <p>If Git prevents you from pulling due to uncommitted changes:</p>
+    <div class="code-block">git stash<br>git pull<br>git stash pop</div>
+    <p>This temporarily stores your changes, pulls the updates, then reapplies your changes.</p>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Clone the ra-tools Repository</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 25px;
+        }
+        .step {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.2em;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>How to Clone the ra-tools Repository</h1>
+    
+    <p>Welcome to the ra-tools project! This guide will walk you through cloning the repository to your local machine, which is the first step in contributing to the project.</p>
+
+    <h2>Prerequisites</h2>
+    <ul>
+        <li>A GitHub account (sign up at <a href="https://github.com" target="_blank">github.com</a> if you don't have one)</li>
+        <li>Git installed on your computer (download from <a href="https://git-scm.com/downloads" target="_blank">git-scm.com</a>)</li>
+        <li>Basic familiarity with command line/terminal</li>
+    </ul>
+
+    <h2>Step-by-Step Instructions</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 1:</span> Open your terminal or command prompt</p>
+        <p>On Windows: Press <code>Win + R</code>, type <code>cmd</code>, and press Enter</p>
+        <p>On Mac: Press <code>Cmd + Space</code>, type <code>terminal</code>, and press Enter</p>
+        <p>On Linux: Press <code>Ctrl + Alt + T</code></p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 2:</span> Navigate to the directory where you want to store the repository</p>
+        <p>Use the <code>cd</code> command to navigate to your preferred location:</p>
+        <div class="code-block">cd ~/projects</div>
+        <p>Or create a new directory first:</p>
+        <div class="code-block">mkdir ~/git<br>cd ~/git</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 3:</span> Clone the repository</p>
+        <p>There are two methods to clone the repository:</p>
+        
+        <h3>Method 1: HTTPS (Recommended for beginners)</h3>
+        <div class="code-block">git clone https://github.com/CharlieBigley/ra-tools.git</div>
+        
+        <h3>Method 2: SSH (Recommended if you have SSH keys set up)</h3>
+        <div class="code-block">git clone git@github.com:CharlieBigley/ra-tools.git</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 4:</span> Navigate into the cloned repository</p>
+        <div class="code-block">cd ra-tools</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 5:</span> Verify the clone was successful</p>
+        <p>Check the repository status:</p>
+        <div class="code-block">git status</div>
+        <p>You should see a message indicating you're on the main branch with a clean working directory.</p>
+    </div>
+
+    <div class="note">
+        <strong>Note:</strong> If you plan to contribute to the project, you may want to fork the repository first on GitHub, then clone your fork instead. This allows you to push changes to your own copy before submitting a pull request.
+    </div>
+
+    <div class="tip">
+        <strong>Tip:</strong> To fork the repository, visit <a href="https://github.com/CharlieBigley/ra-tools" target="_blank">https://github.com/CharlieBigley/ra-tools</a>, click the "Fork" button in the top-right corner, then clone your forked repository using your GitHub username.
+    </div>
+
+    <h2>What's Next?</h2>
+    <p>Now that you have the repository cloned, you can:</p>
+    <ul>
+        <li>Configure your development environment (see "How to configure VS Code")</li>
+        <li>Download additional dependencies for development</li>
+        <li>Create a branch for your changes</li>
+    </ul>
+
+    <h2>Troubleshooting</h2>
+    <h3>Permission Denied Error</h3>
+    <p>If you get a permission error, make sure you have the necessary permissions to access the repository or use HTTPS instead of SSH.</p>
+
+    <h3>Git Not Recognized</h3>
+    <p>If you get a "git not recognized" error, ensure Git is properly installed and added to your system's PATH.</p>
+
+    <h3>Slow Clone Speed</h3>
+    <p>If the clone is very slow, check your internet connection or try cloning with <code>--depth 1</code> for a shallow clone:</p>
+    <div class="code-block">git clone --depth 1 https://github.com/CharlieBigley/ra-tools.git</div>
+</body>
+</html>
