@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Commit Changes Incrementally</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 25px;
+        }
+        .step {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.2em;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .best-practice {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>How to Incrementally Commit Changes to Your Branch</h1>
+    
+    <p>Making regular, incremental commits is a best practice in software development. It creates a clear history of your work, makes it easier to track down bugs, and allows you to revert specific changes if needed. This guide will show you how to effectively commit your changes to the ra-tools project.</p>
+
+    <h2>Why Commit Incrementally?</h2>
+    <ul>
+        <li><strong>Clear History:</strong> Each commit tells a story of what changed and why</li>
+        <li><strong>Easy Rollback:</strong> Revert specific changes without losing all your work</li>
+        <li><strong>Better Reviews:</strong> Reviewers can understand changes step-by-step</li>
+        <li><strong>Easier Debugging:</strong> Use <code>git bisect</code> to find when a bug was introduced</li>
+        <li><strong>Collaboration:</strong> Team members can follow your progress</li>
+    </ul>
+
+    <h2>Prerequisites</h2>
+    <ul>
+        <li>A branch created for your changes</li>
+        <li>Files modified, added, or deleted</li>
+        <li>Basic understanding of Git workflow</li>
+    </ul>
+
+    <h2>The Basic Commit Workflow</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 1:</span> Check the status of your working directory</p>
+        <div class="code-block">git status</div>
+        <p>This shows:</p>
+        <ul>
+            <li>Which files have been modified</li>
+            <li>Which files are staged for commit</li>
+            <li>Which files are untracked</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 2:</span> Review your changes</p>
+        <p>See what you've changed:</p>
+        <div class="code-block">git diff</div>
+        <p>This shows the exact line-by-line changes in unstaged files.</p>
+        <p>To see changes in a specific file:</p>
+        <div class="code-block">git diff path/to/file.php</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 3:</span> Stage files for commit</p>
+        <p>Add specific files:</p>
+        <div class="code-block">git add path/to/file.php</div>
+        <p>Add multiple files:</p>
+        <div class="code-block">git add file1.php file2.js file3.xml</div>
+        <p>Add all modified files in a directory:</p>
+        <div class="code-block">git add com_ra_tools/site/</div>
+        <p>Add all changes (use with caution):</p>
+        <div class="code-block">git add .</div>
+    </div>
+
+    <div class="warning">
+        <strong>Warning:</strong> Be careful with <code>git add .</code> as it stages all changes. Always review what you're staging with <code>git status</code> first.
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 4:</span> Review staged changes</p>
+        <p>Check what you're about to commit:</p>
+        <div class="code-block">git status</div>
+        <p>View the diff of staged changes:</p>
+        <div class="code-block">git diff --staged</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 5:</span> Commit your staged changes</p>
+        <p>Commit with a message:</p>
+        <div class="code-block">git commit -m "Add user authentication function"</div>
+        <p>For a more detailed commit message, use:</p>
+        <div class="code-block">git commit</div>
+        <p>This opens your default text editor for a multi-line message.</p>
+    </div>
+
+    <h2>Writing Good Commit Messages</h2>
+
+    <div class="best-practice">
+        <strong>Commit Message Best Practices:</strong>
+        <ul>
+            <li><strong>Use the imperative mood:</strong> "Add feature" not "Added feature"</li>
+            <li><strong>Keep the first line under 50 characters</strong></li>
+            <li><strong>Capitalize the first letter</strong></li>
+            <li><strong>Don't end with a period</strong></li>
+            <li><strong>Be specific and descriptive</strong></li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Good Examples:</span></p>
+        <div class="code-block">
+git commit -m "Fix login validation error"<br>
+git commit -m "Add export to CSV functionality"<br>
+git commit -m "Update user profile form layout"<br>
+git commit -m "Remove deprecated API calls"<br>
+git commit -m "Refactor database query methods"
+        </div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Bad Examples:</span></p>
+        <div class="code-block">
+git commit -m "fixed stuff"<br>
+git commit -m "updates"<br>
+git commit -m "WIP"<br>
+git commit -m "asdf"<br>
+git commit -m "Changes to the code."
+        </div>
+    </div>
+
+    <h2>Multi-line Commit Messages</h2>
+
+    <div class="step">
+        <p><span class="step-number">For Complex Changes:</span> Write detailed commit messages</p>
+        <p>Structure:</p>
+        <div class="code-block">
+Short summary (50 characters or less)<br>
+<br>
+More detailed explanatory text, if necessary. Wrap it to<br>
+about 72 characters. The blank line separating the summary<br>
+from the body is critical.<br>
+<br>
+- Bullet points are okay<br>
+- Use hyphens or asterisks for bullets<br>
+<br>
+Fixes #123
+        </div>
+    </div>
+
+    <h2>Staging Specific Parts of Files</h2>
+
+    <div class="step">
+        <p><span class="step-number">Advanced:</span> Stage partial changes (patch mode)</p>
+        <p>If you've made multiple changes to a file but only want to commit some:</p>
+        <div class="code-block">git add -p filename.php</div>
+        <p>Git will show each change and ask if you want to stage it:</p>
+        <ul>
+            <li><code>y</code> - stage this hunk</li>
+            <li><code>n</code> - don't stage this hunk</li>
+            <li><code>s</code> - split into smaller hunks</li>
+            <li><code>q</code> - quit</li>
+            <li><code>?</code> - help</li>
+        </ul>
+    </div>
+
+    <h2>Common Commit Scenarios</h2>
+
+    <div class="step">
+        <p><span class="step-number">Scenario 1:</span> Commit all modified tracked files</p>
+        <div class="code-block">git commit -a -m "Update all configuration files"</div>
+        <p>The <code>-a</code> flag automatically stages all modified and deleted files (but not new files).</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Scenario 2:</span> Amend the last commit</p>
+        <p>If you forgot to include a file or want to change the commit message:</p>
+        <div class="code-block">git add forgotten-file.php<br>git commit --amend</div>
+        <p>Or just change the message:</p>
+        <div class="code-block">git commit --amend -m "New commit message"</div>
+    </div>
+
+    <div class="warning">
+        <strong>Warning:</strong> Only amend commits that haven't been pushed yet. Amending pushed commits requires force-pushing and can cause problems for collaborators.
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Scenario 3:</span> Unstage files</p>
+        <p>If you staged a file by mistake:</p>
+        <div class="code-block">git reset HEAD filename.php</div>
+        <p>Or for all staged files:</p>
+        <div class="code-block">git reset HEAD</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Scenario 4:</span> Discard changes in a file</p>
+        <p>To revert a file to the last committed version:</p>
+        <div class="code-block">git checkout -- filename.php</div>
+        <p>Or using newer Git syntax:</p>
+        <div class="code-block">git restore filename.php</div>
+    </div>
+
+    <h2>Viewing Commit History</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 6:</span> View your commits</p>
+        <p>Show commit history:</p>
+        <div class="code-block">git log</div>
+        <p>Condensed one-line format:</p>
+        <div class="code-block">git log --oneline</div>
+        <p>Show last 5 commits:</p>
+        <div class="code-block">git log --oneline -5</div>
+        <p>Show commits with file changes:</p>
+        <div class="code-block">git log --stat</div>
+        <p>Show commits as a graph:</p>
+        <div class="code-block">git log --oneline --graph --all</div>
+    </div>
+
+    <h2>Example Incremental Workflow</h2>
+
+    <div class="step">
+        <p><span class="step-number">Complete Example:</span></p>
+        <div class="code-block">
+# Make some changes to files<br>
+# ...<br>
+<br>
+# Check what changed<br>
+git status<br>
+git diff<br>
+<br>
+# Stage specific files<br>
+git add com_ra_tools/site/controllers/export.php<br>
+git add com_ra_tools/site/views/export.php<br>
+<br>
+# Commit the export functionality<br>
+git commit -m "Add basic export controller and view"<br>
+<br>
+# Make more changes<br>
+# ...<br>
+<br>
+# Stage and commit CSS changes separately<br>
+git add com_ra_tools/media/css/export.css<br>
+git commit -m "Add styling for export page"<br>
+<br>
+# View your commits<br>
+git log --oneline -3
+        </div>
+    </div>
+
+    <h2>Best Practices for Incremental Commits</h2>
+
+    <div class="best-practice">
+        <strong>Guidelines:</strong>
+        <ul>
+            <li><strong>Commit early and often:</strong> Make small, focused commits</li>
+            <li><strong>One logical change per commit:</strong> Each commit should do one thing</li>
+            <li><strong>Test before committing:</strong> Ensure your code works</li>
+            <li><strong>Don't commit broken code:</strong> Each commit should leave the code in a working state</li>
+            <li><strong>Group related changes:</strong> Commit related files together</li>
+            <li><strong>Don't commit generated files:</strong> Use <code>.gitignore</code> for build artifacts</li>
+        </ul>
+    </div>
+
+    <div class="tip">
+        <strong>Tip:</strong> Think of each commit as a checkpoint in your work. If you need to go back, you can return to any commit. Make checkpoints at logical stopping points.
+    </div>
+
+    <h2>What's Next?</h2>
+    <p>After committing your changes locally, you can:</p>
+    <ul>
+        <li>Continue making more commits to your branch</li>
+        <li>Push your commits to GitHub</li>
+        <li>Create a pull request for code review</li>
+    </ul>
+
+    <h2>Troubleshooting</h2>
+
+    <h3>Nothing to Commit</h3>
+    <p>If Git says "nothing to commit, working tree clean", it means:</p>
+    <ul>
+        <li>All changes have been committed, or</li>
+        <li>No files have been modified</li>
+    </ul>
+
+    <h3>Commit the Wrong Files</h3>
+    <p>If you committed the wrong files (and haven't pushed yet):</p>
+    <div class="code-block">git reset --soft HEAD~1</div>
+    <p>This undoes the last commit but keeps your changes staged, allowing you to re-commit correctly.</p>
+
+    <h3>Forgot to Add a File</h3>
+    <p>If you forgot to include a file in your commit:</p>
+    <div class="code-block">git add forgotten-file.php<br>git commit --amend --no-edit</div>
+    <p>The <code>--no-edit</code> flag keeps the same commit message.</p>
+</body>
+</html>

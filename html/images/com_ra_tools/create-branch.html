@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Create a Branch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 25px;
+        }
+        .step {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.2em;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .best-practice {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>How to Create a Branch for Your Changes</h1>
+    
+    <p>Creating a branch is a crucial step in collaborative development. It allows you to work on new features or bug fixes without affecting the main codebase. This guide will show you how to create and work with branches in the ra-tools project.</p>
+
+    <h2>Why Create a Branch?</h2>
+    <ul>
+        <li><strong>Isolation:</strong> Your changes won't affect the main code until they're ready</li>
+        <li><strong>Organization:</strong> Each feature or fix gets its own branch</li>
+        <li><strong>Collaboration:</strong> Team members can review your changes before merging</li>
+        <li><strong>Safety:</strong> Easy to abandon or reset if something goes wrong</li>
+    </ul>
+
+    <h2>Prerequisites</h2>
+    <ul>
+        <li>The ra-tools repository cloned locally</li>
+        <li>Latest code downloaded from the main branch</li>
+        <li>Basic understanding of Git commands</li>
+    </ul>
+
+    <h2>Branch Naming Conventions</h2>
+    
+    <div class="best-practice">
+        <strong>Best Practice:</strong> Use descriptive branch names that indicate the purpose of the changes:
+        <ul>
+            <li><code>feature/user-authentication</code> - For new features</li>
+            <li><code>bugfix/fix-login-error</code> - For bug fixes</li>
+            <li><code>hotfix/security-patch</code> - For urgent fixes</li>
+            <li><code>docs/update-readme</code> - For documentation updates</li>
+            <li><code>refactor/cleanup-controllers</code> - For code refactoring</li>
+        </ul>
+    </div>
+
+    <h2>Creating a New Branch</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 1:</span> Navigate to your repository</p>
+        <div class="code-block">cd ~/git/ra-tools</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 2:</span> Ensure you're on the main branch</p>
+        <div class="code-block">git checkout main</div>
+        <p>This ensures you're creating your new branch from the latest stable code.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 3:</span> Update your main branch</p>
+        <div class="code-block">git pull origin main</div>
+        <p>This fetches and merges the latest changes from the remote repository.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 4:</span> Create and switch to a new branch</p>
+        <p>Use one of these methods:</p>
+        
+        <h3>Method 1: Create and checkout in one command (recommended)</h3>
+        <div class="code-block">git checkout -b feature/my-new-feature</div>
+        
+        <h3>Method 2: Create then checkout separately</h3>
+        <div class="code-block">git branch feature/my-new-feature<br>git checkout feature/my-new-feature</div>
+
+        <h3>Method 3: Using Git 2.23+ (newer syntax)</h3>
+        <div class="code-block">git switch -c feature/my-new-feature</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 5:</span> Verify you're on the new branch</p>
+        <div class="code-block">git branch</div>
+        <p>The asterisk (*) should appear next to your new branch name.</p>
+        <p>Or use:</p>
+        <div class="code-block">git status</div>
+        <p>This shows "On branch feature/my-new-feature" at the top.</p>
+    </div>
+
+    <h2>Working with Your Branch</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 6:</span> View all branches</p>
+        <p>To see all local branches:</p>
+        <div class="code-block">git branch</div>
+        <p>To see local and remote branches:</p>
+        <div class="code-block">git branch -a</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 7:</span> Switch between branches</p>
+        <p>To switch to an existing branch:</p>
+        <div class="code-block">git checkout branch-name</div>
+        <p>Or using newer syntax:</p>
+        <div class="code-block">git switch branch-name</div>
+    </div>
+
+    <div class="tip">
+        <strong>Tip:</strong> Use tab completion in your terminal! Type <code>git checkout</code> followed by the first few letters of a branch name, then press Tab to auto-complete.
+    </div>
+
+    <h2>Creating a Branch from a Specific Commit</h2>
+
+    <div class="step">
+        <p><span class="step-number">Advanced:</span> Create a branch from a specific commit</p>
+        <p>First, find the commit hash:</p>
+        <div class="code-block">git log --oneline</div>
+        <p>Then create a branch from that commit:</p>
+        <div class="code-block">git checkout -b my-branch-name abc1234</div>
+        <p>Replace <code>abc1234</code> with the actual commit hash.</p>
+    </div>
+
+    <h2>Example Workflow</h2>
+
+    <div class="step">
+        <p><span class="step-number">Example:</span> Creating a branch to add a new feature</p>
+        <div class="code-block">
+# Ensure you're on main and up to date<br>
+git checkout main<br>
+git pull origin main<br>
+<br>
+# Create and switch to new branch<br>
+git checkout -b feature/add-export-function<br>
+<br>
+# Verify you're on the new branch<br>
+git status<br>
+<br>
+# Output: On branch feature/add-export-function
+        </div>
+    </div>
+
+    <h2>Best Practices</h2>
+
+    <div class="best-practice">
+        <strong>Do's:</strong>
+        <ul>
+            <li>Always create a new branch for each feature or bug fix</li>
+            <li>Use descriptive, meaningful branch names</li>
+            <li>Start branches from an up-to-date main branch</li>
+            <li>Keep branches focused on a single purpose</li>
+            <li>Regularly commit your work to the branch</li>
+        </ul>
+    </div>
+
+    <div class="note">
+        <strong>Don'ts:</strong>
+        <ul>
+            <li>Don't work directly on the main branch</li>
+            <li>Don't use generic names like "test" or "temp"</li>
+            <li>Don't include multiple unrelated changes in one branch</li>
+            <li>Don't keep branches alive for too long without merging</li>
+        </ul>
+    </div>
+
+    <h2>Deleting a Branch</h2>
+
+    <div class="step">
+        <p><span class="step-number">When Done:</span> Delete a merged branch</p>
+        <p>After your changes are merged, you can delete the local branch:</p>
+        <div class="code-block">git branch -d feature/my-feature</div>
+        <p>To force delete an unmerged branch:</p>
+        <div class="code-block">git branch -D feature/my-feature</div>
+    </div>
+
+    <h2>What's Next?</h2>
+    <p>Now that you have a branch, you can:</p>
+    <ul>
+        <li>Make changes to files in the repository</li>
+        <li>Commit your changes incrementally</li>
+        <li>Push your branch to GitHub</li>
+        <li>Create a pull request for review</li>
+    </ul>
+
+    <h2>Troubleshooting</h2>
+
+    <h3>Uncommitted Changes Preventing Branch Switch</h3>
+    <p>If you have uncommitted changes, Git may prevent you from switching branches. Options:</p>
+    <ol>
+        <li>Commit your changes first</li>
+        <li>Stash your changes: <code>git stash</code></li>
+        <li>Force checkout (will lose changes): <code>git checkout -f branch-name</code></li>
+    </ol>
+
+    <h3>Branch Already Exists</h3>
+    <p>If the branch name already exists, you'll get an error. Either:</p>
+    <ul>
+        <li>Choose a different name</li>
+        <li>Delete the existing branch first: <code>git branch -d branch-name</code></li>
+        <li>Switch to the existing branch: <code>git checkout branch-name</code></li>
+    </ul>
+</body>
+</html>

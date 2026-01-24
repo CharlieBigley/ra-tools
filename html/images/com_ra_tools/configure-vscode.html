@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Configure VS Code for ra-tools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 25px;
+        }
+        .step {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.2em;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        ul {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>How to Configure VS Code for ra-tools Development</h1>
+    
+    <p>Visual Studio Code (VS Code) is a powerful, free code editor that works excellently with the ra-tools project. This guide will help you set it up for optimal development.</p>
+
+    <h2>Prerequisites</h2>
+    <ul>
+        <li>VS Code installed (download from <a href="https://code.visualstudio.com/" target="_blank">code.visualstudio.com</a>)</li>
+        <li>The ra-tools repository cloned to your local machine</li>
+        <li>Git installed and configured</li>
+    </ul>
+
+    <h2>Opening the Repository in VS Code</h2>
+
+    <div class="step">
+        <p><span class="step-number">Method 1:</span> Open from the command line</p>
+        <p>Navigate to the repository directory and open VS Code:</p>
+        <div class="code-block">cd ~/git/ra-tools<br>code .</div>
+        <p>The dot (<code>.</code>) tells VS Code to open the current directory.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Method 2:</span> Open from VS Code</p>
+        <ol>
+            <li>Launch VS Code</li>
+            <li>Click <strong>File > Open Folder</strong> (or <code>Ctrl+K Ctrl+O</code> on Windows/Linux, <code>Cmd+K Cmd+O</code> on Mac)</li>
+            <li>Navigate to the ra-tools directory</li>
+            <li>Click "Select Folder" or "Open"</li>
+        </ol>
+    </div>
+
+    <h2>Recommended VS Code Extensions</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 1:</span> Open the Extensions view</p>
+        <p>Click the Extensions icon in the sidebar (or press <code>Ctrl+Shift+X</code> / <code>Cmd+Shift+X</code>)</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 2:</span> Install recommended extensions for PHP and Joomla development</p>
+        <p>Search for and install these extensions:</p>
+        <ul>
+            <li><strong>PHP Intelephense</strong> - PHP language support and IntelliSense</li>
+            <li><strong>PHP Debug</strong> - Debug support for PHP</li>
+            <li><strong>GitLens</strong> - Enhanced Git capabilities</li>
+            <li><strong>EditorConfig</strong> - Maintain consistent coding styles</li>
+            <li><strong>Better Comments</strong> - Improve your code comments</li>
+            <li><strong>Prettier</strong> - Code formatter (optional but recommended)</li>
+        </ul>
+    </div>
+
+    <h2>Configure VS Code Settings for the Project</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 3:</span> Access workspace settings</p>
+        <ol>
+            <li>Press <code>Ctrl+,</code> (Windows/Linux) or <code>Cmd+,</code> (Mac) to open Settings</li>
+            <li>Click on "Workspace" tab at the top</li>
+            <li>This ensures your settings apply only to this project</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 4:</span> Configure file associations</p>
+        <p>Search for "files.associations" in settings and add:</p>
+        <div class="code-block">{<br>  "files.associations": {<br>    "*.xml": "xml",<br>    "*.php": "php"<br>  }<br>}</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 5:</span> Set up PHP validation</p>
+        <p>If you have PHP installed locally, configure the path:</p>
+        <ol>
+            <li>Search for "php.validate.executablePath" in settings</li>
+            <li>Set it to your PHP executable path (e.g., <code>/usr/bin/php</code> or <code>C:\php\php.exe</code>)</li>
+        </ol>
+    </div>
+
+    <h2>Configure Git Integration</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 6:</span> Verify Git integration</p>
+        <ol>
+            <li>Click the Source Control icon in the sidebar (or press <code>Ctrl+Shift+G</code> / <code>Cmd+Shift+G</code>)</li>
+            <li>You should see the ra-tools repository and its current status</li>
+            <li>If prompted, sign in to GitHub for enhanced integration</li>
+        </ol>
+    </div>
+
+    <div class="tip">
+        <strong>Tip:</strong> GitLens extension provides powerful Git features like:
+        <ul>
+            <li>Inline blame annotations showing who changed each line</li>
+            <li>File history and comparison tools</li>
+            <li>Branch comparison and management</li>
+        </ul>
+    </div>
+
+    <h2>Set Up Terminal Integration</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 7:</span> Open the integrated terminal</p>
+        <p>Press <code>Ctrl+`</code> (backtick) or go to <strong>Terminal > New Terminal</strong></p>
+        <p>The terminal automatically opens in your project's root directory, making it easy to run Git commands, build scripts, or tests.</p>
+    </div>
+
+    <h2>Explore the Project Structure</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 8:</span> Familiarize yourself with the codebase</p>
+        <p>Use the Explorer sidebar to navigate through:</p>
+        <ul>
+            <li><code>com_ra_tools/</code> - Main component directory</li>
+            <li><code>mod_ra_tools/</code> - Module directory</li>
+            <li><code>README.md</code> - Project overview</li>
+            <li><code>JOOMLA_DEVELOPMENT_SETUP.md</code> - Development setup guide</li>
+        </ul>
+    </div>
+
+    <div class="note">
+        <strong>Note:</strong> The ra-tools project is a Joomla component. Understanding Joomla's directory structure will help you navigate the code more effectively.
+    </div>
+
+    <h2>Quick Tips for Productivity</h2>
+    <ul>
+        <li>Use <code>Ctrl+P</code> / <code>Cmd+P</code> to quickly open files by name</li>
+        <li>Use <code>Ctrl+Shift+F</code> / <code>Cmd+Shift+F</code> to search across all files</li>
+        <li>Use <code>F12</code> to go to definition of a function or class</li>
+        <li>Use <code>Alt+Up/Down</code> to move lines of code up or down</li>
+        <li>Use multi-cursor editing with <code>Ctrl+D</code> / <code>Cmd+D</code> to select next occurrence</li>
+    </ul>
+
+    <h2>What's Next?</h2>
+    <p>With VS Code configured, you're ready to:</p>
+    <ul>
+        <li>Download additional code for development</li>
+        <li>Create a branch for your changes</li>
+        <li>Start making contributions to the project</li>
+    </ul>
+</body>
+</html>

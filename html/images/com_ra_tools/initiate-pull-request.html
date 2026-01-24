@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Initiate a Pull Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 25px;
+        }
+        .step {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step-number {
+            font-weight: bold;
+            color: #3498db;
+            font-size: 1.2em;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .best-practice {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .checklist {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>How to Initiate a Pull Request</h1>
+    
+    <p>A pull request (PR) is how you propose your changes to be merged into the main codebase. It's a crucial part of the collaborative development process, allowing maintainers and other contributors to review your code before it's integrated. This guide will walk you through creating a pull request for the ra-tools project.</p>
+
+    <h2>What is a Pull Request?</h2>
+    <p>A pull request is a formal request to merge changes from your branch into another branch (typically <code>main</code>). It provides:</p>
+    <ul>
+        <li><strong>Code Review:</strong> Others can review your changes and provide feedback</li>
+        <li><strong>Discussion:</strong> A place to discuss implementation details</li>
+        <li><strong>Quality Control:</strong> Ensures changes meet project standards</li>
+        <li><strong>Documentation:</strong> Creates a record of what changed and why</li>
+    </ul>
+
+    <h2>Prerequisites</h2>
+    <ul>
+        <li>Changes committed to a branch</li>
+        <li>Branch pushed to GitHub</li>
+        <li>A clear understanding of what your changes accomplish</li>
+    </ul>
+
+    <h2>Pre-Pull Request Checklist</h2>
+
+    <div class="checklist">
+        <p>Before creating a pull request, ensure:</p>
+        <ul>
+            <li>☐ All changes are committed</li>
+            <li>☐ Code has been tested locally</li>
+            <li>☐ No debug code or console.log statements remain</li>
+            <li>☐ Code follows the project's style guidelines</li>
+            <li>☐ Branch is up to date with main branch</li>
+            <li>☐ All tests pass (if applicable)</li>
+            <li>☐ Documentation is updated (if needed)</li>
+        </ul>
+    </div>
+
+    <h2>Creating a Pull Request on GitHub</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 1:</span> Navigate to the repository on GitHub</p>
+        <p>Go to: <a href="https://github.com/CharlieBigley/ra-tools" target="_blank">https://github.com/CharlieBigley/ra-tools</a></p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 2:</span> Find the "Compare & pull request" button</p>
+        <p>After pushing your branch, GitHub typically shows a yellow banner at the top of the page with a "Compare & pull request" button. Click it.</p>
+        <p>If you don't see the banner:</p>
+        <ol>
+            <li>Click the "Pull requests" tab</li>
+            <li>Click the green "New pull request" button</li>
+            <li>Select your branch from the "compare" dropdown</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 3:</span> Select the base and compare branches</p>
+        <ul>
+            <li><strong>Base branch:</strong> The branch you want to merge INTO (usually <code>main</code>)</li>
+            <li><strong>Compare branch:</strong> Your feature branch with the changes</li>
+        </ul>
+        <p>Ensure the arrow points from your branch to the base branch:</p>
+        <div class="code-block">base: main ← compare: feature/my-feature</div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 4:</span> Review the changes</p>
+        <p>Scroll down to see the diff of all changes included in the pull request. This shows:</p>
+        <ul>
+            <li>Files changed</li>
+            <li>Lines added (in green)</li>
+            <li>Lines removed (in red)</li>
+        </ul>
+        <p>Make sure only intended changes are included.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 5:</span> Write a descriptive title</p>
+        <p>The title should clearly summarize what the PR does.</p>
+        
+        <h3>Good Examples:</h3>
+        <ul>
+            <li>"Add CSV export functionality to reports"</li>
+            <li>"Fix login validation error for special characters"</li>
+            <li>"Update user profile page layout"</li>
+            <li>"Refactor database connection handling"</li>
+        </ul>
+        
+        <h3>Bad Examples:</h3>
+        <ul>
+            <li>"Updates"</li>
+            <li>"Fix bug"</li>
+            <li>"Changes"</li>
+            <li>"WIP"</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 6:</span> Write a detailed description</p>
+        <p>The description should explain:</p>
+        <ul>
+            <li><strong>What:</strong> What changes were made?</li>
+            <li><strong>Why:</strong> Why were these changes necessary?</li>
+            <li><strong>How:</strong> How do the changes work?</li>
+            <li><strong>Testing:</strong> How were the changes tested?</li>
+        </ul>
+    </div>
+
+    <h2>Pull Request Description Template</h2>
+
+    <div class="best-practice">
+        <strong>Template:</strong>
+        <div class="code-block">
+## Description<br>
+Brief summary of the changes.<br>
+<br>
+## Motivation<br>
+Why are these changes needed? What problem do they solve?<br>
+<br>
+## Changes Made<br>
+- Added export to CSV functionality<br>
+- Updated export controller to handle different formats<br>
+- Added new CSS styles for export page<br>
+<br>
+## Testing<br>
+- Tested CSV export with sample data<br>
+- Verified format compatibility with Excel<br>
+- Tested on multiple browsers<br>
+<br>
+## Screenshots (if applicable)<br>
+![Export page screenshot](url-to-image)<br>
+<br>
+## Related Issues<br>
+Fixes #123<br>
+Related to #456
+        </div>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 7:</span> Link related issues</p>
+        <p>If your PR addresses an issue, reference it in the description:</p>
+        <ul>
+            <li><code>Fixes #123</code> - Automatically closes issue #123 when the PR is merged</li>
+            <li><code>Closes #123</code> - Same as "Fixes"</li>
+            <li><code>Resolves #123</code> - Same as "Fixes"</li>
+            <li><code>Related to #456</code> - Links to the issue without closing it</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 8:</span> Assign reviewers (if applicable)</p>
+        <p>If you know who should review your code:</p>
+        <ol>
+            <li>Click "Reviewers" on the right sidebar</li>
+            <li>Select the appropriate reviewers</li>
+            <li>They'll be notified of your pull request</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 9:</span> Add labels (if applicable)</p>
+        <p>Labels help categorize pull requests:</p>
+        <ul>
+            <li><code>enhancement</code> - New features</li>
+            <li><code>bug</code> - Bug fixes</li>
+            <li><code>documentation</code> - Documentation changes</li>
+            <li><code>refactor</code> - Code refactoring</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 10:</span> Create the pull request</p>
+        <p>When everything looks good, click the green "Create pull request" button.</p>
+    </div>
+
+    <h2>After Creating the Pull Request</h2>
+
+    <div class="step">
+        <p><span class="step-number">Step 11:</span> Monitor for feedback</p>
+        <p>Watch for:</p>
+        <ul>
+            <li>Comments from reviewers</li>
+            <li>Automated test results (CI/CD)</li>
+            <li>Merge conflicts</li>
+            <li>Requested changes</li>
+        </ul>
+        <p>You'll receive email notifications for activity on your PR.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 12:</span> Respond to feedback</p>
+        <p>If reviewers request changes:</p>
+        <ol>
+            <li>Make the requested changes in your local branch</li>
+            <li>Commit the changes: <code>git commit -m "Address review feedback"</code></li>
+            <li>Push to GitHub: <code>git push</code></li>
+            <li>The PR will automatically update with your new commits</li>
+        </ol>
+    </div>
+
+    <div class="tip">
+        <strong>Tip:</strong> Respond to reviewer comments even if you make the requested changes. A simple "Done" or "Fixed in commit abc1234" helps reviewers track the conversation.
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Step 13:</span> Request re-review</p>
+        <p>After addressing feedback:</p>
+        <ol>
+            <li>Click the circular arrow icon next to the reviewer's name</li>
+            <li>This notifies them that you've made changes</li>
+            <li>They can review the updates</li>
+        </ol>
+    </div>
+
+    <h2>Handling Merge Conflicts</h2>
+
+    <div class="note">
+        <strong>If your PR has merge conflicts:</strong>
+        <p>This means changes in the base branch conflict with your changes.</p>
+    </div>
+
+    <div class="step">
+        <p><span class="step-number">Resolution:</span> Update your branch with the latest main</p>
+        <div class="code-block">
+# From your feature branch<br>
+git checkout feature/my-feature<br>
+<br>
+# Fetch latest changes<br>
+git fetch origin<br>
+<br>
+# Merge main into your branch<br>
+git merge origin/main<br>
+<br>
+# Or rebase (alternative approach)<br>
+git rebase origin/main<br>
+<br>
+# Resolve any conflicts, then:<br>
+git add .<br>
+git commit -m "Resolve merge conflicts"<br>
+git push
+        </div>
+    </div>
+
+    <h2>Draft Pull Requests</h2>
+
+    <div class="tip">
+        <strong>Using Draft PRs:</strong>
+        <p>If your work isn't ready for review but you want to share progress:</p>
+        <ol>
+            <li>Click the dropdown arrow next to "Create pull request"</li>
+            <li>Select "Create draft pull request"</li>
+            <li>This signals the PR isn't ready for merging</li>
+            <li>When ready, click "Ready for review"</li>
+        </ol>
+    </div>
+
+    <h2>Pull Request Best Practices</h2>
+
+    <div class="best-practice">
+        <strong>Guidelines:</strong>
+        <ul>
+            <li><strong>Keep PRs focused:</strong> One feature or fix per PR</li>
+            <li><strong>Small and reviewable:</strong> Aim for PRs under 400 lines of changes</li>
+            <li><strong>Clear communication:</strong> Write descriptive titles and descriptions</li>
+            <li><strong>Be responsive:</strong> Address feedback promptly</li>
+            <li><strong>Test thoroughly:</strong> Ensure your changes work before creating the PR</li>
+            <li><strong>Stay professional:</strong> Be courteous in discussions</li>
+            <li><strong>Update regularly:</strong> Keep your branch up to date with main</li>
+        </ul>
+    </div>
+
+    <h2>What Happens Next?</h2>
+
+    <p>After creating your pull request:</p>
+    <ol>
+        <li><strong>Review:</strong> Maintainers will review your code</li>
+        <li><strong>Discussion:</strong> There may be questions or suggestions</li>
+        <li><strong>Revision:</strong> You may need to make changes</li>
+        <li><strong>Approval:</strong> Reviewers approve when satisfied</li>
+        <li><strong>Merge:</strong> A maintainer merges your PR into the main branch</li>
+        <li><strong>Cleanup:</strong> You can delete your feature branch</li>
+    </ol>
+
+    <h2>Viewing Your Pull Requests</h2>
+
+    <div class="step">
+        <p>To see all your pull requests:</p>
+        <ol>
+            <li>Go to the repository on GitHub</li>
+            <li>Click the "Pull requests" tab</li>
+            <li>Filter by author: <code>is:pr author:@me</code></li>
+        </ol>
+    </div>
+
+    <h2>Closing a Pull Request</h2>
+
+    <div class="step">
+        <p>If you need to close a PR without merging:</p>
+        <ol>
+            <li>Open the pull request</li>
+            <li>Scroll to the bottom</li>
+            <li>Click "Close pull request"</li>
+            <li>Optionally add a comment explaining why</li>
+        </ol>
+    </div>
+
+    <h2>Congratulations!</h2>
+
+    <p>You've learned how to create and manage pull requests! This is a key skill in collaborative software development. Your contributions to the ra-tools project are valuable and appreciated.</p>
+
+    <div class="tip">
+        <strong>Remember:</strong> Every contributor was once a beginner. Don't be afraid to ask questions, and welcome feedback as an opportunity to learn and improve your skills.
+    </div>
+
+    <h2>Additional Resources</h2>
+    <ul>
+        <li><a href="https://docs.github.com/en/pull-requests" target="_blank">GitHub Pull Request Documentation</a></li>
+        <li><a href="https://www.conventionalcommits.org/" target="_blank">Conventional Commits (commit message guidelines)</a></li>
+        <li><a href="https://github.com/CharlieBigley/ra-tools/blob/main/CONTRIBUTING.md" target="_blank">ra-tools Contributing Guide (if available)</a></li>
+    </ul>
+</body>
+</html>
