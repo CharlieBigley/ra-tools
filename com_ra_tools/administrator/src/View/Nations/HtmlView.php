@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    CVS: 3.0.0
+ * @version    3.5.3
  * @package    com_ra_tools
  * @author     Charlie Bigley <webmaster@bigley.me.uk>
  * @copyright  2024 Charlie Bigley

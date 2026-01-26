@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="build" label="COM_RA_TOOLS_FORM_BUILD">
+        <field
+            name="component"
+            type="list"
+            label="Component"
+            description="Choose the component to build."
+            required="true"
+        >
+            <option value="">-- Select a component --</option>
+            <option value="com_ra_events">com_ra_events</option>
+            <option value="com_ra_mailman">com_ra_mailman</option>
+            <option value="com_ra_tools">com_ra_tools</option>
+            <option value="com_ra_walks">com_ra_walks</option>
+        </field>
+
+        <field
+            name="version"
+            type="text"
+            label="Version"
+            description="Version as specified in the manifest file."
+            required="true"
+            pattern="\d+\.\d+\.\d+"
+            placeholder="e.g., 3.5.1"
+        />
+    </fieldset>
+</form>
