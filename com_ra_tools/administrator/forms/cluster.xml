@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <field name="id" type="hidden" />
+    <fieldset name="basic">
+        <field name="code" type="text" label="Code" description="Two or three alpha characters" required="true"
+            filter="string" size="3" maxlength="3"
+            validate="regex" pattern="^[A-Za-z]{2,3}$"
+            hint="Enter 2 or 3 letters">
+            <filter>uppercase</filter>
+        </field>
+        <field name="name" type="text" label="Name" description="Up to 50 characters, alpha or space" required="true"
+            filter="string" size="50" maxlength="50"
+            validate="regex" pattern="^[A-Za-z ]{1,50}$"
+            hint="Enter name">
+            <filter>ucfirst</filter>
+        </field>
+        <field name="contact_id" type="sql" label="Contact" description="Select contact" required="true"
+            query="SELECT id AS value, name AS text FROM #__contact_details WHERE published=1 ORDER BY name ASC"
+            key_field="value" text_field="text">
+            <option value="">Select Contact</option>
+        </field>
+        <field name="area_list" type="text" label="Area List" description="Comma delimited two character alpha codes" required="true"
+            filter="string" size="100" maxlength="100"
+            validate="regex" pattern="^([A-Za-z]{2},)*[A-Za-z]{2}$"
+            hint="E.g. AB,CD,EF">
+            <filter>uppercase</filter>
+        </field>
+        <field name="website" type="url" label="Website" description="Valid URL" required="false" />
+    </fieldset>
+</form>

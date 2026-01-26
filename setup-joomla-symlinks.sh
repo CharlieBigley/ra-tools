@@ -26,8 +26,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-MAMP_ROOT="/Applications/MAMP/htdocs"
-GIT_ROOT="/Users/charlie/git/ra-tools"
+MAMP_ROOT="/htdocs"
+GIT_ROOT="/git/ra-tools"
 COMPONENT_NAME="com_ra_tools"
 MANIFEST_NAME="ra_tools"
 
