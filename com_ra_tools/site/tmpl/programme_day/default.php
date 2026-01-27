@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     4.3.2
+ * @version     3.5.3
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2021. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -15,6 +15,9 @@
  * 22/01/24 CB use LookaheadWeeks
  * 13/04/24 CB correct spelling of responsive
  * 13/10/25 CB Don't allow restrict by number
+ * 19/01/26 CB Changes to implement new radius selection
+ * 20/01/26 CB show radius distance as miles
+ * 22/01/26 CB show extra_filter
  */
 // No direct access
 defined('_JEXEC') or die;
@@ -23,11 +26,7 @@ use Joomla\CMS\Date\Date;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\Uri\Uri;
-use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 
-//use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
-
-$objHelper = new ToolsHelper;
 // Load the component params
 //echo "Displaying $this->display_type for $this->group, day=$this->day, intro=$this->intro<br>";
 if ($this->intro != '') {
@@ -35,37 +34,47 @@ if ($this->intro != '') {
 }
 // Generate the seven entries at the top of the page, as a table with a single row
 // The current day is shown in bold, others as buttons
-//echo '<table style="margin-right: auto; margin-left: auto;">';
-echo '<div class="table-responsive">' . PHP_EOL;
-echo '<table>';
-echo "<tr>";
-$week = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-for ($i = 0;
-        $i < 7;
-        $i++) {
-    echo "<td>";
-    $weekday = $week[$i];
-    $target = 'index.php?option=com_ra_tools&view=programme_day&day=' . $weekday . '&Itemid=' . $this->menu_id;
+if ($this->dayswitcher == '1') {
+    //echo '<table style="margin-right: auto; margin-left: auto;">';
+    echo '<div class="table-responsive">' . PHP_EOL;
+    echo '<table>';
+    echo "<tr>";
+    $week = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+    for ($i = 0;
+            $i < 7;
+            $i++) {
+        echo "<td>";
+        $weekday = $week[$i];
+        $target = 'index.php?option=com_ra_tools&view=programme_day&day=' . $weekday . '&Itemid=' . $this->menu_id;
 
-//    $link = URI::base() . $target;
-    $link = $target;
-    if ($this->day == $weekday) {
-        echo '<b>' . $this->day . '<b>';
-    } else {
-        if ($i < 5) {
-            $colour = 'p7474';
+    //    $link = URI::base() . $target;
+        $link = $target;
+        if ($this->day == $weekday) {
+            echo '<b>' . $this->day . '<b>';
         } else {
-            $colour = 'p0555';
+            if ($i < 5) {
+                $colour = 'p7474';
+            } else {
+                $colour = 'p0555';
+            }
+            echo $this->toolsHelper->buildLink($link, $weekday, False, "link-button button-" . $colour);
         }
-//echo $objHelper->buildLink($target . $weekday, $weekday, False, "link-button button-" . $colour);
-        echo $objHelper->buildLink($link, $weekday, False, "link-button button-" . $colour);
+        echo "</td>";
     }
-    echo "</td>";
+    echo "</tr>";
+    echo "</table>";
+    echo '</div>' . PHP_EOL;    // table-responsive
 }
-echo "</tr>";
-echo "</table>";
-echo '</div>' . PHP_EOL;    // table-responsive
-$options = new RJsonwalksFeedoptions($this->group);
+
+// Handle filter type - group or radius
+if ($this->filter_type == 'group') {
+    $options = new RJsonwalksFeedoptions($this->group);
+} else {
+    // filter_type = radius
+    $item = $this->toolsHelper->getItem('SELECT latitude, longitude from #__ra_groups where code="' . $this->group . '"');
+    $options = new RJsonwalksFeedoptions();
+    $options->addWalksManagerGroupsInArea($item->latitude,$item->longitude,$this->radius);
+}
 $objFeed = new RJsonwalksFeed($options);
 
 if ($this->show_cancelled == '0') {
@@ -128,14 +137,22 @@ $objFeed->Display($display);           // display walks information
 if (($this->show_criteria == '2')
         OR (($this->show_criteria == '1') AND ($this->user->id > 0))) {
 
-    echo "group=" . $this->group;
+    if ($this->filter_type == 'radius') {
+        echo "Within " . $this->radius . " miles of " . $this->group;
+        // Link to view the circle map
+        $target = 'index.php?option=com_ra_tools&view=misc&layout=circle&group=' . $this->group . '&radius=' . $this->radius;
+        echo $this->toolsHelper->imageButton('I',$target,true);    
+    } else {        
+        echo "Group=" . $this->group;
+    }
+    echo ", day=" . $this->day;
     if ($this->restrict_walks == "2") {
         if ($this->lookahead_weeks > "0") {
             echo ', Dates from ' . date_format($datefrom, 'd/m/Y') . ' to ' . date_format($dateto, 'd/m/Y');
         }
     } else {
         if ($this->limit > 0) {
-            echo ', limit=' . $this->limit;
+            echo ', Limit=' . $this->limit;
         }
     }
 //    if (JDEBUG) {

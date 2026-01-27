@@ -7,6 +7,7 @@
  * 15/09/25 CB version 3.4.0 - add title to ra_api_sites
  * 17/10/25 CB message if unable to delete file/folder
  * 03/11/25 CB use built in function to delete files and folders (3.4.5)
+ * 21/01/26 CB 3.5.1 correct ra_emails addressee_email
  */
 
 \defined('_JEXEC') or die;
@@ -31,7 +32,7 @@ class Com_Ra_toolsInstallerScript {
     private $minimumJoomlaVersion = '4.0';
     private $minimumPHPVersion = JOOMLA_MINIMUM_PHP;
     private $reconfigure_message;
-    private $required_version;
+    private $version_required;
 
     function buildButton($url, $text, $newWindow = 0, $colour = '') {
         if ($colour == '') {
@@ -240,7 +241,7 @@ class Com_Ra_toolsInstallerScript {
             return true;
         }
         echo '<p>com_ra_tools is now at ' . $this->getVersion() . '</p>';
-        $this->removeFiles();
+//        $this->removeFiles();
         if ($reconfigure_message == true) {
             echo '<p>Version was originally ' . $this->current_version . ', ';
             echo 'Requires version >= ' . $this->version_required . '</p>';
@@ -283,7 +284,7 @@ class Com_Ra_toolsInstallerScript {
         if ($type == 'install') {
             return true;
         }
-        $this->version_required = '3.4.3';
+        $this->version_required = '3.5.1';
         $reconfigure_message = false;
         $this->deleteFiles[] = 'components/com_ra_tools/tmpl/emailform/default.xml';
         if (version_compare($this->current_version, $this->version_required, 'ge')) {
@@ -291,6 +292,10 @@ class Com_Ra_toolsInstallerScript {
         } else {
             echo '<p>Version was originally ' . $this->current_version . ', ';
             echo 'Requires version >= ' . $this->version_required . '</p>';
+            if (version_compare($this->current_version, '3.5.2', 'le')) {
+                $this->checkColumn('ra_emails', 'addressee_email', 'U','TEXT; ');
+                $this->checkColumn('ra_clusters', 'website', 'A', 'VARCHAR(100) NOT NULL AFTER area_list; ');
+            }
             if (version_compare($this->current_version, '3.4.2', 'le')) {
                 $this->checkColumn('ra_emails', 'ref', 'A', 'INT DEFAULT "0" AFTER `record_type`;');
                 $this->checkColumn('ra_emails', 'sender_name', 'A', 'VARCHAR(100) NOT NULL DEFAULT "0" AFTER date_sent; ');

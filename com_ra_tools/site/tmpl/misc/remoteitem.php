@@ -19,7 +19,6 @@ use Joomla\CMS\Factory;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 
 defined('_JEXEC') or die;
-$toolsHelper = new ToolsHelper;
 
 //echo '<h2>' . $this->params->get('page_title') . '</h2>';
 
@@ -34,7 +33,7 @@ $show_details = $this->menu_params->get('show_details', '');
 
 $sql = 'SELECT url,token,colour FROM #__ra_api_sites ';
 $sql .= 'WHERE id=' . $site_id;
-$site = $toolsHelper->getItem($sql);
+$site = $this->toolsHelper->getItem($sql);
 
 $website = $site->url;
 $token = $site->token;
@@ -115,6 +114,6 @@ if (!$modified == '') {
 echo'</div>';
 if ($show_details == 'Y') {
     echo "<i>(Showing article $id from ";
-    echo $toolsHelper->buildLink($website, $website, true);
+    echo $this->toolsHelper->buildLink($website, $website, true);
     echo ')</i><br>';
 }

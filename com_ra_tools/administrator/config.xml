@@ -33,7 +33,7 @@
                 required="true"
                 hint="https://xxxramblers.org.uk"/>
     </fieldset>
-    <fieldset name="walks" label="Walks">
+    <fieldset name="walks" label="Group Walks">
         <field 
             name="note1" 
             type="note" 
@@ -90,7 +90,7 @@
     </fieldset>
     <fieldset name="emails" label="Email logging">
         <field 
-            name="note2" 
+            name="note3" 
             type="note" 
             label="This is for diagnostic purposes only, and should be used with caution. Four modes are available:"
         />

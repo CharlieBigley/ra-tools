@@ -12,6 +12,7 @@
 # 09/04/25 CB added ra_logfile
 # 26/05/25 CB added ra_emails
 # 07/07/25 CB added ra_apisites
+# 23/01/26 CB changed clusters and email
 #-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__ra_api_sites` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -67,11 +68,13 @@ CREATE TABLE IF NOT EXISTS `#__ra_areas` (
 # ------------------------------------------------------------------------------
 DROP TABLE IF EXISTS `#__ra_clusters`;
 CREATE TABLE  `#__ra_clusters` (
+    `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(3) NOT NULL,
     `name` VARCHAR(20) NOT NULL,
     `contact_id` INT NULL,
     `area_list` VARCHAR(255)  NULL,
-PRIMARY KEY (`code`)
+    `website` VARCHAR(100)  NULL,
+PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 INSERT INTO `#__ra_clusters`(code, name,area_list) values 
     ('ME','Midlands and East','BF,LI,NP,NR,NE,SS,NS,WO,CH,DE'),
@@ -88,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `#__ra_emails` (
     `ref` INT  DEFAULT "0", 
     `date_sent` VARCHAR(20)  NULL  DEFAULT "",
     `sender_name` VARCHAR(100)  NULL  DEFAULT "",
-    `sender_email` VARCHAR(100)  NULL  DEFAULT "",
+    `sender_email` TEXT DEFAULT "",
     `addressee_name` VARCHAR(100)  NULL  DEFAULT "",
     `addressee_email` TEXT,
     `title` VARCHAR(100)  NOT NULL ,

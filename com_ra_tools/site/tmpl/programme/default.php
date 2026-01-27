@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     5.1.4
+ * @version     3.5.3
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2021. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -17,6 +17,9 @@
  * 04/07/24 CB table-responsive
  * 03/11/24 CB only allow future leaders
  * 16/12/24 CB show selection criteria
+ * 19/01/26 CB Changes to implement new radius selection
+ * 20/11/26 CB show radius distance as miles
+ * 22/01/26 CB extra_filter
  */
 // No direct access
 defined('_JEXEC') or die;
@@ -26,14 +29,21 @@ use Joomla\CMS\Factory;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
 
-$objHelper = new ToolsHelper;
+$toolsHelper = new ToolsHelper;
 
 // If code is for an Area, expand into list of Groups
-if (strlen($this->group) == 2) {
-    $this->group = $objHelper->expandArea($this->group);
-}
+if ($this->filter_type == 'group') {
+    if (strlen($this->group) == 2) {
+        $this->group = $toolsHelper->expandArea($this->group);
+    }
 
-$options = new RJsonwalksFeedoptions($this->group);
+    $options = new RJsonwalksFeedoptions($this->group);
+} else {
+    // filter_type = radius
+    $item = $toolsHelper->getItem('SELECT latitude, longitude from #__ra_groups where code="' . $this->group . '"');
+    $options = new RJsonwalksFeedoptions();
+    $options->addWalksManagerGroupsInArea($item->latitude,$item->longitude,$this->radius);
+}
 $objFeed = new RJsonwalksFeed($options);
 //if ((strlen($this->group) == 4) AND ($this->show_cancelled == '0')) {
 if ($this->show_cancelled == '0') {
@@ -117,16 +127,23 @@ if ($group_type == "list") {
 
 $display->displayGradesIcon = false;
 $display->emailDisplayFormat = 2;      // don't show actual email addresses
+
 echo '<div class="table-responsive">' . PHP_EOL;
 $objFeed->Display($display);           // display walks information
-echo '</div>' . PHP_EOL;    // table-responsive
+echo '</div>' . PHP_EOL;               // table-responsive
 
 if (($this->show_criteria == '2')
         OR (($this->show_criteria == '1') AND ($this->user->id > 0))) {
-
-    echo "group=" . $this->group;
+    if ($this->filter_type == 'radius') {
+        echo "Within " . $this->radius . " miles of " . $this->group;
+        // Link to view the circle map
+        $target = 'index.php?option=com_ra_tools&view=misc&layout=circle&group=' . $this->group . '&radius=' . $this->radius;
+        echo $toolsHelper->imageButton('I',$target,true);    
+    } else {        
+        echo "Group=" . $this->group;
+    }
     if ($this->limit > 0) {
-        echo ', limit=' . $this->limit;
+        echo ', Limit=' . $this->limit;
     }
     if ($this->lookahead_weeks > "0") {
         echo ', Dates from ' . date_format($datefrom, 'd/m/Y') . ' to ' . date_format($dateto, 'd/m/Y');
@@ -135,14 +152,8 @@ if (($this->show_criteria == '2')
     /*
       if (JDEBUG) {
       echo "display_type $this->display_type<br>";
-      echo "group $this->group";
       echo ", restrict_walks $this->restrict_walks";
-      echo ", limit $this->limit";
-      echo ", lookahead_weeks $this->lookahead_weeks";
       echo ", show_cancelled $this->show_cancelled<br>";
-      }
-      if ((strlen($this->group) == 4) AND ($this->filter_radius > "0")) {
-      echo ', within ' . $this->filter_radius . ' kms of the centre of the group';
       }
      *
      */

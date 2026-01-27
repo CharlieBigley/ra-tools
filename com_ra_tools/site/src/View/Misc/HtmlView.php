@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     4.1.3
+ * @version     3.5.1
  * @package     com_ra_tools
  *
  * @copyright   Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
@@ -13,6 +13,7 @@
  * 16/12/24 CB use getIdentity, not getUser
  * 23/12/24 CB reverted to getUser
  * 02/01/25 CB allow expansion of sub-folders
+ * 19/01/26 CB Changes to implement new radius selection
  */
 
 namespace Ramblers\Component\Ra_tools\Site\View\Misc;
@@ -37,13 +38,13 @@ class HtmlView extends BaseHtmlView {
     protected $state;
     protected $title;
     protected $user;
+    protected$toolsHelper;
     // for folderlist
     protected $root; // default, root directory before sub-folders
     protected $level;
     protected $working_folder;
 
     public function display($tpl = null) {
-        echo "<!-- Start of code from " . __FILE__ . ' -->';
         $this->app = Factory::getApplication();
         //$this->user = Factory::getApplication()->loadIdentity();
         $this->user = Factory::getUser();
@@ -72,8 +73,8 @@ class HtmlView extends BaseHtmlView {
         } else {
             $this->working_folder = $this->app->getUserState('com_ra_tools.docs' . $this->level);
         }
-        $this->objHelper = new ToolsHelper;
-        $this->canDo = $this->objHelper->getActions('com_ra_tools');
+        $this->toolsHelper = new ToolsHelper;
+        $this->canDo = $this->toolsHelper->getActions('com_ra_tools');
 
         $wa = $this->document->getWebAssetManager();
         $wa->useScript('keepalive')

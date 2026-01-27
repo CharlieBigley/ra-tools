@@ -26,7 +26,6 @@ use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 echo '<h2>' . $this->params->get('page_title') . '</h2>';
 
 $app = Factory::getApplication();
-$objHelper = new ToolsHelper;
 $sort = $this->menu_params->get('sort', 'ASC');
 $intro = $this->menu_params->get('page_intro', '');
 //$target_folder = $this->menu_params->get('target_folder', '');
@@ -96,7 +95,7 @@ if ($depth > 2) {
     /*
      * originally, planned to create "breadcrumbs", with a link to each higher level
       $folder_list = explode('/', $this->working_folder);
-      $heading = $objHelper->buildLink($target, $folder_list[1]) . ' > ';
+      $heading = $this->toolsHelper->buildLink($target, $folder_list[1]) . ' > ';
       $count = count($folder_list);
       for ($i = 2; $i < $count; $i++) {
       $upper .= $folder_list[$i];
@@ -132,7 +131,7 @@ if ($handle = opendir($this->working_folder)) {
                     } else {
                         $target = $this->working_folder . '/' . $entry;
                     }
-                    $folders[] = 'Sub-folder ' . $this->objHelper->buildLink($link, $entry);
+                    $folders[] = 'Sub-folder ' . $this->toolsHelper->buildLink($link, $entry);
                     $this->app->setUserState('com_ra_tools.docs' . $level, $target);
                 }
             } else {
@@ -206,10 +205,10 @@ for ($row = 0;
                 } else {
                     $target = $this->working_folder . '/' . $name;
                 }
-                $details = $objHelper->buildLink($target, $value, true);
+                $details = $this->toolsHelper->buildLink($target, $value, true);
                 if ($this->canDo->get('core.delete')) {
 //                  echo 'delete' . $target_delete;
-                    $details .= $objHelper->buildLink($target_delete . $value, '<i class="icon-trash" ></i>');
+                    $details .= $this->toolsHelper->buildLink($target_delete . $value, '<i class="icon-trash" ></i>');
                 }
             }
         } else {
@@ -241,10 +240,10 @@ if (($show_folder == 'Public') OR
 echo '<br>';
 
 if ($depth > 2) {
-    echo $this->objHelper->buildButton($self . '1', 'Home', false, 'grey');
+    echo $this->toolsHelper->buildButton($self . '1', 'Home', false, 'grey');
 }
 if ($depth > 1) {
-    echo $this->objHelper->backButton($back);
+    echo $this->toolsHelper->backButton($back);
 }
 
 
