@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="Build Component" option="Build">
+		<message>
+			<![CDATA[Generate an installation package for the selected component]]>
+		</message>
+	</layout>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="component" type="list" label="COM_RA_TOOLS_FIELD_COMPONENT_LABEL" description="COM_RA_TOOLS_FIELD_COMPONENT_DESC">
+					<option value="">-- Select a component --</option>
+					<option value="com_ra_events">com_ra_events</option>
+					<option value="com_ra_mailman">com_ra_mailman</option>
+					<option value="com_ra_tools">com_ra_tools</option>
+					<option value="com_ra_walks">com_ra_walks</option>
+				</field>
+				<field name="version" type="text" label="COM_RA_TOOLS_FIELD_VERSION_LABEL" description="COM_RA_TOOLS_FIELD_VERSION_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</metadata>
