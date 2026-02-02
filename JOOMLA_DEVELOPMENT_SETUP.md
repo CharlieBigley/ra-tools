@@ -1,5 +1,6 @@
 # Joomla Development Setup with Symlinked Git Repositories
 
+
 ## Overview
 
 This document describes the architecture for developing Joomla components using symlinked git repositories in a local MAMP environment. This approach allows version control of component source code while maintaining Joomla's ability to discover and load extensions.
