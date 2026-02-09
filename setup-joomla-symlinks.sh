@@ -26,8 +26,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-MAMP_ROOT="/htdocs"
-GIT_ROOT="/git/ra-tools"
+MAMP_ROOT="/Applications/MAMP/htdocs"
+GIT_ROOT="/Users/charlie/git/ra-tools"
 COMPONENT_NAME="com_ra_tools"
 MANIFEST_NAME="ra_tools"
 
@@ -131,10 +131,10 @@ verify_symlink() {
         echo "  Link: $path"
         echo "  → Target: $target"
         
-        if [ -f "$path" ]; then
-            echo -e "  ${GREEN}File readable${NC}"
+        if [ -e "$path" ]; then
+            echo -e "  ${GREEN}Target accessible${NC}"
         else
-            echo -e "  ${RED}Target not readable!${NC}"
+            echo -e "  ${RED}Target not accessible!${NC}"
             return 1
         fi
     else

@@ -18,7 +18,7 @@
                                    default=""
                                    label="Introduction (optional)"
                                    description="Any introductory text for the page"
-/>
+							/>
                             <field
                                 name="site_id"
                                 query="SELECT `id`, `url` FROM #__ra_api_sites ORDER BY `url`"

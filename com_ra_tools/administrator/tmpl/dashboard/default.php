@@ -45,11 +45,28 @@ $canDo = ContentHelper::getActions('com_ra_tools');
 //echo '<div style="float: left">';     // Div for Org & logo
 //echo $toolsHelper->showLogo();
 //
-echo '<div style="float: right">';
-echo '<h3>System tools</h3>';
-echo '<ul>';
-echo '<li><a href="index.php?option=com_ra_tools&task=system.showAccess" target="_self">Show your access permissions</a></li>' . PHP_EOL;
+
 if ($toolsHelper->isSuperuser()) {
+echo '<div style="float: right">';
+echo '<h3>RA Develop</h3>';
+echo '<ul>';
+echo '<li><a href="index.php?option=com_ra_develop&task=extensions.listExtension" target="_self">Summary</a></li>' . PHP_EOL;
+
+//    if ((ComponentHelper::isEnabled('com_ra_develop', true))) {
+        echo '<li><a href="index.php?option=com_ra_develop&view=builds" target="_self">List Builds</a></li>' . PHP_EOL;
+//    }
+    echo '<li><a href="index.php?option=com_ra_develop&view=subsystems" target="_self">Sub systems</a></li>' . PHP_EOL;
+    echo '<li><a href="index.php?option=com_ra_develop&view=extensions" target="_self">Extensions</a></li>' . PHP_EOL;
+    echo '<li><a href="index.php?option=com_ra_develop&view=extension_types" target="_self">Extension Types</a></li>' . PHP_EOL;
+    echo '</div>' . PHP_EOL;
+    }
+
+if ($toolsHelper->isSuperuser()) {
+    echo '<div style="float: right">';
+    echo '<h3>System tools</h3>';
+    echo '<ul>';
+    echo '<li><a href="index.php?option=com_ra_tools&task=system.showAccess" target="_self">Show your access permissions</a></li>' . PHP_EOL;
+
     if ((ComponentHelper::isEnabled('com_ra_events', true)) OR (ComponentHelper::isEnabled('com_ra_mailman', true))) {
         echo '<li><a href="index.php?option=com_ra_tools&view=users" target="_self">List Users</a></li>' . PHP_EOL;
     }
@@ -62,7 +79,8 @@ if ($toolsHelper->isSuperuser()) {
     echo ' target="_blank">Show Organisation feed</a></li>' . PHP_EOL;
     echo '<li><a href="index.php?option=com_ra_tools&amp;task=area_list.refreshAreas" target="_self">Refresh details of Areas</a></li>' . PHP_EOL;
     echo '<li><a href="index.php?option=com_ra_tools&amp;task=group_list.refreshGroups" target="_self">Refresh details of Groups</a></li>' . PHP_EOL;
-}
+    echo '</div>' . PHP_EOL;
+    }
 
 if ($canDo->get('core.admin')) {
     $versions = $toolsHelper->getVersions('com_ra_tools');
@@ -98,7 +116,7 @@ if (ComponentHelper::isEnabled('com_ra_mailman', true)) {
     }
     echo '</ul>' . PHP_EOL;
 }
-echo '</div>' . PHP_EOL;
+
 
 echo '<h3>Organisation</h3>' . PHP_EOL;
 echo '<ul>';
