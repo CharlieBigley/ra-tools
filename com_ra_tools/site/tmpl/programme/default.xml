@@ -34,7 +34,8 @@
                                 <option value="group">Filter by Group</option>
                                 <option value="radius">Filter by radius</option>
                             </field>
-                            <field name="group_type" type="radio" default="single" label="Group type" showon="filter_type:group">
+                            <field name="group_type" type="radio" 
+                                default="single" label="Group type" showon="filter_type:group">
                                 <option value="single">Use single Group</option>
                                 <option value="list">Use the list of Groups</option>
                                 <option value="specified">Use the specified Area or Groups</option>

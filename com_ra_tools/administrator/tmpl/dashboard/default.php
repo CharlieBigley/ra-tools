@@ -19,6 +19,8 @@
  * 28/08/25 CB use apisites from com_ra_tools, not com_ra_events
  * 09/09/25 CB remove diagnostics for events menu
  * 14/11/25 CB Mailman recipients
+ * 02/02/26 CB add Clusters
+ * 04/02/26 CB Add RA Develop section
  */
 // No direct access
 \defined('_JEXEC') or die;
@@ -120,10 +122,12 @@ if (ComponentHelper::isEnabled('com_ra_mailman', true)) {
 
 echo '<h3>Organisation</h3>' . PHP_EOL;
 echo '<ul>';
+echo '<li><a href="index.php?option=com_ra_tools&amp;view=clusters" target="_self">List of Clusters</a></li>' . PHP_EOL;
 echo '<li><a href="index.php?option=com_ra_tools&amp;view=area_list" target="_self">List of Areas</a></li>' . PHP_EOL;
 echo '<li><a href="index.php?option=com_ra_tools&amp;view=group_list" target="_self">List of Groups</a></li>';
 echo '</ul>' . PHP_EOL;
 //echo '</div>' . PHP_EOL;
+
 
 if (ComponentHelper::isEnabled('com_ra_paths', true)) {
     $canDo = ContentHelper::getActions('com_ra_paths');
@@ -207,7 +211,30 @@ if (ComponentHelper::isEnabled('com_ra_walks', true)) {
     }
     echo '</ul>' . PHP_EOL;
 }
-
+if (ComponentHelper::isEnabled('com_ra_develop', true)) {
+    $canDo = ContentHelper::getActions('com_ra_develop');
+    echo '<div style="float: left">';
+    echo '<h3>RA Development</h3>';
+    echo '<h4>Reports</h4>';
+    echo '<ul>';
+    echo '<li><a href="index.php?option=com_ra_develop&amp;task=extensions.listExtensions" target="_self">Summary of extensions </a></li>';
+    echo '<li><a href="index.php?option=com_ra_develop&amp;view=builds" target="_self">Builds </a></li>';
+    echo '</ul>';
+    echo '<h4>Maintenance</h4>';
+    echo '<ul>';
+    echo '<li><a href="index.php?option=com_ra_develop&amp;view=subsystems" target="_self">Sub Systems</a></li>';
+    echo '<li><a href="index.php?option=com_ra_develop&amp;view=extension_types" target="_self">Extension Types</a></li>';
+    echo '<li><a href="index.php?option=com_ra_develop&amp;view=extensions" target="_self">Extensions</a></li>';
+    echo '</ul>';
+    if ($canDo->get('core.admin')) {
+        $versions = $toolsHelper->getVersions('com_ra_develop');
+        echo '<li><a href="index.php?option=com_config&view=component&component=com_ra_develop" target="_self">';
+        echo "Configure com_ra_develop (version " . $versions->component . ")</a></li>" . PHP_EOL;
+        echo '<li>(DB version is ' . $versions->db_version . ')</li>';
+    }
+    echo '</ul>' . PHP_EOL;
+    echo '</div>' . PHP_EOL;
+} 
 if (ComponentHelper::isEnabled('com_ra_wf', true)) {
     echo '<h3>Walks Follow</h3>' . PHP_EOL;
     echo '<ul>' . PHP_EOL;

@@ -30,13 +30,11 @@ use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
 
 $toolsHelper = new ToolsHelper;
-
 // If code is for an Area, expand into list of Groups
 if ($this->filter_type == 'group') {
     if (strlen($this->group) == 2) {
         $this->group = $toolsHelper->expandArea($this->group);
     }
-
     $options = new RJsonwalksFeedoptions($this->group);
 } else {
     // filter_type = radius

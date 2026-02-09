@@ -7,6 +7,7 @@
  * @copyright  2025 Charlie Bigley
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  * 20/03/25 CB use CurrentUserInterface;
+ * 04/02/26 CB correct access validation
  */
 
 namespace Ramblers\Component\Ra_events\Site\Model;
@@ -50,10 +51,10 @@ class ProfileformModel extends FormModel implements CurrentUserInterface {
 
         // Load state from the request userState on edit or from the passed variable on default
         if (Factory::getApplication()->input->get('layout') == 'edit') {
-            $id = Factory::getApplication()->getUserState('com_ra_events.edit.profile.id');
+            $id = Factory::getApplication()->getUserState('com_ra_tools.edit.profile.id');
         } else {
             $id = Factory::getApplication()->input->get('id');
-            Factory::getApplication()->setUserState('com_ra_events.edit.profile.id', $id);
+            Factory::getApplication()->setUserState('com_ra_tools.edit.profile.id', $id);
         }
 
         $this->setState('profile.id', $id);
@@ -98,9 +99,9 @@ class ProfileformModel extends FormModel implements CurrentUserInterface {
                 $user = $this->getCurrentUser();
                 $id = $table->id;
 
-                $canEdit = ($user_id == 0) || $user->authorise('core.edit', 'com_ra_events') || $user->authorise('core.create', 'com_ra_events');
+                $canEdit = ($user_id == 0) || $user->authorise('core.edit', 'com_ra_tools') || $user->authorise('core.create', 'com_ra_tools');
                 //               }
-                if (!$canEdit && $user->authorise('core.edit.own', 'com_ra_events')) {
+                if (!$canEdit && $user->authorise('core.edit.own', 'com_ra_tools')) {
                     $canEdit = $user->id == $table->created_by;
                 }
 
@@ -299,13 +300,13 @@ class ProfileformModel extends FormModel implements CurrentUserInterface {
 
         if ($id) {
             // Check the user can edit this item
-            $authorised = $user->authorise('core.edit', 'com_ra_events') || $authorised = $user->authorise('core.edit.own', 'com_ra_events');
+            $authorised = $user->authorise('core.edit', 'com_ra_tools') || $authorised = $user->authorise('core.edit.own', 'com_ra_events');
         } else {
             if ($user->id == 0) {
                 $authorised = true;
             } else {
                 // Check the user can create new items in this section
-                $authorised = $user->authorise('core.create', 'com_ra_events');
+                $authorised = $user->authorise('core.create', 'com_ra_tools');
             }
         }
 

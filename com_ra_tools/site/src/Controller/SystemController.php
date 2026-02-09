@@ -7,7 +7,7 @@
  * @copyright  2025 Charlie Bigley
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  * 23/01/26 CB support for emailing a single event attendee
- * 09/02/23 CB correction for sending emails to multiple attendees
+ * 09/02/26 CB correction when emailing multiple attendees
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Controller;

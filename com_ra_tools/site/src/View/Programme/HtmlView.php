@@ -7,6 +7,7 @@
  * 24/10/24 CB correct lookupArea
  * 16/12/24 CB show_criteria
  * 19/01/26 CB Changes to implement new radius selection
+ * 02/02/26 CB Always show criteria if not from menu 
  */
 
 namespace Ramblers\Component\Ra_tools\Site\View\Programme;
@@ -51,7 +52,6 @@ class HtmlView extends BaseHtmlView {
         }
 
         $this->group = Factory::getApplication()->input->getCmd('group', '');
-
         if ($this->group == '') {
             // we have been called from a menu
             $this->intro = $menu_params->get('intro');
@@ -81,11 +81,14 @@ class HtmlView extends BaseHtmlView {
             }
             $this->show_criteria = $menu_params->get('show_criteria', '2'); // default to Always
         } else {
-
+            $this->group_type = 'group';
+            $this->show_criteria = '2';
             // get the defaults from the component parameters
             $this->intro = $params->get('intro');
+            $this->filter_type = 'group';
             $this->display_type = $params->get('display_type', 'simple');
             $this->limit = (int) $params->get('limit');
+            
 
             $title = 'Walks for ';
             if (strlen($this->group) == 2) {
