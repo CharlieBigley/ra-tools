@@ -61,7 +61,7 @@ class ToolsHelper {
     public $error;
     public $user;
     public $rows;
-    public $image_folder = "/media/com_ra_tools/";
+    public $image_folder = "media/com_ra_tools/";
     protected $website_root;
 
     function __construct() {

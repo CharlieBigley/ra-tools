@@ -7,6 +7,7 @@
  * @copyright  2025 Charlie Bigley
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  * 23/01/26 CB support for emailing a single event attendee
+ * 09/02/26 CB correction when emailing multiple attendees
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Controller;
@@ -153,7 +154,7 @@ class SystemController extends FormController {
  //           die($item->preferred_name . ' ' . $item->email);
             $this->createEmail($param);
         } else {
-            $sql = 'SELECT u.email';
+            $sql = 'SELECT u.email ';
             $sql .= 'FROM #__ra_bookings AS b ';
             $sql .= 'INNER JOIN #__users AS u ON u.id =  b.user_id ';  
             $sql .= "WHERE b.state >= 0 ";
