@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    3.3.1
+ * @version    3.5.3
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley

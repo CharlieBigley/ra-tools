@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    3.4.4
+ * @version    3.5.3
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
@@ -11,6 +11,7 @@
  * 30/07/25 CB send emails one at a time (not using bcc)
  * 01/10/25 CB change confirmation message
  * 01/11/25 CB add emails for event attendees - BookingHelper + lookupBooking
+ * 09/02/26 CB correct emails to event attendees - only one booking_info
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Model;
@@ -381,9 +382,10 @@ class EmailformModel extends FormModel {
             if (($data['sub_system'] == 'RA Events') AND ($data['record_type'] == 3)) {
                 // Add a block with details of the booking
                 $booking_info = $bookingHelper->lookupBooking($data['ref'], $to);
-                $body .= $booking_info;
+            } else {
+                $booking_info = '';
             }
-            $toolsHelper->sendEmail($to, $reply_to, $subject, $body, $attachment_files);
+            $toolsHelper->sendEmail($to, $reply_to, $subject, $body . $booking_info, $attachment_files);
             if (JDEBUG) {
                 $app->enqueueMessage('Email ' . $subject . ' sent to ' . $to, 'comment');
             }
