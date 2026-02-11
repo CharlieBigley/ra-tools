@@ -29,6 +29,7 @@
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Helper\ContentHelper;
+use Joomla\CMS\Uri\Uri;
 use Ramblers\Component\Ra_events\Site\Helpers\EventsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\JsonHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
@@ -38,7 +39,9 @@ $toolsHelper = new ToolsHelper;
 
 $wa = $this->document->getWebAssetManager();
 $wa->registerAndUseStyle('ramblers', 'com_ra_tools/ramblers.css');
-$wa->registerAndUseStyle('dashboard', 'com_ra_tools/dashboard.css');
+
+// Add dashboard CSS directly
+$this->document->addStyleSheet(Uri::base() . 'media/com_ra_tools/css/dashboard.css');
 
 $component = ComponentHelper::getComponent('com_ra_tools');
 $canDo = ContentHelper::getActions('com_ra_tools');
