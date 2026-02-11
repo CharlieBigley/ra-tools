@@ -29,7 +29,6 @@
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Helper\ContentHelper;
-use Joomla\CMS\Uri\Uri;
 use Ramblers\Component\Ra_events\Site\Helpers\EventsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\JsonHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
@@ -40,8 +39,112 @@ $toolsHelper = new ToolsHelper;
 $wa = $this->document->getWebAssetManager();
 $wa->registerAndUseStyle('ramblers', 'com_ra_tools/ramblers.css');
 
-// Add dashboard CSS directly
-$this->document->addStyleSheet(Uri::base() . 'media/com_ra_tools/css/dashboard.css');
+// Add inline dashboard CSS
+$dashboardCss = <<<'CSS'
+.dashboard-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.dashboard-block {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    background: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+}
+
+.dashboard-block:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.block-header {
+    border-bottom: 2px solid #0066cc;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+}
+
+.block-header h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.3em;
+    color: #333;
+    font-weight: 600;
+}
+
+.block-content {
+    padding-top: 5px;
+}
+
+.dashboard-block ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dashboard-block li {
+    padding: 8px 0;
+    line-height: 1.6;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-block li:last-child {
+    border-bottom: none;
+}
+
+.dashboard-block a {
+    text-decoration: none;
+    color: #0066cc;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.dashboard-block a:hover {
+    color: #0052a3;
+    text-decoration: underline;
+}
+
+.dashboard-block a:visited {
+    color: #5c7cba;
+}
+
+.dashboard-block .item-text {
+    color: #999;
+    font-size: 0.95em;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .dashboard-block {
+        padding: 15px;
+    }
+    
+    .block-header h3 {
+        font-size: 1.1em;
+    }
+    
+    .dashboard-block li {
+        padding: 6px 0;
+    }
+}
+CSS;
+$this->document->addStyleDeclaration($dashboardCss);
 
 $component = ComponentHelper::getComponent('com_ra_tools');
 $canDo = ContentHelper::getActions('com_ra_tools');
