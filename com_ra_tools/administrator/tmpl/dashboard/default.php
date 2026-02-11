@@ -44,6 +44,7 @@ $dashboardCss = <<<'CSS'
 .dashboard-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: auto !important;
     gap: 20px !important;
     margin-top: 30px;
     margin-bottom: 30px;
