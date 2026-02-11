@@ -21,7 +21,7 @@
  * 14/11/25 CB Mailman recipients
  * 02/02/26 CB add Clusters
  * 04/02/26 CB Add RA Develop section
- * 11/02/26 CB Restructure with grid layout and permission-based blocks
+ * 11/02/26 CB Restructure with grid layout and permission-based blocks - removed duplicates
  */
 // No direct access
 \defined('_JEXEC') or die;
@@ -43,7 +43,7 @@ $wa->registerAndUseStyle('dashboard', 'com_ra_tools/dashboard.css');
 $component = ComponentHelper::getComponent('com_ra_tools');
 $canDo = ContentHelper::getActions('com_ra_tools');
 
-// Build blocks array
+// Build blocks array - permission checks at construction time
 $blocks = [];
 
 // ========== SYSTEM TOOLS BLOCK (SUPERUSER ONLY) ==========
@@ -77,9 +77,6 @@ if ($toolsHelper->isSuperuser()) {
         'items' => $sysToolsItems
     ];
 }
-
-
-
 
 // ========== MAIL MANAGER BLOCK ==========
 if (ComponentHelper::isEnabled('com_ra_mailman', true)) {
@@ -156,71 +153,6 @@ if (ComponentHelper::isEnabled('com_ra_paths', true)) {
     ];
 }
 
-echo '</ul>';
-if (ComponentHelper::isEnabled('com_ra_mailman', true)) {
-    $canDo = ContentHelper::getActions('com_ra_mailman');
-
-    echo '<h3>Mail Manager</h3>';
-    echo '<ul>';
-    echo '<li><a href="index.php?option=com_ra_mailman&amp;view=mail_lsts" target="_self">Mailing lists</a></li>';
-    echo '<li><a href="index.php?option=com_ra_mailman&amp;view=mailshots" target="_self">Mailshots</a></li>';
-    if ($canDo->get('core.create')) {
-        echo '<li><a href="index.php?option=com_ra_mailman&amp;view=subscriptions" target="_self">Subscriptions</a></li>';
-        echo '<li><a href="index.php?option=com_ra_mailman&amp;view=recipients" target="_self">Recipients</a></li>';
-        echo '<li><a href="index.php?option=com_ra_mailman&amp;view=profiles" target="_self">MailMan Users</a></li>';
-        echo '<li><a href="index.php?option=com_ra_mailman&amp;view=dataload" target="_self">Import list of members</a></li>';
-        echo '<li><a href="index.php?option=com_ra_mailman&amp;view=import_reports" target="_self">Import Reports</a></li>';
-        echo '<li><a href="index.php?option=com_ra_mailman&amp;view=reports" target="_self">Mailman Reports</a></li>';
-        echo '<li><a href="index.php?option=com_ra_mailman&task=system.checkRenewals" target="_self">Process Renewals</a></li>' . PHP_EOL;
-        //         echo '<li><a href="index.php?option=com_ra_mailman&task=profiles.purgeTestdata" target="_self">Purge test data</a></li>' . PHP_EOL;
-    }
-
-    if ($canDo->get('core.admin')) {
-        $versions = $toolsHelper->getVersions('com_ra_mailman');
-        echo '<li><a href="index.php?option=com_config&view=component&component=com_ra_mailman" target="_self">';
-        echo "Configure com_ra_mailman (version " . $versions->component . ")</a></li>" . PHP_EOL;
-        echo '<li>(DB version is ' . $versions->db_version . ')</li>';
-    }
-    echo '</ul>' . PHP_EOL;
-}
-
-
-echo '<h3>Organisation</h3>' . PHP_EOL;
-echo '<ul>';
-echo '<li><a href="index.php?option=com_ra_tools&amp;view=clusters" target="_self">List of Clusters</a></li>' . PHP_EOL;
-echo '<li><a href="index.php?option=com_ra_tools&amp;view=area_list" target="_self">List of Areas</a></li>' . PHP_EOL;
-echo '<li><a href="index.php?option=com_ra_tools&amp;view=group_list" target="_self">List of Groups</a></li>';
-echo '</ul>' . PHP_EOL;
-//echo '</div>' . PHP_EOL;
-
-
-if (ComponentHelper::isEnabled('com_ra_paths', true)) {
-    $canDo = ContentHelper::getActions('com_ra_paths');
-
-    echo '<h3>Path Maintenance</h3>';
-    echo '<ul>';
-    echo '<li><a href="index.php?option=com_ra_paths&amp;view=faults" target="_self">Fault Reports</a></li>';
-    echo '<li><a href="index.php?option=com_ra_paths&amp;view=followups" target="_self">Followups</a></li>';
-    if ($canDo->get('core.create')) {
-        echo '<li><a href="index.php?option=com_ra_paths&amp;view=categories" target="_self">Categories</a></li>';
-        echo '<li><a href="index.php?option=com_ra_paths&amp;view=statuses" target="_self">Statuses</a></li>';
-        echo '<li><a href="index.php?option=com_ra_paths&amp;view=parishes" target="_self">Parishes</a></li>';
-        echo '<li><a href="index.php?option=com_ra_paths&amp;view=boroughs" target="_self">Boroughs</a></li>';
-        echo '<li><a href="index.php?option=com_ra_paths&amp;view=regions" target="_self">Regions</a></li>';
-        echo '<li><a href="index.php?option=com_ra_paths&amp;view=sectors" target="_self">Sectors</a></li>';
-    }
-    echo '<li><a href="index.php?option=com_ra_paths&amp;view=enhancements" target="_self">Enhancements</a></li>';
-    if ($canDo->get('core.admin')) {
-        $versions = $toolsHelper->getVersions('com_ra_paths');
-        echo '<li><a href="index.php?option=com_config&view=component&component=com_ra_paths" target="_self">';
-        echo "Configure com_ra_paths (version " . $versions->component . ")</a></li>" . PHP_EOL;
-        echo '<li>(DB version is ' . $versions->db_version . ')</li>';
-    }
-    echo '</ul>' . PHP_EOL;
-}
-
-
-
 // ========== EVENTS BLOCK ==========
 if (ComponentHelper::isEnabled('com_ra_events', true)) {
     $versions = $toolsHelper->getVersions('com_ra_events');
@@ -228,7 +160,7 @@ if (ComponentHelper::isEnabled('com_ra_events', true)) {
     // For newer versions, use EventsHelper
     if (version_compare($versions->component, '2.1.1', 'ge')) {
         $eventsHelper = new EventsHelper;
-        // EventsHelper handles its own block addition
+        // EventsHelper handles its own block addition via menusDashboard()
         $eventsHelper->menusDashboard();
     } else {
         // Fallback for older versions
@@ -361,115 +293,6 @@ if (ComponentHelper::isEnabled('com_ra_sg', true)) {
     ];
 }
 
-if (ComponentHelper::isEnabled('com_ra_events', true)) {
-//echo '<div style="float: left">';
-    $versions = $toolsHelper->getVersions('com_ra_events');
-
-    if (version_compare($versions->component, '2.1.1', 'ge')) {
-        $eventsHelper = new EventsHelper;
-        $eventsHelper->menusDashboard();
-    } else {
-        $canDo = ContentHelper::getActions('com_ra_events');
-        echo '<h3>Events</h3>' . PHP_EOL;
-        echo '<ul>' . PHP_EOL;
-        echo '<li><a href="index.php?option=com_ra_events&amp;view=events" target="_self">List of Events</a></li>' . PHP_EOL;
-        if ($canDo->get('core.create')) {
-            echo '<li><a href="index.php?option=com_ra_events&amp;view=bookings" target="_self">List of Bookings</a></li>' . PHP_EOL;
-            echo '<li><a href="index.php?option=com_ra_events&amp;view=reports" target="_self">Event Reports</a></li>' . PHP_EOL;
-            echo '<li><a href="index.php?option=com_ra_events&amp;view=dataload" target="_self">Import list of bookings</a></li>' . PHP_EOL;
-            echo '<li><a href="index.php?option=com_ra_toolss&amp;view=apisites" target="_self">API Sites</a></li>' . PHP_EOL;
-        }
-        if ($toolsHelper->isSuperuser()) {
-            echo '<li><a href="index.php?option=com_ra_events&amp;view=eventtypes" target="_self">Event Types</a></li>' . PHP_EOL;
-        }
-        if ($canDo->get('core.admin')) {
-            $versions = $toolsHelper->getVersions('com_ra_events');
-            echo '<li><a href="index.php?option=com_config&view=component&component=com_ra_events" target="_self">';
-            echo "Configure com_ra_events (version " . $versions->component . ")</a></li>" . PHP_EOL;
-            echo '<li>(DB version is ' . $versions->db_version . ')</li>';
-        }
-        echo '</ul>' . PHP_EOL;
-    }
-//    echo '</div>' . PHP_EOL;
-}
-
-if (ComponentHelper::isEnabled('com_ra_walks', true)) {
-    $canDo = ContentHelper::getActions('com_ra_walks');
-    echo '<h3>Walks</h3>' . PHP_EOL;
-    echo '<ul>' . PHP_EOL;
-    echo '<li><a href="index.php?option=com_ra_walks&amp;view=walks" target="_self">List of Walks</a></li>' . PHP_EOL;
-    echo '<li><a href="index.php?option=com_ra_walks&amp;view=reports" target="_self">Walk Reports</a></li>' . PHP_EOL;
-
-    if (ComponentHelper::isEnabled('com_ra_wf', true)) {
-        if (ContentHelper::getActions('com_ra_wf')->get('core.create')) {
-            echo ' <li><a href="index.php?option=com_ra_wf&task=walks.refresh" target="_self">Refresh details of Walks</a></li>' . PHP_EOL;
-        }
-    } else {
-        if ($canDo->get('core.create')) {
-            echo ' <li><a href="index.php?option=com_ra_walks&task=walks.refresh" target="_self">Refresh details of Walks</a></li>' . PHP_EOL;
-        }
-    }
-    if ($canDo->get('core.admin')) {
-        $versions = $toolsHelper->getVersions('com_ra_walks');
-        echo '<li><a href="index.php?option=com_config&view=component&component=com_ra_walks" target="_self">';
-        echo "Configure com_ra_walks (version " . $versions->component . ")</a></li>" . PHP_EOL;
-        echo '<li>(DB version is ' . $versions->db_version . ')</li>';
-    }
-    echo '</ul>' . PHP_EOL;
-}
-if (ComponentHelper::isEnabled('com_ra_develop', true)) {
-    $canDo = ContentHelper::getActions('com_ra_develop');
-    echo '<div style="float: left">';
-    echo '<h3>RA Development</h3>';
-    echo '<h4>Reports</h4>';
-    echo '<ul>';
-    echo '<li><a href="index.php?option=com_ra_develop&amp;task=extensions.listExtensions" target="_self">Summary of extensions </a></li>';
-    echo '<li><a href="index.php?option=com_ra_develop&amp;view=builds" target="_self">Builds </a></li>';
-    echo '</ul>';
-    echo '<h4>Maintenance</h4>';
-    echo '<ul>';
-    echo '<li><a href="index.php?option=com_ra_develop&amp;view=subsystems" target="_self">Sub Systems</a></li>';
-    echo '<li><a href="index.php?option=com_ra_develop&amp;view=extension_types" target="_self">Extension Types</a></li>';
-    echo '<li><a href="index.php?option=com_ra_develop&amp;view=extensions" target="_self">Extensions</a></li>';
-    echo '</ul>';
-    if ($canDo->get('core.admin')) {
-        $versions = $toolsHelper->getVersions('com_ra_develop');
-        echo '<li><a href="index.php?option=com_config&view=component&component=com_ra_develop" target="_self">';
-        echo "Configure com_ra_develop (version " . $versions->component . ")</a></li>" . PHP_EOL;
-        echo '<li>(DB version is ' . $versions->db_version . ')</li>';
-    }
-    echo '</ul>' . PHP_EOL;
-    echo '</div>' . PHP_EOL;
-} 
-if (ComponentHelper::isEnabled('com_ra_wf', true)) {
-    echo '<h3>Walks Follow</h3>' . PHP_EOL;
-    echo '<ul>' . PHP_EOL;
-    echo '<li><a href="index.php?option=com_ra_wf&amp;view=walks" target="_self">List of Walks to Follow</a></li>' . PHP_EOL;
-
-    echo '<li><a href="index.php?option=com_ra_wf&amp;view=profiles" target="_self">Walks Follow profiles</a></li>' . PHP_EOL;
-    echo '<li><a href="index.php?option=com_ra_wf&amp;view=reports" target="_self">Walks Follow Reports</a></li>' . PHP_EOL;
-    if ($canDo->get('core.admin')) {
-        $versions = $toolsHelper->getVersions('com_ra_wf');
-        echo '<li><a href="index.php?option=com_config&view=component&component=com_ra_wf" target="_self">';
-        echo "Configure com_ra_wf (version " . $versions->component . ")</a></li>" . PHP_EOL;
-        echo '<li>(DB version is ' . $versions->db_version . ')</li>';
-    }
-    echo '</ul>' . PHP_EOL;
-}
-
-if (ComponentHelper::isEnabled('com_ra_sg', true)) {   // Self Guided
-    echo '<h3>Walks</h3>' . PHP_EOL;
-    echo '<ul>' . PHP_EOL;
-    echo '<li><a href="index.php?option=com_ra_tools&amp;view=sg_list" target="_self">Self Guided walks</a></li>' . PHP_EOL;
-    echo '<li><a href="index.php?option=com_categories&amp;extension=com_ra_tools" target - "_self">Categories</a></li>' . PHP_EOL;
-    if ($canDo->get('core.admin')) {
-        $versions = $toolsHelper->getVersions('com_ra_sg');
-        echo '<li><a href="index.php?option=com_config&view=component&component=com_ra_sg" target="_self">';
-        echo "Configure com_ra_sg (version " . $versions->component . ")</a></li>" . PHP_EOL;
-        echo '<li>(DB version is ' . $versions->db_version . ')</li>';
-    }
-    echo '</ul>' . PHP_EOL;
-}
 ?>
 
 <!-- Grid-based Dashboard Layout -->
