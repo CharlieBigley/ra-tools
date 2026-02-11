@@ -29,6 +29,7 @@
     transition: box-shadow 0.3s ease;
     width: 100% !important;
     box-sizing: border-box !important;
+    min-width: 0 !important;
 }
 
 .dashboard-block:hover {
