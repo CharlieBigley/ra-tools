@@ -265,9 +265,33 @@ if (ComponentHelper::isEnabled('com_ra_events', true)) {
     
     // For newer versions, use EventsHelper
     if (version_compare($versions->component, '2.1.1', 'ge')) {
-        $eventsHelper = new EventsHelper;
-        // EventsHelper handles its own block addition via menusDashboard()
-        $eventsHelper->menusDashboard();
+        $eventsCanDo = ContentHelper::getActions('com_ra_events');
+        
+        $eventsItems = [
+            ['label' => 'List of Events', 'url' => 'index.php?option=com_ra_events&view=events'],
+        ];
+        
+        if ($eventsCanDo->get('core.create')) {
+            $eventsItems[] = ['label' => 'List of Bookings', 'url' => 'index.php?option=com_ra_events&view=bookings'];
+            $eventsItems[] = ['label' => 'Event Reports', 'url' => 'index.php?option=com_ra_events&view=reports'];
+            $eventsItems[] = ['label' => 'Import list of bookings', 'url' => 'index.php?option=com_ra_events&view=dataload'];
+            $eventsItems[] = ['label' => 'API Sites', 'url' => 'index.php?option=com_ra_tools&view=apisites'];
+        }
+        
+        if ($toolsHelper->isSuperuser()) {
+            $eventsItems[] = ['label' => 'Event Types', 'url' => 'index.php?option=com_ra_events&view=eventtypes'];
+        }
+        
+        if ($eventsCanDo->get('core.admin')) {
+            $versions = $toolsHelper->getVersions('com_ra_events');
+            $eventsItems[] = ['label' => 'Configure com_ra_events (v' . $versions->component . ')', 'url' => 'index.php?option=com_config&view=component&component=com_ra_events'];
+            $eventsItems[] = ['label' => 'DB version: ' . $versions->db_version, 'url' => '#', 'disabled' => true];
+        }
+        
+        $blocks[] = [
+            'title' => 'Events',
+            'items' => $eventsItems
+        ];
     } else {
         // Fallback for older versions
         $eventsCanDo = ContentHelper::getActions('com_ra_events');
