@@ -38,7 +38,7 @@ $toolsHelper = new ToolsHelper;
 
 $wa = $this->document->getWebAssetManager();
 $wa->registerAndUseStyle('ramblers', 'com_ra_tools/ramblers.css');
-$wa->registerAndUseStyle('dashboard', 'com_ra_tools/dashboard.css');
+$wa->useStyle('com_ra_tools.dashboard');
 
 $component = ComponentHelper::getComponent('com_ra_tools');
 $canDo = ContentHelper::getActions('com_ra_tools');

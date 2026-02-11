@@ -24,6 +24,11 @@
         "name": "com_ra_tools.list",
         "type": "style",
         "uri": "com_ra_tools/list.css"
+    },
+    {
+        "name": "com_ra_tools.dashboard",
+        "type": "style",
+        "uri": "com_ra_tools/dashboard.css"
     }
   ]
 }
