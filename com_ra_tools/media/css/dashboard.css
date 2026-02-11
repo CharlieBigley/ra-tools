@@ -10,11 +10,13 @@
 
 /* Dashboard Grid Container */
 .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
     margin-top: 30px;
     margin-bottom: 30px;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Individual Dashboard Block */
@@ -25,6 +27,8 @@
     background: #f9f9f9;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     transition: box-shadow 0.3s ease;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .dashboard-block:hover {
