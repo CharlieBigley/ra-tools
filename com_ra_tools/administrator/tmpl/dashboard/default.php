@@ -49,6 +49,7 @@ $dashboardCss = <<<'CSS'
     margin-bottom: 30px;
     width: 100% !important;
     box-sizing: border-box !important;
+    align-items: start !important;
 }
 
 .dashboard-block {
