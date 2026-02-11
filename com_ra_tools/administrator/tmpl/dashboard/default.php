@@ -94,8 +94,8 @@ $dashboardCss = <<<'CSS'
 }
 
 .dashboard-block li {
-    padding: 8px 0;
-    line-height: 1.6;
+    padding: 4px 0;
+    line-height: 1.4;
     border-bottom: 1px solid #eee;
 }
 
@@ -229,37 +229,6 @@ $blocks[] = [
     'items' => $orgItems
 ];
 
-// ========== PATH MAINTENANCE BLOCK ==========
-if (ComponentHelper::isEnabled('com_ra_paths', true)) {
-    $pathsCanDo = ContentHelper::getActions('com_ra_paths');
-    
-    $pathsItems = [
-        ['label' => 'Fault Reports', 'url' => 'index.php?option=com_ra_paths&view=faults'],
-        ['label' => 'Followups', 'url' => 'index.php?option=com_ra_paths&view=followups'],
-    ];
-    
-    if ($pathsCanDo->get('core.create')) {
-        $pathsItems[] = ['label' => 'Categories', 'url' => 'index.php?option=com_ra_paths&view=categories'];
-        $pathsItems[] = ['label' => 'Statuses', 'url' => 'index.php?option=com_ra_paths&view=statuses'];
-        $pathsItems[] = ['label' => 'Parishes', 'url' => 'index.php?option=com_ra_paths&view=parishes'];
-        $pathsItems[] = ['label' => 'Boroughs', 'url' => 'index.php?option=com_ra_paths&view=boroughs'];
-        $pathsItems[] = ['label' => 'Regions', 'url' => 'index.php?option=com_ra_paths&view=regions'];
-        $pathsItems[] = ['label' => 'Sectors', 'url' => 'index.php?option=com_ra_paths&view=sectors'];
-    }
-    
-    $pathsItems[] = ['label' => 'Enhancements', 'url' => 'index.php?option=com_ra_paths&view=enhancements'];
-    
-    if ($pathsCanDo->get('core.admin')) {
-        $versions = $toolsHelper->getVersions('com_ra_paths');
-        $pathsItems[] = ['label' => 'Configure com_ra_paths (v' . $versions->component . ')', 'url' => 'index.php?option=com_config&view=component&component=com_ra_paths'];
-        $pathsItems[] = ['label' => 'DB version: ' . $versions->db_version, 'url' => '#', 'disabled' => true];
-    }
-    
-    $blocks[] = [
-        'title' => 'Path Maintenance',
-        'items' => $pathsItems
-    ];
-}
 
 // ========== EVENTS BLOCK ==========
 if (ComponentHelper::isEnabled('com_ra_events', true)) {
@@ -357,7 +326,27 @@ if (ComponentHelper::isEnabled('com_ra_walks', true)) {
         'items' => $walksItems
     ];
 }
-
+// ========== WALKS FOLLOW BLOCK ==========
+if (ComponentHelper::isEnabled('com_ra_wf', true)) {
+    $wfCanDo = ContentHelper::getActions('com_ra_wf');
+    
+    $wfItems = [
+        ['label' => 'List of Walks to Follow', 'url' => 'index.php?option=com_ra_wf&view=walks'],
+        ['label' => 'Walks Follow profiles', 'url' => 'index.php?option=com_ra_wf&view=profiles'],
+        ['label' => 'Walks Follow Reports', 'url' => 'index.php?option=com_ra_wf&view=reports'],
+    ];
+    
+    if ($wfCanDo->get('core.admin')) {
+        $versions = $toolsHelper->getVersions('com_ra_wf');
+        $wfItems[] = ['label' => 'Configure com_ra_wf (v' . $versions->component . ')', 'url' => 'index.php?option=com_config&view=component&component=com_ra_wf'];
+        $wfItems[] = ['label' => 'DB version: ' . $versions->db_version, 'url' => '#', 'disabled' => true];
+    }
+    
+    $blocks[] = [
+        'title' => 'Walks Follow',
+        'items' => $wfItems
+    ];
+}
 // ========== RA DEVELOPMENT BLOCK ==========
 if (ComponentHelper::isEnabled('com_ra_develop', true)) {
     $developCanDo = ContentHelper::getActions('com_ra_develop');
@@ -382,27 +371,6 @@ if (ComponentHelper::isEnabled('com_ra_develop', true)) {
     ];
 }
 
-// ========== WALKS FOLLOW BLOCK ==========
-if (ComponentHelper::isEnabled('com_ra_wf', true)) {
-    $wfCanDo = ContentHelper::getActions('com_ra_wf');
-    
-    $wfItems = [
-        ['label' => 'List of Walks to Follow', 'url' => 'index.php?option=com_ra_wf&view=walks'],
-        ['label' => 'Walks Follow profiles', 'url' => 'index.php?option=com_ra_wf&view=profiles'],
-        ['label' => 'Walks Follow Reports', 'url' => 'index.php?option=com_ra_wf&view=reports'],
-    ];
-    
-    if ($wfCanDo->get('core.admin')) {
-        $versions = $toolsHelper->getVersions('com_ra_wf');
-        $wfItems[] = ['label' => 'Configure com_ra_wf (v' . $versions->component . ')', 'url' => 'index.php?option=com_config&view=component&component=com_ra_wf'];
-        $wfItems[] = ['label' => 'DB version: ' . $versions->db_version, 'url' => '#', 'disabled' => true];
-    }
-    
-    $blocks[] = [
-        'title' => 'Walks Follow',
-        'items' => $wfItems
-    ];
-}
 
 // ========== SELF GUIDED WALKS BLOCK ==========
 if (ComponentHelper::isEnabled('com_ra_sg', true)) {
@@ -424,7 +392,37 @@ if (ComponentHelper::isEnabled('com_ra_sg', true)) {
         'items' => $sgItems
     ];
 }
-
+// ========== PATH MAINTENANCE BLOCK ==========
+if (ComponentHelper::isEnabled('com_ra_paths', true)) {
+    $pathsCanDo = ContentHelper::getActions('com_ra_paths');
+    
+    $pathsItems = [
+        ['label' => 'Fault Reports', 'url' => 'index.php?option=com_ra_paths&view=faults'],
+        ['label' => 'Followups', 'url' => 'index.php?option=com_ra_paths&view=followups'],
+    ];
+    
+    if ($pathsCanDo->get('core.create')) {
+        $pathsItems[] = ['label' => 'Categories', 'url' => 'index.php?option=com_ra_paths&view=categories'];
+        $pathsItems[] = ['label' => 'Statuses', 'url' => 'index.php?option=com_ra_paths&view=statuses'];
+        $pathsItems[] = ['label' => 'Parishes', 'url' => 'index.php?option=com_ra_paths&view=parishes'];
+        $pathsItems[] = ['label' => 'Boroughs', 'url' => 'index.php?option=com_ra_paths&view=boroughs'];
+        $pathsItems[] = ['label' => 'Regions', 'url' => 'index.php?option=com_ra_paths&view=regions'];
+        $pathsItems[] = ['label' => 'Sectors', 'url' => 'index.php?option=com_ra_paths&view=sectors'];
+    }
+    
+    $pathsItems[] = ['label' => 'Enhancements', 'url' => 'index.php?option=com_ra_paths&view=enhancements'];
+    
+    if ($pathsCanDo->get('core.admin')) {
+        $versions = $toolsHelper->getVersions('com_ra_paths');
+        $pathsItems[] = ['label' => 'Configure com_ra_paths (v' . $versions->component . ')', 'url' => 'index.php?option=com_config&view=component&component=com_ra_paths'];
+        $pathsItems[] = ['label' => 'DB version: ' . $versions->db_version, 'url' => '#', 'disabled' => true];
+    }
+    
+    $blocks[] = [
+        'title' => 'Path Maintenance',
+        'items' => $pathsItems
+    ];
+}
 ?>
 
 <!-- Grid-based Dashboard Layout -->
