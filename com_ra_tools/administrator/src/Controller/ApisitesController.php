@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    3.3.15
+ * @version    3.5.4 echo '<br>';
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
@@ -12,6 +12,7 @@
  * 21/08/25 CB changState, delete and publish (from EmailsController)
  * 14/09/25 CB rework Events load (for com_ra_events 2.2.1)
  * 18/09/25 CB check for NULL events
+ * 10/02/26 CB removed heading for ShowShared
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\Controller;
@@ -167,7 +168,6 @@ class ApisitesController extends AdminController {
             echo $this->toolsHelper->backButton($this->back);
             return;
         }
-        ToolBarHelper::title('Shared events');
         $eventsHelper = new EventsHelper;
 
         $details = $eventsHelper->getSharedEvents($id);

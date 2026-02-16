@@ -3,7 +3,7 @@
 /**
  * Various common functions used throughout the project
  *
- * @version     3.4.2
+ * @version     3.5.4
  * @package     com_ra_tools
  * @author charlie
 
@@ -28,6 +28,7 @@
  * 24/09/25 CB isInstalled
  * 05/10/25 CB show contact details
  * 12/10/25 CB lookupUser
+ * 16/02/26 CB correction when logging emails
  */
 /*
   There is a long list of old style form field classes that have no equivalent in Joomla 5. For example:
@@ -797,7 +798,7 @@ class ToolsHelper {
         }
         if (is_array($attachments)) {
             echo 'attachments_string (array) ';
-            if (count($bcc) == 1) {
+            if (count($attachments) == 1) {
                 $attachments_string .= $attachments[0];
             } else {
                 $attachments_string = implode(',', $attachments);
