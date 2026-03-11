@@ -12,20 +12,17 @@
       label="Website" 
       description="Website URL" 
       hint="https://xxx.ramblers.org"/>
-    <field name="code" filter="word" type="text" required="true" label="Code" description="2 or 3 character code" hint="Enter a 2 or 3 character code"/>
+    <field name="code" 
+      filter="word" type="text" 
+      required="true" label="Code" 
+      description="2 or 3 character code" 
+      hint="Enter a 2 or 3 character code"/>
     <field
-        name="contact_id"
-        type="sql"
-        label="Contact"
-        description="Contact name" 
-        sql_select="c.id, p.preferred_name"      
-        sql_from="`#__contact_details`AS c" 
-        sql_join="#__ra_profiles AS p ON p.id = c.user_id" 
-        sql_where="c.published=1 AND p.preferred_name IS NOT NULL"
-        sql_order="preferred_name" 
-        key_field="id" 
-        value_field="preferred_name"
-    /> 
+      name="contact_id"
+      type="Contact"
+      label="Contact"
+      description="Contact name"
+    />
     <field name="version_note" type="text" label="JGLOBAL_FIELD_VERSION_NOTE_LABEL" description="JGLOBAL_FIELD_VERSION_NOTE_DESC" class="inputbox" size="45" labelclass="control-label"/>
   </fieldset>
 </form>

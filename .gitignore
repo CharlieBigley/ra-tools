@@ -1,5 +1,6 @@
+**/nbproject
 # macOS
-.DS_Store
+**/.DS_Store
 
 # Agent context with credentials
 agent.md

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version    3.3.11
+ * @version    3.5.3
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
@@ -8,6 +8,7 @@
  * 30/06/25 CB show background colours
  * 27/08/25 CB correct refresh
  * 22/09/25 CB show colour in colour, show title
+ * 09/03/26 CB only refresh events for active sites
  */
 // No direct access
 defined('_JEXEC') or die;
@@ -79,6 +80,9 @@ $target_refresh = 'administrator/index.php?option=com_ra_tools&task=apisites.ref
 
                                 <?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'a.id', $listDirn, $listOrder); ?>
                             </th>
+                            <th class='left'>
+                                Endpoints
+                            </th>
                             <?php echo '<th><th>'; ?>
                         </tr>
                     </thead>
@@ -127,7 +131,12 @@ $target_refresh = 'administrator/index.php?option=com_ra_tools&task=apisites.ref
                                 echo '<td style="background: ' . $item->colour . '; ">';
                                 echo $item->colour . '</td>';
                                 echo '<td  class="d-none d-lg-table-cell">' . $item->id . '</td>';
-                                if ($item->sub_system == 'RA Events') {
+                                echo '<td>';
+                                echo '<a href="' . Route::_('index.php?option=com_ra_tools&task=apisite.queryEndpoints&id=' . (int)$item->id) . '" class="btn btn-sm btn-info" title="Query Endpoints">';
+                                echo '<i class="fas fa-plug"></i>';
+                                echo '</a>';
+                                echo '</td>';
+                                if ($item->state ==1 AND ($item->sub_system == 'RA Events')) {
                                     echo '<td>' . $toolsHelper->imageButton('I', $target_info . $item->id) . '</td>';
                                     echo '<td>';
                                     echo $toolsHelper->buildButton($target_refresh . $item->id, 'Refresh', false, 'red');

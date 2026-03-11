@@ -3,7 +3,7 @@
 /**
  * Various common functions used throughout the project
  *
- * @version     3.5.4
+ * @version     3.5.5
  * @package     com_ra_tools
  * @author charlie
 
@@ -28,7 +28,7 @@
  * 24/09/25 CB isInstalled
  * 05/10/25 CB show contact details
  * 12/10/25 CB lookupUser
- * 16/02/26 CB correction when logging emails
+ * 26/02/26 CB add buildEmailPreamble
  */
 /*
   There is a long list of old style form field classes that have no equivalent in Joomla 5. For example:
@@ -106,6 +106,23 @@ class ToolsHelper {
         $class = $this->lookupColourCode($colour, 'B');
         //       echo "colour=$colour, code=$code, class=$class<br>";
         return $this->buildLink($url, $text, $newWindow, $class);
+    }
+
+    public function buildEmailPreamble(){
+//      Generate the complete email HTML structure
+//      The email itself must finally include </body></html>
+        $header = '<!DOCTYPE html>';
+        $header .= '<html>';
+        $header .= '<head>';
+        $header .= '<meta charset="UTF-8">';
+        $header .= '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
+        $header .= '<style>';
+        $header .= 'body { font-family: Arial, sans-serif; margin: 0; padding: 10px; }';
+        $header .= 'div { box-sizing: border-box; }';
+        $header .= '</style>';
+        $header .= '</head>';
+        $header .= '<body>';
+        return $header;
     }
 
     static function buildError($ExistingMessage, $NewMessage) {
@@ -344,7 +361,7 @@ class ToolsHelper {
             $sql .= "'" . $record_type . "',";
 //      $sql .= "'" & gTool.CheckApostrophy(Left$(strFieldValue, 100)) & "',"
             if (strpos($field_value, "'") > 0) {
-//			 echo chr(92) . "|" ;
+//             echo chr(92) . "|" ;
                 $sql .= "'" . substr($field_value, 0, strpos($field_value, "'"));
                 $sql .= "|";
                 $sql .= substr($field_value, strpos($field_value, "'") + 1) . "')";
@@ -370,6 +387,17 @@ class ToolsHelper {
         $sql .= ',' . $this->db->quote($ref);
         $sql .= ',' . $this->db->quote($message) . ')';
         $this->executeCommand($sql);
+        /*
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+        $query->insert($db->quoteName('#__ra_logfile'))
+            ->set('log_date = CURRENT_TIMESTAMP')
+            ->set('sub_system = ' . $db->quote($sub_system))
+            ->set('record_type = ' . $db->quote($record_type))
+            ->set('ref = ' . $db->quote($ref))
+            ->set('message = ' . $db->quote($message));
+        $db->setQuery($query)->execute(); 
+        */       
     }
 
     function executeCmd($sql) {
@@ -426,7 +454,7 @@ class ToolsHelper {
             if (!$result = $db->loadAssocList()) {
                 echo "No Qualifying Rows";
                 if (JDEBUG) {
-                    Factory::getApplication()->enqueueMessage($sql, 'info');
+Factory::getApplication()->enqueueMessage($sql, 'info');
                 }
             } else {
                 foreach (array_keys($result[0]) as $token) {
@@ -798,7 +826,7 @@ class ToolsHelper {
         }
         if (is_array($attachments)) {
             echo 'attachments_string (array) ';
-            if (count($attachments) == 1) {
+            if (count($bcc) == 1) {
                 $attachments_string .= $attachments[0];
             } else {
                 $attachments_string = implode(',', $attachments);
@@ -1075,7 +1103,7 @@ class ToolsHelper {
         return $path;
     }
 
-    function sendEmail($to, $reply_to, $subject, $body, $attachments = '', $bcc = '') {
+    function sendEmail($to, $reply_to, $subject, $message, $attachments = '', $bcc = '') {
         $params = ComponentHelper::getParams('com_ra_tools');
         $email_log_level = $params->get('email_log_level', '0');
         // Log level -2 is solely to benchmark the overhead of sending via SMTP
@@ -1114,6 +1142,10 @@ class ToolsHelper {
         $mailer->isHtml(true);
         $mailer->Encoding = 'base64';
         $mailer->setSubject($subject);
+        // Generate the html for the header
+        $body = $this->buildEmailPreamble();
+        // append the message itself
+        $body .= $message;
         $mailer->setBody($body);
 
 //     Optional file attachments - must be an array
@@ -1142,7 +1174,7 @@ class ToolsHelper {
         $item = $this->showQuery($sql);
         $sql = 'SELECT c.name, c.con_position, cat.title  ';
         $sql .= 'FROM #__contact_details AS c ';
-        $sql .= 'INNER JOIN #__categories AS cat ON cat.id =  c.catid ';
+        $sql .= 'INNER JOIN #__categories AS cat ON cat.id = c.catid ';
         $sql .= 'WHERE cat.extension = "com_contact" AND c.user_id=' . $id . ' ';
         //       echo $sql;
         $contact = $this->getItem($sql);
@@ -1239,7 +1271,7 @@ class ToolsHelper {
 //        echo "daynum=$daynum for $first_of_this_month, next month=$first_of_next_month, days_in_month=$days_in_month<br>";
 
         $objTable = new ToolsTable();
-        $objTable->add_header("Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday");
+$objTable->add_header("Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday");
 
         $col = 1;
         for ($i = 1; $col < $daynum; $i++) {
@@ -1300,14 +1332,14 @@ class ToolsHelper {
                 }
 //
                 if ($link == '') {
-                    $objTable->add_item($this->getValue($sql));
+$objTable->add_item($this->getValue($sql));
                 } else {
                     $count = $this->getValue($sql);
                     if ($count == 0) {
                         $objTable->add_item('');
                     } else {
                         $target = $link . '&year=' . $row->Year . '&month=' . $m;
-                        $objTable->add_item($this->buildLink($target, $count, $new_window));
+$objTable->add_item($this->buildLink($target, $count, $new_window));
                     }
                 }
             }
@@ -1452,7 +1484,7 @@ class ToolsHelper {
             $target .= "&z=9";
             return $this->imageButton("GO", $target, True);
         } elseif ($mode == 'S') {
-            // 27/05/24 CB Strretmap prefers to have Nothing / Eas                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ting
+            // 27/05/24 CB Strretmap prefers to have Nothing / Eas                                               ting
             $target = 'https://streetmap.co.uk/loc/' . $latitude . ',';
             if ($longitude > 0) {
                 $target .= 'E' . $longitude;
@@ -1478,7 +1510,7 @@ class ToolsHelper {
 
     public function showExtensions() {
         $objTable = new ToolsTable;
-        $objTable->add_header('Type,Name,Element,Enabled,Version,DB version,id');
+$objTable->add_header('Type,Name,Element,Enabled,Version,DB version,id');
         $extensions = array(
             'tpl_hydrogen_ramblers',
             'com_hy_schema',
@@ -1579,7 +1611,7 @@ class ToolsHelper {
 
         $objTable = new ToolsTable();
 
-        $objTable->add_header("Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec");
+$objTable->add_header("Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec");
 
         $rows = $this->getRows($sql);
         foreach ($rows as $row) {
@@ -1596,14 +1628,14 @@ class ToolsHelper {
                 }
 //
                 if ($link == '') {
-                    $objTable->add_item($this->getValue($sql));
+$objTable->add_item($this->getValue($sql));
                 } else {
                     $count = $this->getValue($sql);
                     if ($count == 0) {
                         $objTable->add_item('');
                     } else {
                         $target = $link . '&year=' . $row->Year . '&month=' . $m;
-                        $objTable->add_item($this->buildLink($target, $count, $new_window));
+$objTable->add_item($this->buildLink($target, $count, $new_window));
                     }
                 }
             }
@@ -1656,7 +1688,7 @@ class ToolsHelper {
             if (!$result = $db->loadAssocList()) {
                 echo "No Qualifying Rows";
                 if (JDEBUG) {
-                    Factory::getApplication()->enqueueMessage($sql, 'info');
+Factory::getApplication()->enqueueMessage($sql, 'info');
                 }
             } else {
                 echo "";

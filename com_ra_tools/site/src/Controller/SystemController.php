@@ -1,13 +1,16 @@
 <?php
 
 /**
- * @version    3.5.3
+ * @version    3.5.4
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  * 23/01/26 CB support for emailing a single event attendee
  * 09/02/26 CB correction when emailing multiple attendees
+ * 26/02/26 CB Catch errors in eventOrganiser
+ * 10/03/16 CB check for invalid booking_id in eventAttendees
+ * 10/03/26 CB reinstate display of addressee_name for eventOganiser
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Controller;
@@ -47,7 +50,12 @@ class SystemController extends FormController {
 
     public function contact() {
 // Accept contact id, lookup their email address
-        $id = Factory::getApplication()->input->getCmd('id', '1');
+        $id = Factory::getApplication()->input->getCmd('id', '0');
+        if ($id == 0) {
+            $this->app->enqueueMessage('Sorry, Contact reference not given', 'error');
+            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
+            return;
+        }
         $callback = 'index.php';
         $sql = 'SELECT u.email ';
         $sql .= 'FROM #__contact_details AS c ';
@@ -55,13 +63,22 @@ class SystemController extends FormController {
         $sql .= "WHERE c.id=" . $id;
 
         $addressee = $this->toolsHelper->getValue($sql);
-        echo "$sql, $addressee<br>";
+        if (is_null($addressee)) {
+            $this->app->enqueueMessage('Contact not found for id ' . $id, 'error');
+            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
+            return;
+        }        
         $this->createEmail('RA Tools', 1, $id, $addressee, $callback);
     }
 
     public function emailContact() {
 // send email to the specified Contact
-        $id = Factory::getApplication()->input->getCmd('id', '1');
+        $id = Factory::getApplication()->input->getCmd('id', '0');
+        if ($id == 0) {
+            $this->app->enqueueMessage('Sorry, Contact reference not given', 'error');
+            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
+            return;
+        }
         $menu_id = Factory::getApplication()->input->getCmd('Itemid', '0');
 // Generate a standard object to pass to ra_tools
         $sql = 'SELECT u.email, c.con_position, p.preferred_name ';
@@ -70,7 +87,11 @@ class SystemController extends FormController {
         $sql .= 'INNER JOIN #__ra_profiles AS p ON p.id = c.user_id ';
         $sql .= 'WHERE c.id=' . $id;
         $contact = $this->toolsHelper->getItem($sql);
-
+        if (is_null($contact)) {
+            $this->app->enqueueMessage('Contact not found for id ' . $id, 'error');
+            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
+            return;
+        }
         $param = new CMSObject;
         $param->sub_system = 'RA Tools';
         $param->record_type = 1;
@@ -88,8 +109,18 @@ class SystemController extends FormController {
     public function eventAttendees() {
 // Accept event id, lookup email address of all those booked on it
 // If a booking_id is given, then this is an email to a single attendee
-        $id = Factory::getApplication()->input->getInt('id', 1);
-        $booking_id = Factory::getApplication()->input->getInt('booking_id', 0);
+        $id = Factory::getApplication()->input->getInt('id', 0);
+         if ($id == 0) {
+            $this->app->enqueueMessage('Sorry, Event reference not given', 'error');
+            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
+            return;
+        }
+        $booking_id = Factory::getApplication()->input->getInt('booking_id', 0);   
+        if ($booking_id == 0) {
+            $this->app->enqueueMessage('Sorry, Booking reference not given', 'error');
+            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
+            return;
+        }
 // Generate a standard object to pass to ra_tools
         $sql = 'SELECT e.title, u.email, p.preferred_name ';
         $sql .= 'FROM #__ra_events AS e ';
@@ -98,20 +129,23 @@ class SystemController extends FormController {
         $sql .= 'LEFT JOIN #__users AS u ON u.id = c.user_id ';
         $sql .= 'WHERE e.id=' . $id;
         $event = $this->toolsHelper->getItem($sql);
-        if ($event->email == '') {
+        if (is_null($event) || $event->email == '') {
             $this->app->enqueueMessage('Email address not found for event ' . $id, 'error');
 
             echo 'Event = ' . $id . '<br>';
             $sql = 'SELECT contact_id FROM #__ra_events WHERE id=' . $id;
             $contact_id = $this->toolsHelper->getValue($sql);
             echo 'Contact = ' . $contact_id . '<br>';
-
+            if (is_null($contact_id)) {
+                $this->app->enqueueMessage('Contact not found for id ' . $contact_id, 'error');
+                return;
+            }   
             $sql = 'SELECT user_id FROM #__contact_details WHERE id=' . $contact_id;
             $user_id = $this->toolsHelper->getValue($sql);
 //            echo 'User id = ' . $user_id . '<br>';
 
             if ($user_id == '') {
-                $message = 'No user found';
+                $message = 'No user found for contact id ' . $contact_id;
                 echo $message . '<br>';
             } else {
                 $sql = 'SELECT email FROM #__users WHERE id=' . $user_id;
@@ -144,11 +178,16 @@ class SystemController extends FormController {
         if ($booking_id != 0) {
             $sql = 'SELECT u.email,p.preferred_name ';
             $sql .= 'FROM #__ra_bookings AS b ';
-            $sql .= 'INNER JOIN #__users AS u ON u.id =  b.user_id ';           $sql .= 'INNER JOIN #__ra_profiles AS p ON p.id =  b.user_id ';    
+            $sql .= 'INNER JOIN #__users AS u ON u.id =  b.user_id ';           
+            $sql .= 'INNER JOIN #__ra_profiles AS p ON p.id =  b.user_id ';    
             $sql .= "WHERE b.id=" . $booking_id . " ";
             echo $sql . '<br>';
             
             $item = $this->toolsHelper->getItem($sql);
+            if (is_null($item)) {
+                $this->app->enqueueMessage('Booking not found for id ' . $booking_id, 'error');
+                return;
+            } 
             $param->addressee_name = $item->preferred_name;
             $param->addressee_email .= $item->email;
  //           die($item->preferred_name . ' ' . $item->email);
@@ -182,7 +221,12 @@ class SystemController extends FormController {
 
     public function eventOrganiser() {
 // Accept event id, lookup email address of the organiser
-        $id = Factory::getApplication()->input->getCmd('id', '1');
+        $id = Factory::getApplication()->input->getCmd('id', '0');
+        if ($id == 0) {
+            $this->app->enqueueMessage('Sorry, Event reference not given', 'error');
+            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
+            return;
+        }
         $sql = 'SELECT e.title, u.email, p.preferred_name, e.contact_id, c.user_id ';
         $sql .= 'FROM #__ra_events AS e ';
         $sql .= 'LEFT JOIN #__contact_details AS c ON c.id = e.contact_id ';
@@ -191,6 +235,11 @@ class SystemController extends FormController {
         $sql .= 'WHERE e.id=' . $id;
 //        echo $sql . '<br>';
         $event = $this->toolsHelper->getItem($sql);
+        if (is_null($event)) {
+            $this->app->enqueueMessage('Event not found for id ' . $id, 'error');
+            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
+            return;
+        }
         if ($event->email == '') {
             $this->app->enqueueMessage('Email address not found for event ' . $id, 'error');
 
@@ -229,7 +278,7 @@ class SystemController extends FormController {
         $param->record_type = 1;
         $param->ref = $id;
         $param->caption = "Contact for '" . $event->title . "'";
-//        $param->addressee_name = $event->preferred_name;
+        $param->addressee_name = $event->preferred_name;
         $param->addressee_email = $event->email;
         $param->sender_input = 'Y';
         $param->sender_name = '';
