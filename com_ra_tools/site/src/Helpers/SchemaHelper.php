@@ -191,7 +191,7 @@ class SchemaHelper {
         echo 'Total size: ' . $total_size / 1000 / 1000 . ' MB' . '<br>';
     }
 
-    public function showTable($table, $limit, $start = '0') {
+    public function showTable($table, $limit = '10', $start = '0') {
         $config = Factory::getConfig();
         $database = $config->get('db');
         $dbPrefix = $config->get('dbprefix');

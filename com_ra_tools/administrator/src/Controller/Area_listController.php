@@ -21,6 +21,7 @@
  * 17/04/25 CB download/upload
  * 21/04/25 CB abortive attempt to use JsonHelper, get API key from config
  * 18/08/25 CB get API key from ra_api_sites
+ * 15/04/26 CB deleted updateClusters (moved to ClustersController)
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\Controller;
@@ -223,7 +224,7 @@ class Area_listController extends AdminController {
         }
         echo '<br>' . $record_count . ' records read<br>';
 
-        $this->updateClusters();
+//        $this->updateClusters();
         $update_sql = "UPDATE `#__ra_areas` set nation_id = 2 WHERE cluster = 'SC';";
         $this->toolsHelper->executeCmd($update_sql);
         $update_sql = "UPDATE `#__ra_areas` set nation_id = 3 WHERE cluster = 'WA';";
@@ -383,7 +384,7 @@ class Area_listController extends AdminController {
         }
         echo '<br>' . $record_count . ' records read<br>';
 
-        $this->updateClusters();
+//        $this->updateClusters();
         $update_sql = "UPDATE `#__ra_areas` set nation_id = 2 WHERE cluster = 'SC';";
         $this->toolsHelper->executeCmd($update_sql);
         $update_sql = "UPDATE `#__ra_areas` set nation_id = 3 WHERE cluster = 'WA';";
@@ -396,52 +397,6 @@ class Area_listController extends AdminController {
         } else {
             Factory::getApplication()->enqueueMessage($message, 'notice');
             $this->setRedirect('index.php?option=com_ra_tools&view=area_list', false);
-        }
-    }
-
-    public function updateClusters() { // localhost/administrator/index.php?option=com_ra_tools&task=area_list.updateCluster
-        $this->checkClusters();
-        $sql = 'SELECT * FROM #__ra_clusters';
-        $clusters = $this->toolsHelper->getRows($sql);
-        echo "$sql<br>";
-        //      echo $this->toolsHelper . showQuery($sql);
-        foreach ($clusters as $cluster) {
-            $update_sql = 'UPDATE `#__ra_areas` SET cluster = "' . $cluster->code . '" ';
-            $update_sql .= 'WHERE code in (';
-            $update_sql .= '"' . str_replace(',', '","', $cluster->area_list) . '")';
-            echo "$update_sql<br>";
-            $this->toolsHelper->executeCmd($update_sql);
-        }
-
-        $sql = 'SELECT code FROM #__ra_areas WHERE cluster IS NULL ORDER BY code';
-        $rows = $this->toolsHelper->getRows($sql);
-        echo "Seeking areas without cluster code<br>";
-        //      echo $this->toolsHelper . showQuery($sql);
-        foreach ($rows as $row) {
-            echo $row->code . ',';
-        }
-    }
-
-    public function checkClusters() {
-
-        $this->checkClusterTable();
-        $sql = 'DELETE FROM #__ra_clusters';
-        $this->toolsHelper->executeCmd($sql);
-
-        $sql = 'SELECT COUNT(code) FROM #__ra_clusters';
-        $count = $this->toolsHelper->getValue($sql);
-        echo "$sql=$count<br>";
-        if ($count == 0) {
-            $sql = 'INSERT INTO `#__ra_clusters`(code, name,area_list) values ';
-            $sql .= "('ME','Midlands and East','BF,LI,NP,NR,NE,SS,NS,WO,CH,DE'),";
-            $sql .= "('N','North and North West','ER,HF,HW,LD,LE,LL,LN,MC,ML,MR,MW,NN,NS,NY,SD,SS,WK,WR'),";
-            $sql .= "('SE','South East','BU,CB,ES,WX,KT,IL,IW,NO,OX,SK,SR,SX'),";
-            $sql .= "('SSW','South and South West','AV,BK,CL,DN,DT,GR,IW,OX,SO,WE'),";
-            $sql .= "('WA','Wales','CA,CE,SW,GG,LW,PE'),";
-            $sql .= "('SC','Scotland','CY,CF,GP,SC,LB,SL,RB,WS');";
-
-            echo "$sql<br>";
-            $this->toolsHelper->executeCmd($sql);
         }
     }
 

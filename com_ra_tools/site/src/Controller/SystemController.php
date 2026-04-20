@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    3.5.4
+ * @version    3.5.6
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
@@ -11,6 +11,7 @@
  * 26/02/26 CB Catch errors in eventOrganiser
  * 10/03/16 CB check for invalid booking_id in eventAttendees
  * 10/03/26 CB reinstate display of addressee_name for eventOganiser
+ * 19/03/26 CB don't reject EventAttendees if no booking_id
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Controller;
@@ -67,7 +68,7 @@ class SystemController extends FormController {
             $this->app->enqueueMessage('Contact not found for id ' . $id, 'error');
             $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
             return;
-        }        
+        }
         $this->createEmail('RA Tools', 1, $id, $addressee, $callback);
     }
 
@@ -110,17 +111,13 @@ class SystemController extends FormController {
 // Accept event id, lookup email address of all those booked on it
 // If a booking_id is given, then this is an email to a single attendee
         $id = Factory::getApplication()->input->getInt('id', 0);
-         if ($id == 0) {
+        if ($id == 0) {
             $this->app->enqueueMessage('Sorry, Event reference not given', 'error');
             $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
             return;
         }
-        $booking_id = Factory::getApplication()->input->getInt('booking_id', 0);   
-        if ($booking_id == 0) {
-            $this->app->enqueueMessage('Sorry, Booking reference not given', 'error');
-            $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
-            return;
-        }
+        $booking_id = Factory::getApplication()->input->getInt('booking_id', 0);
+
 // Generate a standard object to pass to ra_tools
         $sql = 'SELECT e.title, u.email, p.preferred_name ';
         $sql .= 'FROM #__ra_events AS e ';
@@ -139,7 +136,7 @@ class SystemController extends FormController {
             if (is_null($contact_id)) {
                 $this->app->enqueueMessage('Contact not found for id ' . $contact_id, 'error');
                 return;
-            }   
+            }
             $sql = 'SELECT user_id FROM #__contact_details WHERE id=' . $contact_id;
             $user_id = $this->toolsHelper->getValue($sql);
 //            echo 'User id = ' . $user_id . '<br>';
@@ -178,29 +175,29 @@ class SystemController extends FormController {
         if ($booking_id != 0) {
             $sql = 'SELECT u.email,p.preferred_name ';
             $sql .= 'FROM #__ra_bookings AS b ';
-            $sql .= 'INNER JOIN #__users AS u ON u.id =  b.user_id ';           
-            $sql .= 'INNER JOIN #__ra_profiles AS p ON p.id =  b.user_id ';    
+            $sql .= 'INNER JOIN #__users AS u ON u.id =  b.user_id ';
+            $sql .= 'INNER JOIN #__ra_profiles AS p ON p.id =  b.user_id ';
             $sql .= "WHERE b.id=" . $booking_id . " ";
             echo $sql . '<br>';
-            
+
             $item = $this->toolsHelper->getItem($sql);
             if (is_null($item)) {
                 $this->app->enqueueMessage('Booking not found for id ' . $booking_id, 'error');
                 return;
-            } 
+            }
             $param->addressee_name = $item->preferred_name;
             $param->addressee_email .= $item->email;
- //           die($item->preferred_name . ' ' . $item->email);
+            //           die($item->preferred_name . ' ' . $item->email);
             $this->createEmail($param);
         } else {
             $sql = 'SELECT u.email ';
             $sql .= 'FROM #__ra_bookings AS b ';
-            $sql .= 'INNER JOIN #__users AS u ON u.id =  b.user_id ';  
+            $sql .= 'INNER JOIN #__users AS u ON u.id =  b.user_id ';
             $sql .= "WHERE b.state >= 0 ";
             $sql .= "AND b.event_id=" . $id;
 
             $rows = $this->toolsHelper->getRows($sql);
-    //        echo count($rows) . '<br>';
+            //        echo count($rows) . '<br>';
             if (count($rows) == 0) {
                 $this->app->enqueueMessage('No attendees found for ' . $event->title, 'warning');
                 $this->setRedirect('index.php?option=com_ra_tools&task=emailform.cancel');
@@ -334,7 +331,7 @@ class SystemController extends FormController {
     }
 
     public function test() {
-        $this->eventAttendees(1,4)  ;
+        $this->eventAttendees(1, 4);
         $this->setRedirect('index.php?option=com_ra_tools&task=system.eventAttendees&id=4&booking_id=1 ');
 
         return;

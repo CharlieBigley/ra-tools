@@ -15,7 +15,8 @@
  * 03/05/25 use ToolsHelper->showAccess
  * 11/07/25 CB checkSchema
  * 22/07/25 CB emails/ref to INT
- * 08/08/25 CB mailman / rta_mail_lists / emails_outstanding
+ * 08/08/25 CB mailman / ra_mail_lists / emails_outstanding
+ * 19/04/26 CB resetHitCounters
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\Controller;
@@ -327,6 +328,30 @@ class SystemController extends FormController {
         $user = Factory::getApplication()->getIdentity();
         $this->toolsHelper->showAccess($user->id);
         echo $this->toolsHelper->backButton($this->back);
+    }
+
+    public function resetHitCounters() {
+        if (!$this->toolsHelper->isSuperuser()) {
+            Factory::getApplication()->enqueueMessage('Access only permitted for Superusers', 'warning');
+            $this->setRedirect('index.php?option=com_ra_tools&view=dashboard');
+            return;
+        }
+
+        $sql = 'SELECT COUNT(*) FROM #__content WHERE hits > 0';
+        $count = (int) $this->toolsHelper->getValue($sql);
+
+        if ($this->toolsHelper->executeCommand('UPDATE #__content SET hits = 0')) {
+            $message = 'Reset hit counters on ' . number_format($count) . ' article';
+            if ($count !== 1) {
+                $message .= 's';
+            }
+            $message .= '.';
+            Factory::getApplication()->enqueueMessage($message, 'notice');
+        } else {
+            Factory::getApplication()->enqueueMessage('Unable to reset article hit counters.', 'error');
+        }
+
+        $this->setRedirect('index.php?option=com_ra_tools&view=dashboard');
     }
 
     private function showLists() {

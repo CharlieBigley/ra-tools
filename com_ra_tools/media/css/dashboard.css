@@ -12,14 +12,15 @@
 .dashboard-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
+    grid-auto-rows: auto !important;
     gap: 20px !important;
     margin-top: 30px;
     margin-bottom: 30px;
     width: 100% !important;
     box-sizing: border-box !important;
+    align-items: start !important;
 }
 
-/* Individual Dashboard Block */
 .dashboard-block {
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -36,7 +37,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
 }
 
-/* Block Header */
 .block-header {
     border-bottom: 2px solid #0066cc;
     margin-bottom: 15px;
@@ -51,7 +51,6 @@
     font-weight: 600;
 }
 
-/* Block Content */
 .block-content {
     padding-top: 5px;
 }
@@ -63,8 +62,8 @@
 }
 
 .dashboard-block li {
-    padding: 8px 0;
-    line-height: 1.6;
+    padding: 4px 0;
+    line-height: 1.4;
     border-bottom: 1px solid #eee;
 }
 
@@ -72,7 +71,6 @@
     border-bottom: none;
 }
 
-/* Links */
 .dashboard-block a {
     text-decoration: none;
     color: #0066cc;
@@ -89,14 +87,12 @@
     color: #5c7cba;
 }
 
-/* Disabled/Info Items */
 .dashboard-block .item-text {
     color: #999;
     font-size: 0.95em;
     font-style: italic;
 }
 
-/* Responsive: Stack on tablets and below */
 @media (max-width: 768px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
@@ -118,26 +114,3 @@
     }
 }
 
-/* Print Styles */
-@media print {
-    .dashboard-grid {
-        gap: 15px;
-    }
-    
-    .dashboard-block {
-        page-break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid #ccc;
-    }
-    
-    .dashboard-block a {
-        color: #000;
-        text-decoration: none;
-    }
-    
-    .dashboard-block a::after {
-        content: " (" attr(href) ")";
-        font-size: 0.8em;
-        color: #666;
-    }
-}

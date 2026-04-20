@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version     3.4.2
+ * @version     3.6.0
  * @package     com_ra_tools
  *
  * @copyright   Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
@@ -17,7 +17,7 @@
  * 16/08/25 CB correct hex for Sunrise
  * 03/09/25 CB use ToolsHelper->showVersions
  * 08/09/25 CB showBespoke
- * 13/10/25 CB optional start parameter for showTable
+ * 13/10/25 CB optional start parameter for showTable,  resetHitCounters
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\Controller;
@@ -728,6 +728,7 @@ class ReportsController extends FormController {
     public function showLogfile() {
         echo $this->breadcrumbs;
         $offset = $this->objApp->input->getCmd('offset', '0');
+        $option = $this->objApp->input->getCmd('option', 'com_ra_tools');
         $next_offset = $offset - 1;
         $previous_offset = $offset + 1;
 
@@ -743,7 +744,7 @@ class ReportsController extends FormController {
             }
         }
         ToolBarHelper::title($this->prefix . 'Logfile records for ' . date_format($target, "D d M"));
-
+echo $option;
         $sql = "SELECT date_format(log_date, '%a %e-%m-%y') as Date, ";
         $sql .= "date_format(log_date, '%H:%i:%s.%u') as Time, ";
         $sql .= "sub_system,record_type, ";
@@ -917,9 +918,6 @@ class ReportsController extends FormController {
 
         $sql = 'SELECT m.id FROM `#__menu` AS m INNER JOIN `#__menu` AS p ON p.id = m.parent_id WHERE p.title = "Menu_Item_Root" AND m.title = "Dashboard"';
         $id = $this->toolsHelper->getValue($sql);
-//
-
-
         if ($id > 0) {
             $sql = 'UPDATE `#__menu` SET title = "RA Dashboard" WHERE id=' . $id;
             echo "sql = $sql<br>";
@@ -929,6 +927,48 @@ class ReportsController extends FormController {
 ////////////////////////////////////////////////////////////////////////////////
         $target = "administrator/index.php?option=com_ra_tools&view=reports";
         echo $this->toolsHelper->backButton($target);
+    }
+
+    public function showHitCounters() {
+        if (!$this->toolsHelper->isSuperuser()) {
+            Factory::getApplication()->enqueueMessage('Access only permitted for Superusers', 'warning');
+            $this->setRedirect('index.php?option=com_ra_tools&view=dashboard');
+            return;
+        }
+
+        ToolBarHelper::title($this->prefix . 'Top Article Hit Counters');
+        echo $this->breadcrumbs . $this->breadcrumbsExtra('Article hit counters', 'showHitCounters') . '<br>';
+
+        $sql = 'SELECT id, title, hits, state ';
+        $sql .= 'FROM #__content ';
+        $sql .= 'ORDER BY hits DESC, title ';
+        $sql .= 'LIMIT 10';
+
+        $rows = $this->toolsHelper->getRows($sql);
+
+        if (count($rows) == 0) {
+            echo 'No Articles found.<br>';
+        } else {
+            $objTable = new ToolsTable;
+            $objTable->add_header('id,Article,Hits,Status');
+
+            foreach ($rows as $row) {
+                $edit = 'administrator/index.php?option=com_content&task=article.edit&id=' . $row->id;
+
+                $objTable->add_item($row->id);
+                $objTable->add_item($this->toolsHelper->buildLink($edit, $row->title));
+                $objTable->add_item(number_format($row->hits));
+                $objTable->add_item($row->state == 1 ? 'Published' : 'Unpublished');
+                $objTable->generate_line();
+            }
+
+            $objTable->generate_table();
+        }
+
+        $target = 'administrator/index.php?option=com_ra_tools&task=system.resetHitCounters';
+        echo $this->toolsHelper->buildButton($target, 'Reset all hit counters', false, 'sunrise');
+        echo '&nbsp;';
+        echo $this->toolsHelper->backButton($this->back);
     }
 
     public function showPaths() {
@@ -1104,12 +1144,12 @@ class ReportsController extends FormController {
         }
     }
 
-    function showTable() {
+    function showTable($start=0, $limit=10) {
 // display given number of records from the specified table
         $table = $this->objApp->input->getCmd('table', '');
         // Following two parameters can only be supplied manually
         $limit = $this->objApp->input->getInt('limit', '10');
-        $start = $this->objApp->input->getInt('start', '10');
+        $start = $this->objApp->input->getInt('start', '0');
 
         $config = Factory::getConfig();
         $database = $config->get('db');

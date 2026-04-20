@@ -11,11 +11,12 @@
  * 04/03/24 CB created isPresent
  * 25/08/25 CB help
  * 11/09/25 CB show Sitename in title
+ * 13/04/26 CB separate template for Corporate MailMan
  */
 // No direct access
 
 namespace Ramblers\Component\Ra_tools\Administrator\View\Dashboard;
-
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use \Joomla\CMS\Toolbar\Toolbar;
 use \Joomla\CMS\Toolbar\ToolbarHelper;
@@ -24,19 +25,43 @@ use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 
 class HtmlView extends BaseHtmlView {
 
+    protected $help_url;
+
     public function display($tpl = null): void {
+        $layout = $this->getDashboardLayout();
+        $this->help_url = $this->getHelpUrl($layout);
+        $this->setLayout($layout);
         $this->addToolbar();
         parent::display($tpl);
     }
+
+    protected function getDashboardLayout(): string {
+        if (!ComponentHelper::isEnabled('com_ra_mailman', true)) {
+            return 'default';
+        }
+
+        $params = ComponentHelper::getParams('com_ra_mailman');
+
+        return $params->get('full_version') === 'Y' ? 'default' : 'mailman';
+    }
+
+    protected function getHelpUrl(string $layout): string {
+        switch ($layout) {
+            case 'mailman':
+                return 'https://docs.stokeandnewcastleramblers.org.uk/ramblers-components.html#corporate-mailman';
+
+            default:
+                return 'https://docs.stokeandnewcastleramblers.org.uk/ramblers-components.html';
+        }
+    }
+    
 
     protected function addToolbar() {
         // Suppress menu side panel
         //       Factory::getApplication()->input->set('hidemainmenu', true);        $config = Factory::getConfig();
 
         ToolbarHelper::title('RA Dashboard ' . Factory::getConfig()->get('sitename'), "generic");
-
-        $help_url = 'https://docs.stokeandnewcastleramblers.org.uk/ramblers-components.html';
-        ToolbarHelper::help('', false, $help_url);
+        ToolbarHelper::help('', false, $this->help_url);
     }
 
     public function createLink($component, $view, $caption) {

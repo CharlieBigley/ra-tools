@@ -3,7 +3,7 @@
 /**
  * Various common functions used throughout the project
  *
- * @version     3.5.5
+ * @version     3.6.0
  * @package     com_ra_tools
  * @author charlie
 
@@ -29,6 +29,8 @@
  * 05/10/25 CB show contact details
  * 12/10/25 CB lookupUser
  * 26/02/26 CB add buildEmailPreamble
+ * 06/04/26 CB envelopeIcon
+ * 20/04/26 CB showMonthMatrix drilldown by date, delered get_spueruser
  */
 /*
   There is a long list of old style form field classes that have no equivalent in Joomla 5. For example:
@@ -63,12 +65,14 @@ class ToolsHelper {
     public $user;
     public $rows;
     public $image_folder = "media/com_ra_tools/";
+    protected $toolsTable;
     protected $website_root;
 
     function __construct() {
         $this->user = Factory::getApplication()->getIdentity();
         $this->db = Factory::getDbo();
         $this->rows = 0;
+        $this->toolsTable = new ToolsTable();
     }
 
     static function addSlash($folder) {
@@ -400,6 +404,10 @@ class ToolsHelper {
         */       
     }
 
+    static function envelopeIcon(){
+        return '<span class="icon-envelope" aria-hidden="true"></span>';
+    }
+    
     function executeCmd($sql) {
 // Deprecated !
         $this->executeCommand($sql);
@@ -605,14 +613,14 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 
     public function getRows($sql) {
         /*
-          $objTable->add_header("aa,bb");
+          $this->toolsTable->add_header("aa,bb");
           $rows = $this->objHelper->getRows($sql);
           foreach ($rows as $row) {
-          $objTable->add_item($row->aa);
-          $objTable->add_item($row->bb);
-          $objTable->generate_line();
+          $this->toolsTable->add_item($row->aa);
+          $this->toolsTable->add_item($row->bb);
+          $this->toolsTable->generate_line();
           }
-          $objTable->generate_table();
+          $this->toolsTable->generate_table();
          */
         $this->rows = 0;
         try {
@@ -633,9 +641,19 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         }
     }
 
-    function get_superuser() {
-// deprecated function
-        return $this->isSuperuser();
+    function getValue($sql, $debug = 0) {
+        if ($debug == 1) {
+            echo $sql . '<br>';
+        }
+        try {
+            $db = Factory::getContainer()->get(DatabaseInterface::class);
+            $query = $db->getQuery(true);
+            $db->setQuery($sql);
+            return $db->loadResult();
+        } catch (Exception $ex) {
+            $this->error = $ex->getCode() . ' ' . $ex->getMessage();
+            return false;
+        }
     }
 
     /**
@@ -675,20 +693,6 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         return $versions;
     }
 
-    function getValue($sql, $debug = 0) {
-        if ($debug == 1) {
-            echo $sql . '<br>';
-        }
-        try {
-            $db = Factory::getContainer()->get(DatabaseInterface::class);
-            $query = $db->getQuery(true);
-            $db->setQuery($sql);
-            return $db->loadResult();
-        } catch (Exception $ex) {
-            $this->error = $ex->getCode() . ' ' . $ex->getMessage();
-            return false;
-        }
-    }
 
     function imageButton($mode, $target, $newWindow = False) {
         if (substr($target, 0, 4) == "http") {
@@ -1149,7 +1153,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         $mailer->setBody($body);
 
 //     Optional file attachments - must be an array
-        if ($attachments != '') {
+        if ($attachments !== '') {
             $mailer->addAttachment($attachments);
         }
         return $mailer->Send();
@@ -1227,6 +1231,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
     }
 
     public function showDateMatrix($date_field, $table, $criteria, $title, $link, $back, $new_window = false) {
+        // deprecated function - use showMonthMatrix instead
         $this->showMonthMatrix($date_field, $table, $criteria, $title, $link, $back, $new_window);
     }
 
@@ -1270,12 +1275,11 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 
 //        echo "daynum=$daynum for $first_of_this_month, next month=$first_of_next_month, days_in_month=$days_in_month<br>";
 
-        $objTable = new ToolsTable();
-$objTable->add_header("Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday");
+        $this->toolsTable->add_header("Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday");
 
         $col = 1;
         for ($i = 1; $col < $daynum; $i++) {
-            $objTable->add_item(' ');
+            $this->toolsTable->add_item(' ');
             $col++;
         }
 
@@ -1302,16 +1306,16 @@ $objTable->add_header("Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"
                     $details .= $this->buildLink($target . sprintf('%02d', $i), $count);
                 }
             }
-            $objTable->add_item($details);
+            $this->toolsTable->add_item($details);
             $col++;
             if ($col == 8) {
-                $objTable->generate_line();
+                $this->toolsTable->generate_line();
                 $col = 1;
             }
         }
 
-        $objTable->generate_line();
-        $objTable->generate_table();
+        $this->toolsTable->generate_line();
+        $this->toolsTable->generate_table();
         if ($back !== '') {
             echo $this->backButton($back);
         }
@@ -1319,7 +1323,7 @@ $objTable->add_header("Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"
 
         $rows = $this->getRows($sql);
         foreach ($rows as $row) {
-            $objTable->add_item($row->Year);
+            $this->toolsTable->add_item($row->Year);
 
             for ($m = 1; $m < 13; $m++) {
                 $sql = 'SELECT COUNT(*) AS `record_count` ';
@@ -1332,21 +1336,21 @@ $objTable->add_header("Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"
                 }
 //
                 if ($link == '') {
-$objTable->add_item($this->getValue($sql));
+                $this->toolsTable->add_item($this->getValue($sql));
                 } else {
                     $count = $this->getValue($sql);
                     if ($count == 0) {
-                        $objTable->add_item('');
+                        $this->toolsTable->add_item('');
                     } else {
                         $target = $link . '&year=' . $row->Year . '&month=' . $m;
-$objTable->add_item($this->buildLink($target, $count, $new_window));
+                        $this->toolsTable->add_item($this->buildLink($target, $count, $new_window));
                     }
                 }
             }
 
-            $objTable->generate_line();
+            $this->toolsTable->generate_line();
         }
-        $objTable->generate_table();
+        $this->toolsTable->generate_table();
         if ($back !== '') {
             echo $this->backButton($back);
         }
@@ -1414,8 +1418,7 @@ $objTable->add_item($this->buildLink($target, $count, $new_window));
         if ((count($rows) == 0)) {
             echo $missing;
         } else {
-            $objTable = new ToolsTable;
-            $objTable->add_header("Date,Event,Type,Max places,Notify,Count bookings,Total places,Emails");
+            $this->toolsTable->add_header("Date,Event,Type,Max places,Notify,Count bookings,Total places,Emails");
             echo '<h2>Future Events organised by you</h2>';
             $sql = 'SELECT COUNT(id) as num ';
             $sql .= 'FROM #__ra_emails AS e ';
@@ -1424,21 +1427,21 @@ $objTable->add_item($this->buildLink($target, $count, $new_window));
             $target = 'index.php?option=com_ra_tools&task=emails.showByRef';
             foreach ($rows as $row) {
                 $count = $this->getValue($sql . $row->id);
-                $objTable->add_item($row->event_date);
-                $objTable->add_item($row->title);
-                $objTable->add_item($row->description);
-                $objTable->add_item($row->max_bookings);
+                $this->toolsTable->add_item($row->event_date);
+                $this->toolsTable->add_item($row->title);
+                $this->toolsTable->add_item($row->description);
+                $this->toolsTable->add_item($row->max_bookings);
                 if ($row->notify_organiser == 1) {
-                    $objTable->add_item('Yes');
+                    $this->toolsTable->add_item('Yes');
                 } else {
-                    $objTable->add_item('No');
+                    $this->toolsTable->add_item('No');
                 }
-                $objTable->add_item($row->cnt);
-                $objTable->add_item($row->num);
-                $objTable->add_item($count);
-                $objTable->generate_line();
+                $this->toolsTable->add_item($row->cnt);
+                $this->toolsTable->add_item($row->num);
+                $this->toolsTable->add_item($count);
+                $this->toolsTable->generate_line();
             }
-            $objTable->generate_table();
+            $this->toolsTable->generate_table();
             if (count($rows) > 1) {
                 echo count($rows) . ' Events<br>';
             }
@@ -1509,8 +1512,7 @@ $objTable->add_item($this->buildLink($target, $count, $new_window));
     }
 
     public function showExtensions() {
-        $objTable = new ToolsTable;
-$objTable->add_header('Type,Name,Element,Enabled,Version,DB version,id');
+        $this->toolsTable->add_header('Type,Name,Element,Enabled,Version,DB version,id');
         $extensions = array(
             'tpl_hydrogen_ramblers',
             'com_hy_schema',
@@ -1548,20 +1550,20 @@ $objTable->add_header('Type,Name,Element,Enabled,Version,DB version,id');
                     $pos = strpos($cache, 'version');
                     $temp = substr($cache, $pos + 10);
                     $pos = strpos($temp, '"');
-                    $objTable->add_item($row->type);
-                    $objTable->add_item($row->name);
-                    $objTable->add_item($row->element);
-                    $objTable->add_item($row->enabled);
-                    $objTable->add_item(substr($temp, 0, $pos));
-                    $objTable->add_item($row->version_id);
-                    $objTable->add_item($row->extension_id);
-                    $objTable->generate_line();
+                    $this->toolsTable->add_item($row->type);
+                    $this->toolsTable->add_item($row->name);
+                    $this->toolsTable->add_item($row->element);
+                    $this->toolsTable->add_item($row->enabled);
+                    $this->toolsTable->add_item(substr($temp, 0, $pos));
+                    $this->toolsTable->add_item($row->version_id);
+                    $this->toolsTable->add_item($row->extension_id);
+                    $this->toolsTable->generate_line();
                 }
             }
         }
 
 
-        $objTable->generate_table();
+        $this->toolsTable->generate_table();
     }
 
     private function showLists($id) {
@@ -1590,7 +1592,7 @@ $objTable->add_header('Type,Name,Element,Enabled,Version,DB version,id');
          * Example of usage
           $field = 'event_date';
           $table = ' #__ra_events';
-          $criteria = '';
+          $criteria = 'state=1';          // N.B. do not include WHERE
           $title = 'Events by month';
           $link = "administrator/index.php?option=com_ra_events&task=reports.test&year=d&month=";
           $back = $this->back;
@@ -1608,14 +1610,12 @@ $objTable->add_header('Type,Name,Element,Enabled,Version,DB version,id');
         }
         $sql .= 'GROUP BY YEAR(' . $date_field . ') ';
         $sql .= 'ORDER BY YEAR(' . $date_field . ')';
+        $toolsTable = new ToolsTable();
 
-        $objTable = new ToolsTable();
-
-$objTable->add_header("Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec");
-
+        $toolsTable->add_header("Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec");
         $rows = $this->getRows($sql);
         foreach ($rows as $row) {
-            $objTable->add_item($row->Year);
+            $toolsTable->add_item($row->Year);
 
             for ($m = 1; $m < 13; $m++) {
                 $sql = 'SELECT COUNT(*) AS `record_count` ';
@@ -1624,29 +1624,28 @@ $objTable->add_header("Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec");
                 $sql .= "AND MONTH(" . $date_field . ")='" . $m . "' ";
                 if ($criteria !== '') {
                     $sql .= 'AND ' . $criteria . '  ';
-                    echo $sql . '<br>';
                 }
 //
                 if ($link == '') {
-$objTable->add_item($this->getValue($sql));
+                    $toolsTable->add_item($this->getValue($sql));
                 } else {
                     $count = $this->getValue($sql);
                     if ($count == 0) {
-                        $objTable->add_item('');
+                        $toolsTable->add_item('');
                     } else {
                         $target = $link . '&year=' . $row->Year . '&month=' . $m;
-$objTable->add_item($this->buildLink($target, $count, $new_window));
+                        $toolsTable->add_item($this->buildLink($target, $count, $new_window));
                     }
                 }
             }
 
-            $objTable->generate_line();
+            $toolsTable->generate_line();
         }
-        $objTable->generate_table();
+        $toolsTable->generate_table();
         if ($back !== '') {
             echo $this->backButton($back);
         }
-    }
+    }    
 
     function showPrint($target, $newWindow = 0) {
 // Given the URL of the current page, generates CSS to display a link for creating a

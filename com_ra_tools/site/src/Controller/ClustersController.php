@@ -11,6 +11,7 @@
  * 23/11/23 CB correct use of AssetManager
  * 29/09/24 CB replace JPATH_SITE by JPATH_ROOT
  * 18/12/24 CB set up Nations
+ * 14/03/26 CB get Clusters usingJsonHelper
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Controller;
@@ -20,6 +21,7 @@ use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\Uri\Uri;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
+use Ramblers\Component\Ra_tools\Site\Helpers\JsonHelper;
 
 class ClustersController extends FormController {
 
@@ -387,6 +389,25 @@ class ClustersController extends FormController {
         $objTable->generate_table();
         $back = 'index.php?option=com_ra_tools&task=clusters.show&Itemid=' . $menu_id;
         echo $this->objHelper->backButton($back);
+    }
+
+    public function showRemote($site_id=2){
+
+//         if (JDEBUG) {
+//            $message = 'Site id ' . $site_id . ', ';
+//            $message .= 'Seeking clusters from site id ' . $site_id;
+//            $this->messages[] = $message;
+//        }
+        $jsonHelper = new JsonHelper;
+        $data = $jsonHelper->getRemoteData($site_id,'/api/index.php/v1/ra_tools/clusters');
+        if ($data == false) {
+            for ($i = 0, $count = count($jsonHelper->messages); $i < $count; $i++) {
+                echo $jsonHelper->messages[$i] . '<br>';
+            }
+        }
+  //      $endpoint = '/api/index.php/v1/ra_tools/clusters';
+  //      $data = $jsonHelper->fetchApiData($site_id, $endpoint, 1);
+        var_dump($data);        
     }
 
     public function update() {

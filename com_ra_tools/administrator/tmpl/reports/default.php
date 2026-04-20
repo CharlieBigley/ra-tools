@@ -21,6 +21,7 @@
  * 08/07/25 CB breadcrumbs
  * 15/07/25 CB show emails
  * 21/07/25 CB refer to Home Dashboard in breadcrumbs
+  * 14/04/26 CB restructure formatting
  */
 defined('_JEXEC') or die;
 
@@ -33,20 +34,45 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
-use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
 
 $toolsHelper = new ToolsHelper;
-$objTable = new ToolsTable();
 ToolBarHelper::title('System reports');
 
 // Import CSS
 $this->wa = $this->document->getWebAssetManager();
 $this->wa->registerAndUseStyle('ramblers', 'com_ra_tools/ramblers.css');
 
-echo '<h2>System reports</h2>';
 $breadcrumbs = $toolsHelper->buildLink('administrator/index.php', 'Home Dashboard');
 $breadcrumbs .= '>' . $toolsHelper->buildLink('administrator/index.php?option=com_ra_tools&view=dashboard', 'RA Dashboard');
 echo $breadcrumbs;
+echo '<h2>System reports</h2>';
+$reports = [
+    'List emails' => 'administrator/index.php?option=com_ra_tools&view=emails',
+    'Top article hit counters' => 'administrator/index.php?option=com_ra_tools&task=reports.showHitCounters',
+    'Groups by bespoke description' => 'administrator/index.php?option=com_ra_tools&task=reports.showBespoke',
+    'Contact By Category' => 'administrator/index.php?option=com_ra_tools&task=reports.contactsByCategory',
+    'Extract contacts' => 'administrator/index.php?option=com_ra_tools&task=reports.extractContacts',
+    'Users with duplicate name' => 'administrator/index.php?option=com_ra_tools&task=reports.duplicateName',
+    'Count users by Registration date' => 'administrator/index.php?option=com_ra_tools&task=reports.showRegistrations',
+    'Joomla User by Group' => 'administrator/index.php?option=com_ra_tools&task=reports.showJoomlaUsersByGroup',
+    'Extensions and versions' => 'administrator/index.php?option=com_ra_tools&task=reports.showExtensions',
+    'Schema' => 'administrator/index.php?option=com_ra_tools&task=reports.showSchema',
+    'Areas by latitude' => 'administrator/index.php?option=com_ra_tools&task=reports.areasLatitude',
+];
+
+if (ComponentHelper::isEnabled('com_ra_mailman', true) OR (ComponentHelper::isEnabled('com_ra_walks', true))) {
+    $reports['Show Logfile by month'] = 'administrator/index.php?option=com_ra_tools&task=reports.showLogfileByMonth';
+    $reports['Search all Logfile records'] = 'administrator/index.php?option=com_ra_tools&view=logfiles';
+    $reports['Show recent Logfile records'] = 'administrator/index.php?option=com_ra_tools&task=reports.showLogfile';
+}
+
+if (ComponentHelper::isEnabled('com_ra_sg', true)) {
+    $reports['Summarise Self Guided walks'] = 'administrator/index.php?option=com_ra_tools&task=reports.summariseGuided';
+}
+
+$reports['Colours'] = 'administrator/index.php?option=com_ra_tools&task=reports.showColours';
+$reports['Show Events from JSON feed, by Area'] = 'administrator/index.php?option=com_ra_tools&task=reports.showEvents';
+$reports['Show Ramblers menus'] = 'administrator/index.php?option=com_ra_tools&task=reports.showMenus';
 //echo __file__ . '<br>';
 //var_dump($this->params);
 ?>
@@ -55,91 +81,12 @@ echo $breadcrumbs;
     <div id="j-main-container" class="span10">
         <div class="clearfix"> </div>
         <?php
-        //$mode = $this->escape($this->state->get('list.ordering'));
-        //$listDirn = $this->escape($this->state->get('list.direction'));
-        $objTable->width = 30;
-        $objTable->add_header('Report,Action', 'grey');
-
-        $objTable->add_item("List emails");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&view=emails", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Groups by bespoke description");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showBespoke", "Go", False, 'red'));
-        $objTable->add_item("");
-        $objTable->generate_line();
-
-//        $objTable->add_item("Show Paths");
-//        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showPaths", "Go", False, 'red'));
-//        $objTable->add_item("");
-//        $objTable->generate_line();
-
-        $objTable->add_item("Contact By Category");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.contactsByCategory", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Extract contacts");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.extractContacts", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Users with duplicate name");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.duplicateName", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Count users by Registration date");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showRegistrations", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Joomla User by Group");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showJoomlaUsersByGroup", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Extensions and versions");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showExtensions", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Schema");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showSchema", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Areas by latitude");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.areasLatitude", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        if (ComponentHelper::isEnabled('com_ra_mailman', true) OR (ComponentHelper::isEnabled('com_ra_walks', true))) {
-            $objTable->add_item("Show Logfile by month");
-            $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showLogfileByMonth", "Go", False, 'red'));
-            $objTable->generate_line();
-
-            $objTable->add_item("Search all Logfile records");
-            $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&view=logfiles", "Go", False, 'red'));
-            $objTable->generate_line();
-
-            $objTable->add_item("Show recent Logfile records");
-            $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showLogfile", "Go", False, 'red'));
-            $objTable->generate_line();
+        echo '<ul>';
+        foreach ($reports as $caption => $task) {
+            echo '<li>' . $toolsHelper->buildLink($task, $caption) . '</li>';
         }
+        echo '</ul>';
 
-        if (ComponentHelper::isEnabled('com_ra_sg', true)) {
-            $objTable->add_item("Summarise Self Guided walks");
-            $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.summariseGuided", "Go", False, 'red'));
-            $objTable->generate_line();
-        }
-
-        $objTable->add_item("Colours");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showColours", "Go", False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Show Events from JSON feed, by Area");
-        $objTable->add_item($toolsHelper->buildButton('administrator/index.php?option=com_ra_tools&task=reports.showEvents', 'Go', False, 'red'));
-        $objTable->generate_line();
-
-        $objTable->add_item("Show Ramblers menus");
-        $objTable->add_item($toolsHelper->buildButton("administrator/index.php?option=com_ra_tools&task=reports.showMenus", "Go", False, 'red'));
-        $objTable->add_item("");
-        $objTable->generate_line();
-
-        $objTable->generate_table();
         $target = 'administrator/index.php?option=com_ra_tools&view=dashboard';
         echo $toolsHelper->backButton($target);
         ?>

@@ -2,7 +2,13 @@
 <form addfieldprefix="Ramblers\Component\Ra_tools\Administrator\Field">
   <fieldset>
     <field name="id" type="text" readonly="true" class="readonly" default="0" description="JGLOBAL_FIELD_ID_DESC"/>
-    <field name="nation_id" type="foreignkey" label="COM_RA_TOOLS_FORM_LBL_AREA_NATION_ID" description="COM_RA_TOOLS_FORM_DESC_AREA_NATION_ID" default="0" input_type="list" table="#__ra_nations" key_field="id" translate="true" value_field="name"/>
+    <field name="nation_id" type="foreignkey" 
+           label="COM_RA_TOOLS_FORM_LBL_AREA_NATION_ID" 
+           description="COM_RA_TOOLS_FORM_DESC_AREA_NATION_ID" 
+           default="0" 
+           input_type="list" 
+           table="#__ra_nations" key_field="id" translate="true" 
+           value_field="name"/>
     <field name="code" type="text" label="COM_RA_TOOLS_FORM_LBL_AREA_CODE" description="COM_RA_TOOLS_FORM_DESC_AREA_CODE" hint="COM_RA_TOOLS_FORM_LBL_AREA_CODE"/>
     <field name="name" type="text" label="COM_RA_TOOLS_FORM_LBL_AREA_NAME" description="COM_RA_TOOLS_FORM_DESC_AREA_NAME" hint="COM_RA_TOOLS_FORM_LBL_AREA_NAME"/>
     <field name="details" type="textarea" label="COM_RA_TOOLS_FORM_LBL_AREA_DETAILS" description="COM_RA_TOOLS_FORM_DESC_AREA_DETAILS" hint="COM_RA_TOOLS_FORM_LBL_AREA_DETAILS"/>

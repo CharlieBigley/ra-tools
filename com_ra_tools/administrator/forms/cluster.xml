@@ -1,7 +1,7 @@
 <form addfieldprefix="Ramblers\Component\Ra_tools\Administrator\Field">
   <fieldset>
     <field name="id" type="text" readonly="true" class="readonly" default="0" description="JGLOBAL_FIELD_ID_DESC"/>
-    <field name="name" maxlength="100" filter="word" type="text" required="true" 
+    <field name="name" maxlength="100" filter="string" type="text" required="true" 
       label="Name" description="Name of the Cluster" 
       hint="Enter the cluster name"/>
     <field name="area_list" filter="safehtml" type="text" required="true" 
