@@ -18,6 +18,8 @@
  * 03/09/25 CB use ToolsHelper->showVersions
  * 08/09/25 CB showBespoke
  * 13/10/25 CB optional start parameter for showTable,  resetHitCounters
+ * 10/05/26 CB blockedUsers from mailman
+ * 20/05/26 CB resetUsers from mailman
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\Controller;
@@ -102,6 +104,42 @@ class ReportsController extends FormController {
         echo $this->toolsHelper->backButton($this->back);
     }
 
+
+    public function blockedUsers() {
+        ToolBarHelper::title($this->prefix . 'Blocked users');
+        echo $this->breadcrumbs;
+        $table = new ToolsTable();
+        $table->add_header("Name,email,Lists,Audit,ID");
+
+        $sql = "SELECT id, name as 'User', email  ";
+        $sql .= 'FROM `#__users` ';
+        $sql .= ' WHERE block=1';
+        $sql .= ' ORDER BY id';
+        $target = 'administrator/index.php?option=com_ra_mailman&task=system.purgeUser&id=';
+        $rows = $this->toolsHelper->getRows($sql);
+        foreach ($rows as $row) {
+            $table->add_item($row->User);
+            $table->add_item($row->email);
+            $count = $this->countLists($row->id);
+            $table->add_item($count);
+            $count = $this->countAudit($row->id);
+            $table->add_item($count);
+            if ($this->toolsHelper->isSuperuser()) {
+                $table->add_item($this->toolsHelper->buildButton($target . $row->id, 'Purge', false, 'orange'));
+            } else {
+                $table->add_item($row->id);
+            }
+            $table->generate_line();
+        }
+        $table->generate_table();
+        echo count($rows) . ' rows<br>';
+        if ((count($rows) > 1) AND ($this->toolsHelper->isSuperuser())) {
+            $target = 'administrator/index.php?option=com_ra_mailman&task=system.purgeAllUsers';
+            echo $this->toolsHelper->buildButton($target, 'Purge All', false, 'red');
+        }
+
+        echo $this->toolsHelper->backButton($this->back);
+    }
     private function breadcrumbsExtra($label, $report) {
 // generates a link to be added to the standard breadcrumbs
         $target = 'administrator/index.php?option=com_ra_tools&task=reports.' . $report;
@@ -140,6 +178,15 @@ class ReportsController extends FormController {
         echo $this->toolsHelper->backButton($this->back);
     }
 
+        private function countLists($user_id) {
+        $sql = 'SELECT COUNT(id) ';
+        $sql .= 'FROM `#__ra_mail_subscriptions` ';
+        $sql .= 'WHERE user_id=' . $user_id;
+//        echo $sql . '<br>';
+//        $count = $this->toolsHelper->getValue($sql);
+        return $this->toolsHelper->getValue($sql);
+    }
+    
     public function countUsers() {
         ToolBarHelper::title($this->prefix . 'User count by Group');
         echo $this->breadcrumbs;
@@ -271,6 +318,34 @@ class ReportsController extends FormController {
         } else {
             return 'N';
         }
+    }
+
+    public function resetUsers() {
+        ToolBarHelper::title($this->prefix . 'Users awaiting password reset');
+        echo $this->breadcrumbs;
+        $objTable = new ToolsTable();
+        $objTable->add_header("Name,email,Preferred name,Group,Lists,ID");
+
+        $sql = "SELECT u.id, u.name as 'User', u.email,  ";
+        $sql .= 'p.home_group, p.preferred_name ';
+        $sql .= 'FROM  `#__users` AS u ';
+        $sql .= 'LEFT JOIN `#__ra_profiles` AS p on p.id = u.id ';
+        $sql .= ' WHERE u.requireReset=1';
+        $sql .= ' ORDER BY id';
+//        $target = 'administrator/index.php?option=com_users&view=users';
+        $rows = $this->toolsHelper->getRows($sql);
+        foreach ($rows as $row) {
+            $objTable->add_item($row->User);
+            $objTable->add_item($row->email);
+            $objTable->add_item($row->preferred_name);
+            $objTable->add_item($row->home_group);
+            $count = $this->countLists($row->id);
+            $objTable->add_item($count);
+            $objTable->add_item($row->id);
+            $objTable->generate_line();
+        }
+        $objTable->generate_table();
+        echo $this->toolsHelper->backButton($this->back);
     }
 
     private function setScopeCriteria() {

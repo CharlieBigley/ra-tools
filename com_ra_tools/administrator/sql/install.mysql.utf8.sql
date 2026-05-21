@@ -112,6 +112,12 @@ PRIMARY KEY (`id`)
     ,KEY `idx_modified_by` (`modified_by`)
 ) DEFAULT COLLATE=utf8mb4_unicode_ci;
 # ------------------------------------------------------------------------------
+  CREATE TABLE IF NOT EXISTS `#__ra_control` (
+    `record_type` INT NOT NULL,
+    `key_value` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`record_type`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+  # ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__ra_groups` (
     `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
     `area_id` int NOT NULL DEFAULT '1',
@@ -120,8 +126,8 @@ CREATE TABLE IF NOT EXISTS `#__ra_groups` (
     `bespoke` VARCHAR(1) NOT NULL DEFAULT 0,
     `details` mediumtext NOT NULL,
     `group_type` VARCHAR(1) NOT NULL DEFAULT 'G',
-    `website` VARCHAR(150) NOT NULL,
-    `co_url` VARCHAR(150) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `website` VARCHAR(250) NOT NULL,
+    `co_url` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
     `latitude` decimal(14,12) NOT NULL DEFAULT '0',
     `longitude` decimal(14,12) NOT NULL DEFAULT '0',
     `state` INT(11)  NULL  DEFAULT 0,`created` DATETIME NULL  DEFAULT NULL ,

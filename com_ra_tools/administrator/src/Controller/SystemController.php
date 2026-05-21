@@ -251,7 +251,16 @@ class SystemController extends FormController {
         //       $sql = 'ALTER TABLE `#__ra_emails` CHANGE COLUMN `ref` `ref` INTEGER NOT NULL';
         //       $this->toolsHelper->executeCommand($sql);
         $helper->checkColumn('ra_emails', 'ref', 'A', 'INT NULL DEFAULT "0" AFTER record_type');
-        //      $helper->checkColumn('ra_emails', 'ref', 'U', 'INT NULL DEFAULT 0');
+        // 
+        $helper->checkColumn('ra_mail_shots', 'record_type', 'A', 'VARCHAR(1) DEFAULT "M" AFTER id; ');
+        $helper->checkColumn('ra_mail_shots', 'mail_list_id', 'U', 'INT NULL; ');
+        $helper->checkColumn('ra_mail_shots', 'event_id', 'A', 'INT NULL AFTER mail_list_id; ');    
+           
+        $helper->checkColumn('ra_groups', 'bespoke', 'A', 'VARCHAR(1) NOT NULL DEFAULT 0 AFTER `name`;');
+        $helper->checkColumn('ra_groups', 'website', 'U', 'VARCHAR(250);');
+        $helper->checkColumn('ra_groups', 'co_url', 'U', 'VARCHAR(250);');
+        // `` ,
+        
         $target = 'administrator/index.php?option=com_ra_tools&view=dashboard';
         echo $this->toolsHelper->backButton($target);
     }
@@ -418,31 +427,25 @@ class SystemController extends FormController {
     }
 
     public function test() {
-        $helper = new EventsHelper;
-//        echo $helper->emailHeader(3.1);
-        return;
-        $tools_required = '3.0.4';
-        $tools_version = $this->getVersion('com_ra_tools');
-        echo '<p>Version ' . $tools_required . ' of com_ra_tools required<br>';
+        $event_id = 123;
+        echo 'encoding token<br>';
+        $token = $this->toolsHelper->encodeToken(0, 21, $event_id);
 
-        if (version_compare($tools_version, $tools_required, 'ge')) {
-            echo 'Version ' . $tools_version . ' of com_ra_tools found</p>';
-        } else {
-            echo 'Version ' . $tools_version . ' of com_ra_tools found</p>';
-            echo '<p>ERROR: Requires version of com_ra_tools >=' . $tools_required . '</p>';
-            return false;
+        if ($token === false) {
+            echo 'encodeToken failed: ' . $this->toolsHelper->error . '<br>';
+            return;
         }
-        echo '<p>com_ra_events is now at ' . $this->getVersion() . '</p>';
-        $this->current_version = '2.0.0';
-        $version_required = '2.0.0';
-        //       echo '<p>Version ' . $version_required . ' of com_ra_tools required<br>';
-        if (version_compare($this->current_version, $version_required, 'ge')) {
-            echo 'Previous version was ' . $this->current_version . ', no additional processing required</p>';
-            return true;
-        } else {
-            echo '<p>Version was originally ' . $this->current_version . ', ';
-            echo 'Requires version >= ' . $version_required . '</p>';
+
+        echo $token . '<br>';
+        $data = $this->toolsHelper->decodeToken($token);
+
+        if ($data === false) {
+            echo 'decodeToken failed: ' . $this->toolsHelper->error . '<br>';
+            return;
         }
+
+        var_dump($data);
+    
     }
 
     public function updateSites() {

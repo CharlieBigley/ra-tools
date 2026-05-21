@@ -21,7 +21,7 @@
  * 08/07/25 CB breadcrumbs
  * 15/07/25 CB show emails
  * 21/07/25 CB refer to Home Dashboard in breadcrumbs
-  * 14/04/26 CB restructure formatting
+ * 14/04/26 CB restructure formatting
  */
 defined('_JEXEC') or die;
 
@@ -51,7 +51,8 @@ $reports = [
     'Top article hit counters' => 'administrator/index.php?option=com_ra_tools&task=reports.showHitCounters',
     'Groups by bespoke description' => 'administrator/index.php?option=com_ra_tools&task=reports.showBespoke',
     'Contact By Category' => 'administrator/index.php?option=com_ra_tools&task=reports.contactsByCategory',
-    'Extract contacts' => 'administrator/index.php?option=com_ra_tools&task=reports.extractContacts',
+//    'Extract contacts' => 'administrator/index.php?option=com_ra_tools&task=reports.extractContacts',
+'Reset Users' => 'administrator/index.php?option=com_ra_tools&task=reports.resetUsers',
     'Users with duplicate name' => 'administrator/index.php?option=com_ra_tools&task=reports.duplicateName',
     'Count users by Registration date' => 'administrator/index.php?option=com_ra_tools&task=reports.showRegistrations',
     'Joomla User by Group' => 'administrator/index.php?option=com_ra_tools&task=reports.showJoomlaUsersByGroup',

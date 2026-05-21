@@ -13,9 +13,10 @@
            label="Sub system" 
            description="Sub system in which this is used" 
            class="inputbox" size="1">
-            <option value="RA Events">RA Events</option>
-            <option value="RA Tools">RA Tools</option>
             <option value="Ramblers">Ramblers</option>
+            <option value="RA Events">RA Events</option>
+            <option value="RA Members">RA Tools</option>
+            <option value="RA Tools">Ramblers</option>
             <option value="RA Walks">RA Walks</option>
     </field>
     <field name="title" 
@@ -31,13 +32,13 @@
            type="text" 
            required="true" 
            label="Website" 
-           description="Website from which Events will be copied" />
+           description="Website from which data will be copied" />
     <field name="token" 
            filter="safehtml" 
            type="text" 
            required="true" 
            label="Token" 
-           description="Joomla API token for the site"/>
+           description="API token for the site"/>
     <field name="colour" 
            default="rgba(133, 132, 191, 0.1)" 
            format="rgba"

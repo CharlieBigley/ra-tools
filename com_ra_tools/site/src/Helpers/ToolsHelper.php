@@ -3,34 +3,20 @@
 /**
  * Various common functions used throughout the project
  *
- * @version     3.6.0
+ * @version     3.6.4
  * @package     com_ra_tools
  * @author charlie
 
- * 13/02/25 CB replace getIdentity with Factory::getApplication()->getSession()->get('user')
- * 29/03/25 CB add upload image button
- * 16/04/25 CB getJson, showDateMatrix
- * 28/04/25    showDateMatrix drilldown
- * 03/05/25 CB showAccess
- * 05/05/25    showDateMatrix renamed to showMonthMatrix; showDayMatrix added
- * 09/06/25 CB added validGroupcode
- * 19/06/25 CB removeSlash
- * 19/07/25 CB stateDescription
- * 22/07/25 CB email logging
- * 26/07/25 CB count emails in showEvents
- * 30/07/25 add search for id to buildSearchQuery, show preferred name
- * 04/08/25 CB showEmail
- * 10/08/25 CB createLog
- * 17/08/25 CB add extra code to sendEmail for batch mode
- * 18/08/25 CB lookupApiKey
- * 21/08/25 CB revise buildLing to omit website base, add Send to standardButton
+
  * 03/09/25 CB don't log emails in batch mode, showExtensions
  * 24/09/25 CB isInstalled
  * 05/10/25 CB show contact details
  * 12/10/25 CB lookupUser
  * 26/02/26 CB add buildEmailPreamble
  * 06/04/26 CB envelopeIcon
- * 20/04/26 CB showMonthMatrix drilldown by date, delered get_spueruser
+ * 20/04/26 CB showMonthMatrix drilldown by date, deleted get_superuser
+ * 06/05/26 CB showAccess - include com_ra_members
+ * 19/05/25 CB createLog - check for ref more than 10 chars
  */
 /*
   There is a long list of old style form field classes that have no equivalent in Joomla 5. For example:
@@ -383,12 +369,274 @@ class ToolsHelper {
         }
     }
 
+    /*
+      This function takes four parameters:
+        $user_id refers to the id of the record in #_users for a particular User
+        $function_code is a two digit code
+        $reference_id refers to the id of a project-specific table
+        $extra_id is included for future proofing
+
+      It returns a securely encrypted string of ASCII characters that encapsulate the four input 
+      values, plus the date of encryption
+
+      If the value supplied for user_id is zero, the function uses the value of the current user
+      */
+    public function encodeToken($user_id, $function_code, $reference_id, $extra_id = 0) {
+        $userId = (int) $user_id;
+
+        if ($userId === 0) {
+            $userId = (int) Factory::getApplication()->getIdentity()->id;
+        }
+
+        $plaintext = $this->buildCompactTokenPayload(
+            str_pad((string) $function_code, 2, '0', STR_PAD_LEFT),
+            $userId,
+            (int) $reference_id,
+            (int) $extra_id,
+            time()
+        );
+
+        if ($plaintext === false) {
+            return false;
+        }
+
+        $key = $this->loadTokenKey();
+
+        if ($key === false) {
+            return false;
+        }
+
+        if (function_exists('sodium_crypto_secretbox')) {
+            $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $ciphertext = sodium_crypto_secretbox($plaintext, $nonce, $key);
+            return $this->base64UrlEncode('S' . $nonce . $ciphertext);
+        }
+
+        if (function_exists('openssl_encrypt')) {
+            $nonce = random_bytes(12);
+            $tag = '';
+            $ciphertext = openssl_encrypt($plaintext, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $nonce, $tag);
+
+            if ($ciphertext === false) {
+                $this->error = 'Unable to encrypt token payload';
+                return false;
+            }
+
+            return $this->base64UrlEncode('O' . $nonce . $tag . $ciphertext);
+        }
+
+        $this->error = 'No supported encryption extension available';
+        return false;
+    }
+
+    public function decodeToken($token) {
+    /*
+      This takes as input an string of ASCII characters that has been created
+    by function encode.
+
+      It returns a standard Joomla object with five constituents:
+        user_id
+        function_code
+        reference_id
+        extra_id
+        num_days - integer for the number of days that have elapsed since the
+                    token was generated
+
+      If for any reason it cannot decrypt the token, it will return false
+      */
+
+        if (!is_string($token) || trim($token) === '') {
+            return false;
+        }
+
+        $binary = $this->base64UrlDecode($token);
+
+        if ($binary === false || strlen($binary) < 2) {
+            return false;
+        }
+
+        $key = $this->loadTokenKey(false);
+
+        if ($key === false) {
+            return false;
+        }
+
+        $method = substr($binary, 0, 1);
+        $payload = substr($binary, 1);
+        $plaintext = false;
+
+        if ($method === 'S' && function_exists('sodium_crypto_secretbox_open')) {
+            if (strlen($payload) <= SODIUM_CRYPTO_SECRETBOX_NONCEBYTES) {
+                return false;
+            }
+
+            $nonce = substr($payload, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $ciphertext = substr($payload, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+            $plaintext = sodium_crypto_secretbox_open($ciphertext, $nonce, $key);
+        } elseif ($method === 'O' && function_exists('openssl_decrypt')) {
+            if (strlen($payload) <= 28) {
+                return false;
+            }
+
+            $nonce = substr($payload, 0, 12);
+            $tag = substr($payload, 12, 16);
+            $ciphertext = substr($payload, 28);
+            $plaintext = openssl_decrypt($ciphertext, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $nonce, $tag);
+        }
+
+        if ($plaintext === false) {
+            return false;
+        }
+
+        $details = $this->parseCompactTokenPayload($plaintext);
+
+        if ($details === false) {
+            return false;
+        }
+
+        $result = new CMSObject;
+        $result->user_id = (int) $details->user_id;
+        $result->function_code = (string) $details->function_code;
+        $result->reference_id = (int) $details->reference_id;
+        $result->extra_id = (int) $details->extra_id;
+        $result->num_days = max(0, (int) floor((time() - (int) $details->issued_at) / 86400));
+
+        return $result;
+    }
+
+    private function buildCompactTokenPayload($functionCode, $userId, $referenceId, $extraId, $issuedAt) {
+        $segments = array(
+            $this->encodeTokenSegment($userId),
+            $this->encodeTokenSegment($referenceId),
+            $this->encodeTokenSegment($extraId),
+            $this->encodeTokenSegment($issuedAt),
+        );
+
+        foreach ($segments as $segment) {
+            if ($segment === false) {
+                $this->error = 'Unable to encode token payload';
+                return false;
+            }
+        }
+
+        return (string) $functionCode . implode('', $segments);
+    }
+
+    private function encodeTokenSegment($value) {
+        $digits = (string) (int) $value;
+        $length = strlen($digits);
+
+        if ($length > 35) {
+            $this->error = 'Token value exceeds supported length';
+            return false;
+        }
+
+        return strtoupper(base_convert((string) $length, 10, 36)) . $digits;
+    }
+
+    private function parseCompactTokenPayload($payload) {
+        if (!is_string($payload) || strlen($payload) < 6) {
+            return false;
+        }
+
+        $functionCode = substr($payload, 0, 2);
+
+        if (!ctype_digit($functionCode)) {
+            return false;
+        }
+
+        $pointer = 2;
+        $userId = $this->decodeTokenSegment($payload, $pointer);
+        $referenceId = $this->decodeTokenSegment($payload, $pointer);
+        $extraId = $this->decodeTokenSegment($payload, $pointer);
+        $issuedAt = $this->decodeTokenSegment($payload, $pointer);
+
+        if ($userId === false || $referenceId === false || $extraId === false || $issuedAt === false || $pointer !== strlen($payload)) {
+            return false;
+        }
+
+        $details = new CMSObject;
+        $details->user_id = (int) $userId;
+        $details->function_code = $functionCode;
+        $details->reference_id = (int) $referenceId;
+        $details->extra_id = (int) $extraId;
+        $details->issued_at = (int) $issuedAt;
+
+        return $details;
+    }
+
+    private function decodeTokenSegment($payload, &$pointer) {
+        if ($pointer >= strlen($payload)) {
+            return false;
+        }
+
+        $lengthToken = strtoupper(substr($payload, $pointer, 1));
+
+        if (!ctype_digit($lengthToken) && ($lengthToken < 'A' || $lengthToken > 'Z')) {
+            return false;
+        }
+
+        $length = (int) base_convert($lengthToken, 36, 10);
+        $pointer++;
+
+        if ($length < 1 || ($pointer + $length) > strlen($payload)) {
+            return false;
+        }
+
+        $value = substr($payload, $pointer, $length);
+
+        if (!ctype_digit($value)) {
+            return false;
+        }
+
+        $pointer += $length;
+        return $value;
+    }
+
+    public function loadTokenKey($generateIfMissing = true) {
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $query = $db->getQuery(true)
+            ->select($db->quoteName('key_value'))
+            ->from($db->quoteName('#__ra_control'))
+            ->where($db->quoteName('record_type') . ' = 1');
+
+        try {
+            $db->setQuery($query);
+            $configuredKey = trim((string) $db->loadResult());
+        } catch (\Exception $ex) {
+            $configuredKey = '';
+        }
+
+        if ($configuredKey !== '') {
+            return $this->normaliseTokenKey($configuredKey);
+        }
+
+        if (!$generateIfMissing) {
+            $error = 'Token secret key is not configured';
+            $this->createLog('RA tools', '27', '0', $error);
+            $this->error = $error;
+            return false;
+        }
+
+        $generatedKey = base64_encode(random_bytes(32));
+
+        if ($this->persistTokenKey($generatedKey)) {
+            $this->createLog('RA tools', '26', '0', 'Generated new token key');
+            return $this->normaliseTokenKey($generatedKey);
+        }
+
+        $error = 'Unable to store token key in #__ra_control';
+        $this->createLog('RA tools', '27', '0', $error);
+        $this->error = $error;
+        return false;
+    }
+
     public function createLog($sub_system, $record_type, $ref, $message) {
         $sql = "INSERT INTO #__ra_logfile (`log_date`, `sub_system`, `record_type`, `ref`, `message`) VALUES ";
         $sql .= "(CURRENT_TIMESTAMP";
         $sql .= ',' . $this->db->quote($sub_system);
         $sql .= ',' . $this->db->quote($record_type);
-        $sql .= ',' . $this->db->quote($ref);
+        $sql .= ',' . $this->db->quote(substr($ref, 0, 10));
         $sql .= ',' . $this->db->quote($message) . ')';
         $this->executeCommand($sql);
         /*
@@ -407,6 +655,58 @@ class ToolsHelper {
     static function envelopeIcon(){
         return '<span class="icon-envelope" aria-hidden="true"></span>';
     }
+
+    private function base64UrlDecode($value) {
+        $value = strtr($value, '-_', '+/');
+        $padding = strlen($value) % 4;
+
+        if ($padding > 0) {
+            $value .= str_repeat('=', 4 - $padding);
+        }
+
+        return base64_decode($value, true);
+    }
+
+    private function base64UrlEncode($value) {
+        return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
+    }
+
+    private function normaliseTokenKey($configuredKey) {
+        $binaryKey = base64_decode($configuredKey, true);
+
+        if ($binaryKey !== false && strlen($binaryKey) === 32) {
+            return $binaryKey;
+        }
+
+        return hash('sha256', $configuredKey, true);
+    }
+
+    private function persistTokenKey($generatedKey) {
+        $createTable = 'CREATE TABLE IF NOT EXISTS `#__ra_control` ('
+            . '`record_type` INT NOT NULL,'
+            . '`key_value` VARCHAR(255) NOT NULL,'
+            . 'PRIMARY KEY (`record_type`)'
+            . ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci';
+
+        if (!$this->executeCommand($createTable)) {
+            return false;
+        }
+
+        $db = Factory::getContainer()->get(DatabaseInterface::class);
+        $sql = 'INSERT INTO ' . $db->quoteName('#__ra_control')
+            . ' (' . $db->quoteName('record_type') . ', ' . $db->quoteName('key_value') . ')'
+            . ' VALUES (1, ' . $db->quote($generatedKey) . ')'
+            . ' ON DUPLICATE KEY UPDATE ' . $db->quoteName('key_value') . ' = VALUES(' . $db->quoteName('key_value') . ')';
+
+        try {
+            $db->setQuery($sql);
+            $db->execute();
+            return true;
+        } catch (\Exception $ex) {
+            $this->error = $ex->getCode() . ' ' . $ex->getMessage();
+            return false;
+        }
+    }
     
     function executeCmd($sql) {
 // Deprecated !
@@ -423,7 +723,7 @@ class ToolsHelper {
             $db->setQuery($sql2);
             $db->execute();
             return true;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->error = $ex->getCode() . ' ' . $ex->getMessage();
 //            if (JDEBUG) {
 //                echo 'Helper::executeCommmand' . $this->error . '<br>';
@@ -476,7 +776,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
                     echo PHP_EOL;
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 // never show getMessage() to the public
             Factory::getApplication()->enqueueMessage("Query Syntax Error: " . $e->getMessage(), 'error');
         }
@@ -582,7 +882,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             $this->rows = $db->getNumRows();
             $item = $db->loadObject();
             return $item;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->error = $ex->getCode() . ' ' . $ex->getMessage();
 //            if (JDEBUG) {
 //                echo 'Helper::getItem' . $this->error . '<br>';
@@ -602,7 +902,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 //            print_r($this->rows);
             $rows = $db->loadAssocList();
             return json_encode($rows, JSON_PRETTY_PRINT);
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->error = $ex->getCode() . ' ' . $ex->getMessage();
 //            if (JDEBUG) {
 //                echo $this->error;
@@ -632,7 +932,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 //            print_r($this->rows);
             $rows = $db->loadObjectList();
             return $rows;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->error = $ex->getCode() . ' ' . $ex->getMessage();
 //            if (JDEBUG) {
 //                echo $this->error;
@@ -650,7 +950,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             $query = $db->getQuery(true);
             $db->setQuery($sql);
             return $db->loadResult();
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->error = $ex->getCode() . ' ' . $ex->getMessage();
             return false;
         }
@@ -1160,6 +1460,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
     }
 
     public function showAccess($id) {
+
         $sql = 'SELECT u.name, p.preferred_name FROM #__users AS u ';
         $sql .= 'LEFT JOIN #__ra_profiles as p on p.id = u.id ';
         $sql .= 'WHERE u.id=' . $id;
@@ -1194,13 +1495,13 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         }
 
         $this->showAccessComponent($id, 'com_ra_tools', 'RA Tools');
-
         $this->showAccessComponent($id, 'com_ra_mailman', 'RA MailMan');
-
+        if (ComponentHelper::isEnabled('com_ra_mailman', true)) {
+            $this->showAccessComponent($id, 'com_ra_members', 'RA Members');
+        }
+        // corporate mailman, quit
         $this->showAccessComponent($id, 'com_ra_events', 'RA Events');
-
         $this->showAccessComponent($id, 'com_ra_walks', 'RA Walks');
-
         $this->showAccessComponent($id, 'com_ra_wf', 'RA Walks Follow');
 
 //        echo '<h3>RA Guided Walks</h3>' . PHP_EOL;
@@ -1578,9 +1879,9 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             }
             echo ':</b><br>' . PHP_EOL;
             echo '<ul>' . PHP_EOL;
-            $rows = $this->getRows('SELECT l.name' . $sql);
+            $rows = $this->getRows('SELECT l.name, l.group_code' . $sql);
             foreach ($rows as $row) {
-                echo '<li>' . $row->name . '</li>' . PHP_EOL;
+                echo '<li>' . $row->group_code . ' ' . $row->name .  '</li>' . PHP_EOL;
             }
             echo '</ul>' . PHP_EOL;
         }
@@ -1700,7 +2001,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
                 echo "</table>";
                 echo '</div">' . PHP_EOL;   // table-responsive
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 // never show getMessage() to the public
             Factory::getApplication()->enqueueMessage("Query Syntax Error: " . $e->getMessage(), 'error');
         }
@@ -1826,7 +2127,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 // Count the actual rows of data
             $this->rows = $objTable->get_rows() - 1;
             return true;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             $this->error = $ex->getMessage();
 //            echo "Helper::showSql: " . $this->error;
             return false;
