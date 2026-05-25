@@ -1,7 +1,7 @@
 <?php
 
 /*
- * @version     3.2.5
+ * @version     3.7.0
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2020. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -11,6 +11,7 @@
  * 26/06/24 CB change specification of class for table
  * 01/05/25 CB use style for row background colour
  * 07/07/25 CB correct line colour
+ * 23/05/26 CB change generation of <TD> to allow for row colour (otherwise overridden by table-striped)
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Helpers;
@@ -165,10 +166,8 @@ class ToolsTable {
                 echo "<TD ";
 
                 echo " width=\"" . $this->percentage[$i] . "%\"";
-                if (!$row_colour == "") {
-//                echo " bgcolor=" . $this->bgcolour[$i];
-//            } else {
-//                    echo " bgcolor=" . $row_colour;
+                if ($row_colour != "") {
+                    echo ' style="background: ' . $row_colour . ';"';
                 }
                 echo ">";
                 if ($this->value[$i] == "") {

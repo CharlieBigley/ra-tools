@@ -3,7 +3,7 @@
 /**
  * Various common functions used throughout the project
  *
- * @version     3.6.4
+ * @version     3.7.1
  * @package     com_ra_tools
  * @author charlie
 
@@ -17,6 +17,7 @@
  * 20/04/26 CB showMonthMatrix drilldown by date, deleted get_superuser
  * 06/05/26 CB showAccess - include com_ra_members
  * 19/05/25 CB createLog - check for ref more than 10 chars
+ * 25/05/26 CB correction in email logging
  */
 /*
   There is a long list of old style form field classes that have no equivalent in Joomla 5. For example:
@@ -99,8 +100,7 @@ class ToolsHelper {
     }
 
     public function buildEmailPreamble(){
-//      Generate the complete email HTML structure
-//      The email itself must finally include </body></html>
+//      Generate the opening HTML wrapper for an email body fragment.
         $header = '<!DOCTYPE html>';
         $header .= '<html>';
         $header .= '<head>';
@@ -1092,6 +1092,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             return true;
         }
         $date = Factory::getDate('now', Factory::getConfig()->get('offset'))->toSql(true);
+        $attachments_string = '';
 
         echo 'Sending email<br>';
         echo "Sent $date<br>";
@@ -1101,7 +1102,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             echo "<br>";
         }
         if (is_array($to)) {
-            if (count($bcc) == 1) {
+            if (count($to) == 1) {
                 $addressee_email = $to[0] . '(array)';
             } else {
                 $addressee_email = implode(',', $to);
@@ -1130,8 +1131,8 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         }
         if (is_array($attachments)) {
             echo 'attachments_string (array) ';
-            if (count($bcc) == 1) {
-                $attachments_string .= $attachments[0];
+            if (count($attachments) == 1) {
+                $attachments_string = $attachments[0];
             } else {
                 $attachments_string = implode(',', $attachments);
                 echo $attachments_string . '<br>';
@@ -1139,7 +1140,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         } else {
             echo "attacch $attachments<br>";
             if ($attachments !== '') {
-                $attachments_string .= ',' . $attachments;
+                $attachments_string = $attachments;
             }
         }
         echo "Reply to $reply_to<br>";
@@ -1408,6 +1409,19 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
     }
 
     function sendEmail($to, $reply_to, $subject, $message, $attachments = '', $bcc = '') {
+        $body = $this->buildEmailPreamble();
+        $body .= $message;
+        // Some older callers still append the closing tags themselves; only add them when missing.
+        if (!preg_match('/<\/body>\s*<\/html>\s*$/i', $body)) {
+            $body .= '</body></html>';
+        }
+
+        $log_target = is_array($to) ? implode(',', $to) : (string) $to;
+        $log_target = substr($log_target, 0, 240);
+        if (JDEBUG) {
+            $this->createLog('RA Tools', '20', $log_target, 'sendEmail entered for subject "' . $subject . '"');
+        }
+
         $params = ComponentHelper::getParams('com_ra_tools');
         $email_log_level = $params->get('email_log_level', '0');
         // Log level -2 is solely to benchmark the overhead of sending via SMTP
@@ -1420,7 +1434,14 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
                 return true;
             }
         }
-        $mailer = Factory::getMailer();
+        // Clone the Joomla mailer so each send starts with a clean PHPMailer instance.
+        $mailer = clone Factory::getMailer();
+        if (property_exists($mailer, 'SMTPKeepAlive')) {
+            $mailer->SMTPKeepAlive = false;
+        }
+        if (method_exists($mailer, 'smtpClose')) {
+            $mailer->smtpClose();
+        }
         $config = Factory::getConfig();
         if (is_null($config)) {
             // being run in batch mode
@@ -1437,26 +1458,65 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
                 $reply_to = $config->get('mailfrom');
             }
         }
-        $mailer->setSender($sender);
-        $mailer->addRecipient($to);
-        if ($bcc !== '') {
-            $mailer->addBcc($bcc);
-        }
-        $mailer->addReplyTo($reply_to);
-        $mailer->isHtml(true);
-        $mailer->Encoding = 'base64';
-        $mailer->setSubject($subject);
-        // Generate the html for the header
-        $body = $this->buildEmailPreamble();
-        // append the message itself
-        $body .= $message;
-        $mailer->setBody($body);
+
+        try {
+            if (JDEBUG) {
+                $this->createLog('RA Tools', '21', $log_target, 'Configuring mailer sender and recipients');
+            }
+
+            if (method_exists($mailer, 'clearAllRecipients')) {
+                $mailer->clearAllRecipients();
+            }
+            if (method_exists($mailer, 'clearReplyTos')) {
+                $mailer->clearReplyTos();
+            }
+            if (method_exists($mailer, 'clearAttachments')) {
+                $mailer->clearAttachments();
+            }
+            if (method_exists($mailer, 'clearCustomHeaders')) {
+                $mailer->clearCustomHeaders();
+            }
+
+            $mailer->setSender($sender);
+            $mailer->addRecipient($to);
+            if ($bcc !== '') {
+                $mailer->addBcc($bcc);
+            }
+            $mailer->addReplyTo($reply_to);
+            $mailer->isHtml(true);
+            $mailer->Encoding = 'base64';
+            $mailer->setSubject($subject);
+            $mailer->setBody($body);
 
 //     Optional file attachments - must be an array
-        if ($attachments !== '') {
-            $mailer->addAttachment($attachments);
+            if ($attachments !== '') {
+                $mailer->addAttachment($attachments);
+            }
+
+            if (JDEBUG) {
+                $this->createLog('RA Tools', '22', $log_target, 'Calling mailer->Send()');
+            }
+
+            $result = $mailer->Send();
+
+            if ($result) {
+                if (JDEBUG) {
+                    $this->createLog('RA Tools', '23', $log_target, 'mailer->Send() returned true');
+                }
+                return true;
+            }
+
+            $error_info = property_exists($mailer, 'ErrorInfo') ? (string) $mailer->ErrorInfo : 'Unknown mailer error';
+            $this->createLog('RA Tools', '24', $log_target, 'mailer->Send() returned false: ' . $error_info);
+            return false;
+        } catch (\Throwable $exception) {
+            $this->createLog('RA Tools', '25', $log_target, 'sendEmail exception: ' . $exception->getMessage());
+            return false;
+        } finally {
+            if (method_exists($mailer, 'smtpClose')) {
+                $mailer->smtpClose();
+            }
         }
-        return $mailer->Send();
     }
 
     public function showAccess($id) {
