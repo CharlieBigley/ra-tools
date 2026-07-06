@@ -16,7 +16,7 @@
 #-------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__ra_api_sites` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `sub_system` VARCHAR(10)  NOT NULL DEFAULT "RA Events",
+    `sub_system` VARCHAR(12)  NOT NULL DEFAULT "RA Events",
     `title` VARCHAR(100)  NOT NULL ,
     `url` VARCHAR(100)  NOT NULL ,
     `token` VARCHAR(255)  NOT NULL ,
@@ -77,9 +77,9 @@ CREATE TABLE  `#__ra_clusters` (
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 INSERT INTO `#__ra_clusters`(code, name,area_list) values 
-    ('ME','Midlands and East','BF,LI,NP,NR,NE,SS,NS,WO,CH,DE'),
-    ('N','North and North West','ER,HF,HW,LD,LE,LL,LN,MC,ML,MR,MW,NN,NS,NY,SD,SS,WK,WR'),
-    ('SE','South East','BU,CB,ES,WX,KT,IL,IW,NO,OX,SK,SR,SX'),
+    ('ME','Midlands and East','DE,HW,LE,LI,NP,NE,SS,NS,WK,WO,SD'),
+    ('N','North and North West','ER,MR,LD,LL,ML,LN,MK,NN,NY,CH,WR'),
+    ('SE','South East','BF,BK,CB,ES,WX,HF,IL,KT,NR,SK,SR,SX'),
     ('SSW','South and South West','AV,BK,CL,DN,DT,GR,IW,OX,SO,WE'),
     ('WA','Wales','CA,CE,SW,GG,LW,PE'),
     ('SC','Scotland','CY,CF,GP,SC,LB,SL,RB,WS');
@@ -165,7 +165,7 @@ INSERT INTO `#__ra_nations` ( `code`, `name`) VALUES
 ('WA', 'Wales');
 # ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__ra_profiles` (
-  `member_id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `member_id` int UNSIGNED NULL,
   `id` int UNSIGNED NULL,
   `home_group` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `preferred_name` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -184,15 +184,15 @@ CREATE TABLE IF NOT EXISTS `#__ra_profiles` (
   `address1` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `address2` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `address3` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `town` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `county` varchar(14) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `town` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `county` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `country` varchar(14) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `postcode` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(38) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `landlineTelephone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mobileNumber` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `membershipExpiryDate` date DEFAULT NULL,
-  `ramblersJoinDate` date DEFAULT NULL,
+  `ramblersJoinedDate` date DEFAULT NULL,
   `areaName` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `areaJoinedDate` date DEFAULT NULL,
   `groupCode` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

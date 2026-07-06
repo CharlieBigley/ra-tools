@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     3.5.0
+ * @version     3.7.4
  * @package     com_ra_tools
  * @copyright   Copyleft (C) 2021
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -21,7 +21,8 @@
  * 02/02/26 CB add Clusters
  * 04/02/26 CB Add RA Develop section
  * 11/02/26 CB Restructure with grid layout and permission-based blocks - removed duplicates
- * 04/05/26 CB add blaock for Members
+ * 04/05/26 CB add block for Members
+ * 07/06/26 CB show email deliveries
  */
 // No direct access
 \defined('_JEXEC') or die;
@@ -57,6 +58,9 @@ if ($toolsHelper->isSuperuser()) {
     }
 
     $sysToolsItems[] = ['label' => 'API sites', 'url' => 'index.php?option=com_ra_tools&view=apisites'];
+    if (ComponentHelper::isEnabled('com_ra_delivery', true)) {
+        $sysToolsItems[] = ['label' => 'List Email exceptions', 'url' => 'index.php?option=com_ra_delivery'];
+    }
     $sysToolsItems[] = ['label' => 'Access Configuration Wizard', 'url' => 'index.php?option=com_ra_tools&task=system.AccessWizard'];
     $sysToolsItems[] = ['label' => 'System Reports', 'url' => 'index.php?option=com_ra_tools&view=reports'];
     $target = $jsonHelper->setUrl('organisation', '');
@@ -113,7 +117,7 @@ if (ComponentHelper::isEnabled('com_ra_members', true)) {
     $membersCanDo = ContentHelper::getActions('com_ra_members');
     $membersItems = [
         ['label' => 'Members', 'url' => 'index.php?option=com_ra_members&view=members'],
-        ['label' => 'Organisations', 'url' => 'index.php?option=com_ra_members&view=organisations'],
+        ['label' => 'Areas and Groups', 'url' => 'index.php?option=com_ra_members&view=organisations'],
         ['label' => 'Roles', 'url' => 'index.php?option=com_ra_members&view=roles'],
     ];
 

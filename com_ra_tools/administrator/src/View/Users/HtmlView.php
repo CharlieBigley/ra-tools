@@ -1,13 +1,14 @@
 <?php
 
 /**
- * @version    3.4.1
+ * @version    3.7.4
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  * 27/08/25 CB Help
  * 21/09/25 CB check user id not null in checkGroup
+ * 06/07/26 CB Add check for com_ra_members
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\View\Users;
@@ -151,17 +152,23 @@ class HtmlView extends BaseHtmlView implements CurrentUserInterface {
             $component = 'com_ra_events';
         } elseif ($mode == 3) {
             $component = 'com_ra_mailman';
-        }
+        } elseif ($mode == 4) {
+            $component = 'com_ra_members';
+            }
         $sql = 'SELECT id FROM #__usergroups ';
         $sql .= 'WHERE title="' . $component . '"';
         $group_id = $this->toolsHelper->getValue($sql);
 
-        $sql = 'SELECT group_id FROM #__user_usergroup_map ';
-        $sql .= 'WHERE user_id=' . $user_id . ' AND ';
-        $sql .= 'group_id=' . $group_id;
-//        echo $sql . '<br>';
-
-        $test = $this->toolsHelper->getValue($sql);
+        if ($group_id) {
+            $sql = 'SELECT group_id FROM #__user_usergroup_map ';
+            $sql .= 'WHERE user_id=' . $user_id . ' AND ';
+            $sql .= 'group_id=' . $group_id;
+    //        echo $sql . '<br>';
+            $test = $this->toolsHelper->getValue($sql);
+        } else {
+            Factory::getApplication()->enqueueMessage('User Group not found for ' . $component, 'warning');
+            $test = NULL;
+        }
         if (is_null($test)) {
             $icon = 'X';
         } else {

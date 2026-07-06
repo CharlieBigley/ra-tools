@@ -1,25 +1,15 @@
 <?php
 
 /**
- * @version     3.6.0
+ * @version     3.7.4
  * @package     com_ra_tools
  *
  * @copyright   Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
- * 23/02/25 CB use SchemaHelper
- * 07/04/25 Cb correct BACK from showSchema
- * 21/04/25 CB copied showEventsArea from Site
- * 24/04/25 CB showLogfileByMonth, showRegistrationsMonthly
- * 05/05/25 CB showLogfileByDay
- * 18/05/25 CB duplicateName
- * 30/06/25 CB code to update duplicate "Dashboard" menu
- * 08/07/25 CB breadcrumbs
- * 16/08/25 CB correct hex for Sunrise
- * 03/09/25 CB use ToolsHelper->showVersions
- * 08/09/25 CB showBespoke
  * 13/10/25 CB optional start parameter for showTable,  resetHitCounters
  * 10/05/26 CB blockedUsers from mailman
  * 20/05/26 CB resetUsers from mailman
+ * 27/06/26 CB change sort order in showLogfile
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\Controller;
@@ -819,7 +809,7 @@ class ReportsController extends FormController {
             }
         }
         ToolBarHelper::title($this->prefix . 'Logfile records for ' . date_format($target, "D d M"));
-echo $option;
+//echo $option;
         $sql = "SELECT date_format(log_date, '%a %e-%m-%y') as Date, ";
         $sql .= "date_format(log_date, '%H:%i:%s.%u') as Time, ";
         $sql .= "sub_system,record_type, ";
@@ -828,7 +818,7 @@ echo $option;
         $sql .= "FROM #__ra_logfile ";
         $sql .= "WHERE log_date >='" . date_format($target, "Y/m/d H:i:s") . "' ";
         $sql .= "AND log_date <'" . date_format($target, "Y/m/d 23:59:59") . "' ";
-        $sql .= "ORDER BY log_date DESC, record_type ";
+        $sql .= "ORDER BY sub_system, log_date DESC, record_type DESC";
         $rows = $this->toolsHelper->getRows($sql);
         if (count($rows) == 0) {
             echo '<br>No logfile records for ' . date_format($target, "Y/m/d") . '<br>';

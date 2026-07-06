@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    3.5.4 echo '<br>';
+ * @version    3.7.3
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
@@ -13,6 +13,8 @@
  * 14/09/25 CB rework Events load (for com_ra_events 2.2.1)
  * 18/09/25 CB check for NULL events
  * 10/02/26 CB removed heading for ShowShared
+ * 07/06/25 CB show email sender, not email_id
+ * 08/06/26 CB Show all button after apiTest 
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\Controller;
@@ -28,6 +30,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Ramblers\Component\Ra_delivery\Site\Helper\ActivityHelper;
 use Ramblers\Component\Ra_events\Site\Helpers\EventsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
@@ -210,6 +213,58 @@ class ApisitesController extends AdminController {
             echo $this->toolsHelper->backButton($this->back);
             return;
         }
+    }
+
+    public function testDeliveryActivity() {
+        $id = Factory::getApplication()->input->getInt('id', 0);
+
+        if ($id === 0) {
+            Factory::getApplication()->enqueueMessage('Site id is zero', 'error');
+            echo $this->toolsHelper->backButton($this->back);
+            return;
+        }
+
+        $helper = new ActivityHelper();
+        $result = $helper->testApiSite($id);
+
+        echo '<h2>RA Delivery helper test</h2>';
+        echo '<p>API site id: <b>' . (int) $id . '</b></p>';
+
+        foreach ($helper->getMessages() as $message) {
+            echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '<br>';
+        }
+
+        if ($result !== false) {
+            echo '<br>';
+            echo 'Window: <b>' . htmlspecialchars($result['start_date'], ENT_QUOTES, 'UTF-8') . '</b> to <b>'
+            . htmlspecialchars($result['end_date'], ENT_QUOTES, 'UTF-8') . '</b><br>';
+            echo 'Events returned: <b>' . (int) $result['event_count'] . '</b><br>';
+            if ($result['request_id'] !== '') {
+                echo 'Request id: <b>' . htmlspecialchars($result['request_id'], ENT_QUOTES, 'UTF-8') . '</b><br>';
+            }
+
+            if (!empty($result['events'])) {
+                echo '<br><table class="table table-striped">';
+                echo '<thead><tr><th>Date</th><th>Event</th><th>Recipient</th><th>Sender</th><th>Subject</th><th>Sender</th></tr></thead>';
+                echo '<tbody>';
+                foreach (array_slice($result['events'], 0, 20) as $event) {
+                    echo '<tr>';
+                    echo '<td>' . htmlspecialchars((string) ($event['date'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+                    echo '<td>' . htmlspecialchars((string) ($event['event'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+                    echo '<td>' . htmlspecialchars((string) ($event['recipient'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+                    echo '<td>' . htmlspecialchars((string) ($event['sender'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+                    echo '<td>' . htmlspecialchars((string) ($event['subject'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+                    echo '<td>' . htmlspecialchars((string) ($event['username'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>';
+                    echo '</tr>';
+                }
+                echo '</tbody></table>';
+            }
+        }
+
+        echo '<br>';
+        $target = 'administrator/index.php?option=com_ra_delivery';
+        echo $this->toolsHelper->buildButton($target, 'Show all');
+        echo $this->toolsHelper->backButton($this->back);
     }
 
     /**
