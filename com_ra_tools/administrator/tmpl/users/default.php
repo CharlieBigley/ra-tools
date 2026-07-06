@@ -1,12 +1,13 @@
 <?php
 /**
- * @version    3.4.2
+ * @version    3.7.4
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  * 03/05/25 CB allow edit if MailMan installed (should use tools.profile, not mailman.profile)
  * 05/10/25 CB show SuperUsers
+ * 06/07/26 CB show Members
  */
 // No direct access
 defined('_JEXEC') or die;
@@ -36,6 +37,15 @@ $wa->useStyle('com_ra_tools.admin')
 
 $listOrder = $this->state->get('list.ordering');
 $listDirn = $this->state->get('list.direction');
+if (ComponentHelper::isEnabled('com_ra_mailman', true)) {
+    $mailman = true;
+}
+if (ComponentHelper::isEnabled('com_ra_members', true)) {
+    $members = true;
+}
+if (ComponentHelper::isEnabled('com_ra_event', true)) {
+    $events = true;
+}
 
 if (!empty($saveOrder)) {
     $saveOrderingUrl = 'index.php?option=com_ra_tools&task=users.saveOrderAjax&tmpl=component&' . Session::getFormToken() . '=1';
@@ -77,9 +87,14 @@ $sql_lookup .= 'WHERE map.group_id=8 AND  map.user_id=';
                             </th>
                             <?php
                             echo '<th>Tools</th>';
-                            echo '<th>Events</th>';
-                            if (ComponentHelper::isEnabled('com_ra_mailman', true)) {
+                            if ($events) {
+                                echo '<th>Events</th>';
+                            }                          
+                            if ($mailman) {
                                 echo '<th>MailMan</th>';
+                            }
+                            if ($members) {
+                                echo '<th>Members</th>';
                             }
                             ?>
                             <th scope="col" class="w-3 d-none d-lg-table-cell" >
@@ -119,14 +134,21 @@ $sql_lookup .= 'WHERE map.group_id=8 AND  map.user_id=';
                                 echo '<td>' . $item->home_group . '</td>';
                                 echo '<td>' . $item->preferred_name . '</td>';
                                 echo '<td>' . $this->checkGroup($item->id, 1) . '</td>';
-                                echo '<td>' . $this->checkGroup($item->id, 2) . '</td>';
-                                if (ComponentHelper::isEnabled('com_ra_mailman', true)) {
+                                if ($events) {
+                                    echo '<td>' . $this->checkGroup($item->id, 2) . '</td>';
+                                }
+                                if ($mailman) {
                                     echo '<td>' . $this->checkGroup($item->id, 3) . '</td>';
+                                }
+                                if ($members) {
+                                    echo '<td>' . $this->checkGroup($item->id, 4) . '</td>';
+                                }
+                                if ($canEdit) {         
                                     $link = $toolsHelper->buildLink($target_edit . $item->id, $item->id);
                                     echo '<td class="d-none d-lg-table-cell">' . $link . '</td>';
-                                } else {
-                                    echo '<td class="d-none d-lg-table-cell">' . $item->id . '</td>';
-                                }
+//                                } else {
+ //                                   echo '<td class="d-none d-lg-table-cell">' . $item->id . '</td>';
+ //                               }
                                 ?>
                             </tr>
                         <?php endforeach; ?>

@@ -50,18 +50,26 @@ class SystemController extends FormController {
     protected $yes;
 
     public function temp() {
-        $target = 'http://bigley.me.uk';
-        echo $this->toolsHelper->buildLink($target, "Bigley", True, "link-button sunrise");
+        $body = '<table>';
+        $body .= '<thead>';
+        $body .= '<th>Date</th><th>Reason</th><th>Sender</th><th>Recipient</th><th>User</th>';
+        $body .= '</thead>';
+        $body .= '<tbody>';
 
-        $target = 'administrator/index.php?option=com_installer&view=manage';
-        echo $this->toolsHelper->standardButton('Go', $target, true);
-        $target = '/administrator/index.php?option=com_installer&view=manage';
-        echo $this->toolsHelper->standardButton('/Go', $target, true);
+        $details = '<tr>';
+        $details .= '<td>' . 'D d/m/y H:i' . '</td>';
+        $details .= '<td>' . 1 . '</td>';
+        $details .= '<td>' . 2 . '</td>';
+        $details .= '<td>' . 3 . '</td>';
+        $details .= '<td>';
+        $details .= 'No user found';
+        $details .= '</td>';
+        $details .= '</tr>';
 
-        $target = 'index.php?option=com_ra_tools&view=misc&layout=neighbouring';
-        echo $this->toolsHelper->buildLink($target, "Neighbouring", True, "link-button button-p4485");
-        $target = '/index.php?option=com_ra_tools&view=misc&layout=neighbouring';
-        echo $this->toolsHelper->buildLink($target, "/Neighbouring", True, "link-button button-p4485");
+        $body .= $details;
+        $body .= '</tbody>';
+        $body .= '</table>';
+        echo $body;
     }
 
     public function __construct() {
@@ -251,16 +259,16 @@ class SystemController extends FormController {
         //       $sql = 'ALTER TABLE `#__ra_emails` CHANGE COLUMN `ref` `ref` INTEGER NOT NULL';
         //       $this->toolsHelper->executeCommand($sql);
         $helper->checkColumn('ra_emails', 'ref', 'A', 'INT NULL DEFAULT "0" AFTER record_type');
-        // 
+        //
         $helper->checkColumn('ra_mail_shots', 'record_type', 'A', 'VARCHAR(1) DEFAULT "M" AFTER id; ');
         $helper->checkColumn('ra_mail_shots', 'mail_list_id', 'U', 'INT NULL; ');
-        $helper->checkColumn('ra_mail_shots', 'event_id', 'A', 'INT NULL AFTER mail_list_id; ');    
-           
+        $helper->checkColumn('ra_mail_shots', 'event_id', 'A', 'INT NULL AFTER mail_list_id; ');
+
         $helper->checkColumn('ra_groups', 'bespoke', 'A', 'VARCHAR(1) NOT NULL DEFAULT 0 AFTER `name`;');
         $helper->checkColumn('ra_groups', 'website', 'U', 'VARCHAR(250);');
         $helper->checkColumn('ra_groups', 'co_url', 'U', 'VARCHAR(250);');
         // `` ,
-        
+
         $target = 'administrator/index.php?option=com_ra_tools&view=dashboard';
         echo $this->toolsHelper->backButton($target);
     }
@@ -445,7 +453,6 @@ class SystemController extends FormController {
         }
 
         var_dump($data);
-    
     }
 
     public function updateSites() {

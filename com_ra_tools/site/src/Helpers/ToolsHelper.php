@@ -3,10 +3,11 @@
 /**
  * Various common functions used throughout the project
  *
- * @version     3.7.1
+ * @version     3.7.4
  * @package     com_ra_tools
- * @author charlie
-
+ * @copyright   Copyright (C) 2020. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Charlie <webmaster@bigley.me.uk> - https://www.stokeandnewcastleramblers.org.uk
 
  * 03/09/25 CB don't log emails in batch mode, showExtensions
  * 24/09/25 CB isInstalled
@@ -18,6 +19,9 @@
  * 06/05/26 CB showAccess - include com_ra_members
  * 19/05/25 CB createLog - check for ref more than 10 chars
  * 25/05/26 CB correction in email logging
+ * 30/05/26 CB changed error handling in getItem, getRows and getValue to set $this->error and return false, rather than returning the error message in the return value.
+ *             This is to allow the calling code to distinguish between a query that returns no rows (or a SQL NULL value) and a query that fails with an error.
+ * 22/06/26 CB in showAccess, show home group (and membershipNumber), include group in list of events
  */
 /*
   There is a long list of old style form field classes that have no equivalent in Joomla 5. For example:
@@ -50,13 +54,25 @@ class ToolsHelper {
     public $db;
     public $error;
     public $user;
+
+    /**
+     * Row count from the most recent helper operation that populates it.
+     *
+     * Current writers are getItem(), getJson(), getRows(), and showSql().
+     * The value is reset to 0 before the query helpers run, then updated with
+     * the database row count on success.
+     *
+     * @var int
+     */
     public $rows;
     public $image_folder = "media/com_ra_tools/";
+    protected $app;
     protected $toolsTable;
     protected $website_root;
 
     function __construct() {
-        $this->user = Factory::getApplication()->getIdentity();
+        $this->app = Factory::getApplication();
+        $this->user = $this->app->getIdentity();
         $this->db = Factory::getDbo();
         $this->rows = 0;
         $this->toolsTable = new ToolsTable();
@@ -99,7 +115,7 @@ class ToolsHelper {
         return $this->buildLink($url, $text, $newWindow, $class);
     }
 
-    public function buildEmailPreamble(){
+    public function buildEmailPreamble() {
 //      Generate the opening HTML wrapper for an email body fragment.
         $header = '<!DOCTYPE html>';
         $header .= '<html>';
@@ -371,16 +387,17 @@ class ToolsHelper {
 
     /*
       This function takes four parameters:
-        $user_id refers to the id of the record in #_users for a particular User
-        $function_code is a two digit code
-        $reference_id refers to the id of a project-specific table
-        $extra_id is included for future proofing
+      $user_id refers to the id of the record in #_users for a particular User
+      $function_code is a two digit code
+      $reference_id refers to the id of a project-specific table
+      $extra_id is included for future proofing
 
-      It returns a securely encrypted string of ASCII characters that encapsulate the four input 
+      It returns a securely encrypted string of ASCII characters that encapsulate the four input
       values, plus the date of encryption
 
       If the value supplied for user_id is zero, the function uses the value of the current user
-      */
+     */
+
     public function encodeToken($user_id, $function_code, $reference_id, $extra_id = 0) {
         $userId = (int) $user_id;
 
@@ -389,11 +406,11 @@ class ToolsHelper {
         }
 
         $plaintext = $this->buildCompactTokenPayload(
-            str_pad((string) $function_code, 2, '0', STR_PAD_LEFT),
-            $userId,
-            (int) $reference_id,
-            (int) $extra_id,
-            time()
+                str_pad((string) $function_code, 2, '0', STR_PAD_LEFT),
+                $userId,
+                (int) $reference_id,
+                (int) $extra_id,
+                time()
         );
 
         if ($plaintext === false) {
@@ -430,20 +447,20 @@ class ToolsHelper {
     }
 
     public function decodeToken($token) {
-    /*
-      This takes as input an string of ASCII characters that has been created
-    by function encode.
+        /*
+          This takes as input an string of ASCII characters that has been created
+          by function encode.
 
-      It returns a standard Joomla object with five constituents:
-        user_id
-        function_code
-        reference_id
-        extra_id
-        num_days - integer for the number of days that have elapsed since the
-                    token was generated
+          It returns a standard Joomla object with five constituents:
+          user_id
+          function_code
+          reference_id
+          extra_id
+          num_days - integer for the number of days that have elapsed since the
+          token was generated
 
-      If for any reason it cannot decrypt the token, it will return false
-      */
+          If for any reason it cannot decrypt the token, it will return false
+         */
 
         if (!is_string($token) || trim($token) === '') {
             return false;
@@ -596,9 +613,9 @@ class ToolsHelper {
     public function loadTokenKey($generateIfMissing = true) {
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $query = $db->getQuery(true)
-            ->select($db->quoteName('key_value'))
-            ->from($db->quoteName('#__ra_control'))
-            ->where($db->quoteName('record_type') . ' = 1');
+                ->select($db->quoteName('key_value'))
+                ->from($db->quoteName('#__ra_control'))
+                ->where($db->quoteName('record_type') . ' = 1');
 
         try {
             $db->setQuery($query);
@@ -640,19 +657,19 @@ class ToolsHelper {
         $sql .= ',' . $this->db->quote($message) . ')';
         $this->executeCommand($sql);
         /*
-        $db = $this->getDbo();
-        $query = $db->getQuery(true);
-        $query->insert($db->quoteName('#__ra_logfile'))
-            ->set('log_date = CURRENT_TIMESTAMP')
-            ->set('sub_system = ' . $db->quote($sub_system))
-            ->set('record_type = ' . $db->quote($record_type))
-            ->set('ref = ' . $db->quote($ref))
-            ->set('message = ' . $db->quote($message));
-        $db->setQuery($query)->execute(); 
-        */       
+          $db = $this->getDbo();
+          $query = $db->getQuery(true);
+          $query->insert($db->quoteName('#__ra_logfile'))
+          ->set('log_date = CURRENT_TIMESTAMP')
+          ->set('sub_system = ' . $db->quote($sub_system))
+          ->set('record_type = ' . $db->quote($record_type))
+          ->set('ref = ' . $db->quote($ref))
+          ->set('message = ' . $db->quote($message));
+          $db->setQuery($query)->execute();
+         */
     }
 
-    static function envelopeIcon(){
+    static function envelopeIcon() {
         return '<span class="icon-envelope" aria-hidden="true"></span>';
     }
 
@@ -683,10 +700,10 @@ class ToolsHelper {
 
     private function persistTokenKey($generatedKey) {
         $createTable = 'CREATE TABLE IF NOT EXISTS `#__ra_control` ('
-            . '`record_type` INT NOT NULL,'
-            . '`key_value` VARCHAR(255) NOT NULL,'
-            . 'PRIMARY KEY (`record_type`)'
-            . ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci';
+                . '`record_type` INT NOT NULL,'
+                . '`key_value` VARCHAR(255) NOT NULL,'
+                . 'PRIMARY KEY (`record_type`)'
+                . ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci';
 
         if (!$this->executeCommand($createTable)) {
             return false;
@@ -694,9 +711,9 @@ class ToolsHelper {
 
         $db = Factory::getContainer()->get(DatabaseInterface::class);
         $sql = 'INSERT INTO ' . $db->quoteName('#__ra_control')
-            . ' (' . $db->quoteName('record_type') . ', ' . $db->quoteName('key_value') . ')'
-            . ' VALUES (1, ' . $db->quote($generatedKey) . ')'
-            . ' ON DUPLICATE KEY UPDATE ' . $db->quoteName('key_value') . ' = VALUES(' . $db->quoteName('key_value') . ')';
+                . ' (' . $db->quoteName('record_type') . ', ' . $db->quoteName('key_value') . ')'
+                . ' VALUES (1, ' . $db->quote($generatedKey) . ')'
+                . ' ON DUPLICATE KEY UPDATE ' . $db->quoteName('key_value') . ' = VALUES(' . $db->quoteName('key_value') . ')';
 
         try {
             $db->setQuery($sql);
@@ -707,7 +724,7 @@ class ToolsHelper {
             return false;
         }
     }
-    
+
     function executeCmd($sql) {
 // Deprecated !
         $this->executeCommand($sql);
@@ -762,7 +779,7 @@ class ToolsHelper {
             if (!$result = $db->loadAssocList()) {
                 echo "No Qualifying Rows";
                 if (JDEBUG) {
-Factory::getApplication()->enqueueMessage($sql, 'info');
+                    Factory::getApplication()->enqueueMessage($sql, 'info');
                 }
             } else {
                 foreach (array_keys($result[0]) as $token) {
@@ -873,7 +890,20 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         return explode(',', $db->loadResult());
     }
 
+    /**
+     * Run a single-row query and return the result.
+     *
+     * Return contract:
+     * - object: query succeeded and returned a row
+     * - null: query succeeded but matched no rows
+     * - false: query failed and $this->error contains the database error
+     *
+     * @param   string  $sql  The SQL query to execute.
+     *
+     * @return  object|null|false
+     */
     public function getItem($sql) {
+        $this->rows = 0;
         try {
             $db = Factory::getContainer()->get(DatabaseInterface::class);
             $query = $db->getQuery(true);
@@ -884,9 +914,10 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             return $item;
         } catch (\Exception $ex) {
             $this->error = $ex->getCode() . ' ' . $ex->getMessage();
-//            if (JDEBUG) {
-//                echo 'Helper::getItem' . $this->error . '<br>';
-//            }
+            if (JDEBUG) {
+                $this->app->enqueueMessage('Helper::getItem: ' . $this->error, 'error');
+                $this->app->enqueueMessage('Helper::getItem SQL: ' . $sql, 'error');
+            }
             return false;
         }
     }
@@ -913,8 +944,9 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 
     public function getRows($sql) {
         /*
+          Example of usage:
           $this->toolsTable->add_header("aa,bb");
-          $rows = $this->objHelper->getRows($sql);
+          $rows = $this->toolsHelper->getRows($sql);
           foreach ($rows as $row) {
           $this->toolsTable->add_item($row->aa);
           $this->toolsTable->add_item($row->bb);
@@ -929,22 +961,31 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             $db->setQuery($sql);
             $db->execute();
             $this->rows = $db->getNumRows();
-//            print_r($this->rows);
             $rows = $db->loadObjectList();
             return $rows;
         } catch (\Exception $ex) {
             $this->error = $ex->getCode() . ' ' . $ex->getMessage();
-//            if (JDEBUG) {
-//                echo $this->error;
-//            }
+            if (JDEBUG) {
+                $this->app->enqueueMessage('Helper::getRows: ' . $this->error, 'error');
+                $this->app->enqueueMessage('Helper::getRows SQL: ' . $sql, 'error');
+            }
             return false;
         }
     }
 
-    function getValue($sql, $debug = 0) {
-        if ($debug == 1) {
-            echo $sql . '<br>';
-        }
+    /**
+     * Run a scalar query and return the first column from the first row.
+     *
+     * Return contract:
+     * - scalar|null: query succeeded; null means either no matching row or a SQL NULL value
+     * - false: query failed and $this->error contains the database error
+     *
+     * @param   string  $sql    The SQL query to execute.
+     * @param   int     $debug  Retained for compatibility; currently unused.
+     *
+     * @return  mixed|false
+     */
+    function getValue($sql) {
         try {
             $db = Factory::getContainer()->get(DatabaseInterface::class);
             $query = $db->getQuery(true);
@@ -952,6 +993,10 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             return $db->loadResult();
         } catch (\Exception $ex) {
             $this->error = $ex->getCode() . ' ' . $ex->getMessage();
+            if (JDEBUG) {
+                $this->app->enqueueMessage('Helper::getValue: ' . $this->error, 'error');
+                $this->app->enqueueMessage('Helper::getValue SQL: ' . $sql, 'error');
+            }
             return false;
         }
     }
@@ -992,7 +1037,6 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         $versions->db_version = $item->db_version;
         return $versions;
     }
-
 
     function imageButton($mode, $target, $newWindow = False) {
         if (substr($target, 0, 4) == "http") {
@@ -1077,7 +1121,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 
     function isSuperuser() {
         /*
-         * 16/09/25 CB THIS FAILS IF INVOKED N BATCH MODE
+         * 16/09/25 CB THIS FAILS IF INVOKED IN BATCH MODE
          */
 // Returns true or false
 // For the current user, looks up the id, and if member of SuperUser group
@@ -1521,15 +1565,20 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 
     public function showAccess($id) {
 
-        $sql = 'SELECT u.name, p.preferred_name FROM #__users AS u ';
+        $sql = 'SELECT u.name, p.home_group, p.preferred_name, p.membershipNumber ';
+        $sql .= 'FROM #__users AS u ';
         $sql .= 'LEFT JOIN #__ra_profiles as p on p.id = u.id ';
         $sql .= 'WHERE u.id=' . $id;
         $item = $this->getItem($sql);
 
         $user = Factory::getApplication()->getIdentity();
         echo 'You are logged in as ' . $item->name . ' (' . $id . ')';
+        echo ', your home group is ' . $item->home_group;
         echo ', your preferred name is ' . $item->preferred_name;
-        echo ', and you are a member of the following Groups<br>';
+        if ($item->membershipNumber > 0) {
+            echo ', your membership Number is ' . $item->membershipNumber;
+        }
+        echo ', and you are a member of the following UserGroups<br>';
         $sql = 'SELECT g.title  ';
         $sql .= 'FROM #__user_usergroup_map AS map ';
         $sql .= 'INNER JOIN #__usergroups as g on g.id = map.group_id ';
@@ -1697,7 +1746,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
                 }
 //
                 if ($link == '') {
-                $this->toolsTable->add_item($this->getValue($sql));
+                    $this->toolsTable->add_item($this->getValue($sql));
                 } else {
                     $count = $this->getValue($sql);
                     if ($count == 0) {
@@ -1758,8 +1807,8 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
 
     public function showEvents($id, $future = 'Y') {
 
-        $sql = 'SELECT e.id, e.event_date, e.title, COUNT(b.id) as cnt, SUM(b.num_places) as num , ';
-        $sql .= 'e.max_bookings, e.notify_organiser, t.description ';
+        $sql = 'SELECT e.id, e.event_date, e.title, COUNT(b.id) as cnt, group_code, ';
+        $sql .= 'SUM(b.num_places) as num , e.max_bookings, e.notify_organiser, t.description ';
         $sql .= 'FROM #__ra_events AS e ';
         $sql .= 'INNER JOIN #__contact_details AS c ON c.id = e.contact_id ';
         $sql .= 'INNER JOIN #__ra_event_types AS t ON t.id = e.event_type_id ';
@@ -1779,7 +1828,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         if ((count($rows) == 0)) {
             echo $missing;
         } else {
-            $this->toolsTable->add_header("Date,Event,Type,Max places,Notify,Count bookings,Total places,Emails");
+            $this->toolsTable->add_header("Date,Group,Event,Type,Max places,Notify,Count bookings,Total places,Emails");
             echo '<h2>Future Events organised by you</h2>';
             $sql = 'SELECT COUNT(id) as num ';
             $sql .= 'FROM #__ra_emails AS e ';
@@ -1789,6 +1838,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             foreach ($rows as $row) {
                 $count = $this->getValue($sql . $row->id);
                 $this->toolsTable->add_item($row->event_date);
+                $this->toolsTable->add_item($row->group_code);
                 $this->toolsTable->add_item($row->title);
                 $this->toolsTable->add_item($row->description);
                 $this->toolsTable->add_item($row->max_bookings);
@@ -1941,7 +1991,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             echo '<ul>' . PHP_EOL;
             $rows = $this->getRows('SELECT l.name, l.group_code' . $sql);
             foreach ($rows as $row) {
-                echo '<li>' . $row->group_code . ' ' . $row->name .  '</li>' . PHP_EOL;
+                echo '<li>' . $row->group_code . ' ' . $row->name . '</li>' . PHP_EOL;
             }
             echo '</ul>' . PHP_EOL;
         }
@@ -2006,7 +2056,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
         if ($back !== '') {
             echo $this->backButton($back);
         }
-    }    
+    }
 
     function showPrint($target, $newWindow = 0) {
 // Given the URL of the current page, generates CSS to display a link for creating a
@@ -2048,7 +2098,7 @@ Factory::getApplication()->enqueueMessage($sql, 'info');
             if (!$result = $db->loadAssocList()) {
                 echo "No Qualifying Rows";
                 if (JDEBUG) {
-Factory::getApplication()->enqueueMessage($sql, 'info');
+                    Factory::getApplication()->enqueueMessage($sql, 'info');
                 }
             } else {
                 echo "";

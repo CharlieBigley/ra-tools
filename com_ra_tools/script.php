@@ -8,6 +8,7 @@
  * 17/10/25 CB message if unable to delete file/folder
  * 03/11/25 CB use built in function to delete files and folders (3.4.5)
  * 21/01/26 CB 3.5.1 correct ra_emails addressee_email
+ * 17/06/26 CB api_sites: sub_system -> varchar(12)
  */
 
 \defined('_JEXEC') or die;
@@ -284,7 +285,7 @@ class Com_Ra_toolsInstallerScript {
         if ($type == 'install') {
             return true;
         }
-        $this->version_required = '3.5.1';
+        $this->version_required = '3.7.4';
         $reconfigure_message = false;
         $this->deleteFiles[] = 'components/com_ra_tools/tmpl/emailform/default.xml';
         if (version_compare($this->current_version, $this->version_required, 'ge')) {
@@ -319,7 +320,7 @@ class Com_Ra_toolsInstallerScript {
                 $this->deleteView('com_ra_events', 'Apisite');
             }
             if (version_compare($this->current_version, '3.3.10', 'le')) {
-                $this->checkColumn('ra_logfile', 'sub_system', 'U', 'VARCHAR(10) NOT NULL;');
+                $this->checkColumn('ra_logfile', 'sub_system', 'U', 'VARCHAR(12) NOT NULL;');
                 $this->checkColumn('ra_logfile', 'sub_syatem', 'D', '');
             }
             if (version_compare($this->current_version, '3.3.7', 'le')) {
@@ -355,6 +356,9 @@ class Com_Ra_toolsInstallerScript {
                         ) DEFAULT COLLATE=utf8mb4_unicode_ci; ';
                     $this->checkTable('ra_api_sites', $details);
                 }
+            }
+            if (version_compare($this->current_version, '3.7.4', 'le')) {
+                $this->checkColumn('ra_api_sites', 'sub_system', 'U', 'VARCHAR(12) NOT NULL;');
             }
         }
 

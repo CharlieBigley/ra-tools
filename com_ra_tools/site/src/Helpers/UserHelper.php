@@ -391,7 +391,6 @@ class UserHelper {
                 echo 'Purging profile for ' . $profile->home_group . ', <b>';
                 echo $profile->preferred_name . '</b>, Created ';
                 echo $profile->created . '<br>';
-
                 $sql = 'DELETE FROM #__ra_profiles WHERE id=' . $profile->id;
                 $this->toolsHelper->executeCommand($sql);
                 // delete details of any emails sent
