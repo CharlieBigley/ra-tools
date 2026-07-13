@@ -1,7 +1,7 @@
 <?php
 
 /*
- * @version     3.7.0
+ * @version     3.7.4
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2020. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -12,7 +12,8 @@
  * 01/05/25 CB use style for row background colour
  * 07/07/25 CB correct line colour
  * 23/05/26 CB change generation of <TD> to allow for row colour (otherwise overridden by table-striped)
- */
+ * 09/07/26 CB replace DateTine with /DateTime in set_csv 
+*/
 
 namespace Ramblers\Component\Ra_tools\Site\Helpers;
 
@@ -61,10 +62,12 @@ class ToolsTable {
     }
 
     function set_csv($csv) {
+        // Note that the parameter passed in is the name of the report, not the filename. 
+        // The filename is generated here to include a timestamp.
         if (strlen($csv) > 0) {
-            $this->filename = "/tmp/download_" . $csv . '_' . (new DateTime())->format('YmdHis') . ".csv";
+            $this->filename = "/tmp/download_" . $csv . '_' . (new \DateTime())->format('YmdHis') . ".csv";
             $this->handle = fopen($this->filename, 'w'); //open file for writing
-            If ($this->handle === false) {
+            if ($this->handle === false) {
                 echo 'Cannot open file:  ' . $this->filename . '<br>';
                 die(print_r(error_get_last(), true));
             } else {
@@ -108,10 +111,8 @@ class ToolsTable {
     }
 
     function generate_header($colour = "grey") {
-        if ($this->csv === 'Y') {
-//            for ($i = 0; $i < $this->num_columns; $i++) {
+        if ($this->csv == 'Y') {
             fputcsv($this->handle, $this->header);
-//            }
         } else {
             $class = ToolsHelper::lookupColourCode($colour, 'T');
             echo '<div class="table-responsive">' . PHP_EOL;
@@ -132,7 +133,7 @@ class ToolsTable {
     }
 
     function generate_line($row_colour = "", $max_columns = "0") {
-        if ($this->csv === 'Y') {
+        if ($this->csv == 'Y') {
             fputcsv($this->handle, $this->value);
         } else {
             if ($row_colour == "") {
@@ -185,10 +186,12 @@ class ToolsTable {
     }
 
     function generate_table() {
-        if ($this->csv === 'Y') {
+        if ($this->csv == 'Y') {
             fclose($this->handle);
-            echo $this->num_rows . ' rows written to ' . $this->filename . ', click to download<br>';
-            echo '<a href="' . $this->filename . '" class="link-button ' . $this->buttonClass . '">Download report as CSV</a>';
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . basename($this->filename) . '"');
+            readfile($this->filename);
+            unlink($this->filename);
         } else {
             echo '</table>' . PHP_EOL;
             echo '</div>' . PHP_EOL;    // table-responsive
@@ -207,7 +210,6 @@ class ToolsTable {
 //        echo $file . '<br>';
         $handle = fopen($file, "rb");
         if (FALSE === $handle) {
-            fclose($dest);
             echo "Failed to open source $file<br>";
             return 0;
         }

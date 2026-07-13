@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    3.5.3
+ * @version    3.7.4
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
@@ -12,6 +12,7 @@
  * 01/10/25 CB change confirmation message
  * 01/11/25 CB add emails for event attendees - BookingHelper + lookupBooking
  * 09/02/26 CB correct emails to event attendees - only one booking_info
+ * 13/07/26 CB include sender's name and email address if record_type=1
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Model;
@@ -359,10 +360,12 @@ class EmailformModel extends FormModel {
 
 //      There may be multiple addressees - convert to an array
         $addressee = explode(',', $data['addressee_email']);
+        $body = '';
         if ($data['record_type'] == 1) {
 //      Sending email to a Committee Member
 //      Send copy to author by adding another entry to the array
             $addressee[] = $data['sender_email'];
+            $body = '<i>Message from ' . $data["sender_name"] . ', ' . $data["sender_email"] . '</i><br>';
         }
 
         $reply_to = $data['sender_email'];
@@ -374,7 +377,7 @@ class EmailformModel extends FormModel {
             $body = $emailHeader . $data['body'];
             $bookingHelper = new BookingHelper;
         } else {
-            $body = $data['body'];
+            $body .= $data['body'];
         }
 
         //       if (count($to) == 1) {

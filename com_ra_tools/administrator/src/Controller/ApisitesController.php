@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version    3.7.3
+ * @version    3.7.4
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
@@ -15,6 +15,7 @@
  * 10/02/26 CB removed heading for ShowShared
  * 07/06/25 CB show email sender, not email_id
  * 08/06/26 CB Show all button after apiTest 
+ * 13/07/26 CB use SmtpHelper, not ActivityHelper
  */
 
 namespace Ramblers\Component\Ra_tools\Administrator\Controller;
@@ -30,7 +31,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-use Ramblers\Component\Ra_delivery\Site\Helper\ActivityHelper;
+use Ramblers\Component\Ra_delivery\Site\Helper\SmtpHelper;
 use Ramblers\Component\Ra_events\Site\Helpers\EventsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsHelper;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
@@ -224,7 +225,7 @@ class ApisitesController extends AdminController {
             return;
         }
 
-        $helper = new ActivityHelper();
+        $helper = new SmtpHelper;
         $result = $helper->testApiSite($id);
 
         echo '<h2>RA Delivery helper test</h2>';

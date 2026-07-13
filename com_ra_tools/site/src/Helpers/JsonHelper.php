@@ -27,10 +27,15 @@ use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
 
 class JsonHelper {
 
+    private static $messages = [];
  //   private $api_key;
     private $url = 'https://walks-manager.ramblers.org.uk/api/volunteers/';
     public $feedType = 'walksevents';          // This can be over-written
-    public $messages;
+
+    public static function getMessages()
+    {
+        return self::$messages;
+    }
 
     /**
      * Display all fields from the first record in the response
@@ -44,78 +49,6 @@ class JsonHelper {
         }
         return $response['data'][0]['attributes'] ?? $response['data'][0];
     }
-
-     /**
-     * Execute a curl command to fetch API data
-     * @param int $api_site_id ID of the record in api_sites
-     * @param string $endpoint The required endpoint URL
-     * @param int $verbose Verbose flag (0/1)
-     * @return array Decoded response or error info
-     */
-    public static function getRemoteData_v1($api_site_id, $endpoint, $verbose = 0)
-    {
-        $db = Factory::getDbo();
-        // Get token for api_site_id
-        $query = $db->getQuery(true)
-            ->select($db->quoteName(['token', 'url']))
-            ->from($db->quoteName('#__ra_api_sites'))
-            ->where($db->quoteName('id') . ' = ' . (int) $api_site_id);
-//            ->bind(':id', $api_site_id, ParameterType::INTEGER);
-        $db->setQuery($query);
-        $site = $db->loadObject();
-        if (!$site || empty($site->token)) {
-            return ['error' => 'API site or token not found'];
-        }
-        $token = $site->token;
-        $url = $site->url . $endpoint;
-        $headers = [
-            'Accept: application/vnd.api+json',
-            'Content-Type: application/json',
-            'X-Joomla-Token: ' . $token,
-            'Authorization: Bearer ' . $token
-        ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        $response = curl_exec($ch);
-        $curl_info = curl_getinfo($ch);
-        $curl_error = curl_error($ch);
-        curl_close($ch);
-        // Split headers/body
-        $header_size = $curl_info['header_size'] ?? 0;
-        $raw_headers = substr($response, 0, $header_size);
-        $body = substr($response, $header_size);
-        $decoded = json_decode($body, true);
-        if ($verbose) {
-            // Log to DB with correct columns
-            $log_date = date('Y-m-d H:i:s');
-            $sub_system = 'RA Develop';
-            $record_type = 11;
-            $ref = 'builds';
-            $message = "Endpoint: $endpoint\n" .
-                "API Site ID: $api_site_id\n" .
-                "Headers: " . json_encode($headers) . "\n" .
-                "Raw Headers: $raw_headers\n" .
-                "Body: $body\n" .
-                "Curl Info: " . json_encode($curl_info) . "\n" .
-                "Curl Error: $curl_error\n" .
-                "Decoded: " . json_encode($decoded);
-            $query = "INSERT INTO #__ra_logfile (`log_date`, `sub_system`, `record_type`, `ref`, `message`) VALUES (" .
-                $db->quote($log_date) . ", " .
-                $db->quote($sub_system) . ", " .
-                (int)$record_type . ", " .
-                $db->quote($ref) . ", " .
-                $db->quote($message) . ")";
-            $db->setQuery($query);
-            $db->execute();
-        }
-        return $decoded ?: ['error' => $curl_error ?: 'No response'];
-    }
-
-
-//    private $key = '&api-key=742d93e8f409bf2b5aec6f64cf6f405e';
 
     public function getCountEvents($code) {
         // https://walks-manager.ramblers.org.uk/api/volunteers/walksevents?types=walkevents&types=group-event&api-key=742d93e8f409bf2b5aec6f64cf6f405e&groups=CF
@@ -205,7 +138,16 @@ class JsonHelper {
         }
     }
 
-    public function getRemoteData($site_id,$endpoint){
+     /**
+     * Execute a curl command to fetch API data
+     * @param int $api_site_id ID of the record in api_sites
+     * @param string $endpoint The required endpoint URL
+     * @return array Decoded response or error info
+     */
+
+    public static function getRemoteData($site_id, $endpoint)
+    {
+        self::$messages = [];
         /*
         $site_id is the id of the record in api_sites
         $endpoint is the project_code/view_name (e.g. /api/index.php/v1/ra_events/events)
@@ -215,14 +157,15 @@ class JsonHelper {
         $toolsHelper = new ToolsHelper;
         $site = $toolsHelper->getItem($sql);
         $token = trim($site->token);
-       
-        $url = $site->url  . $endpoint;
+
+        $url = $site->url . $endpoint;
         if (JDEBUG) {
             $message = 'Site id ' . $site_id . ', ';
             $message .= 'Seeking data from ' . $url;
-            $this->messages[] = $message;
+            Factory::getApplication()->enqueueMessage($message, 'notice');
+            self::$messages[] = $message;
             $message = 'Token is ' . $token;
-            $this->messages[] = $message;
+            self::$messages[] = $message;
         }
 //      set up maximum time of 5 minutes
         $max = 5 * 60;
@@ -232,43 +175,44 @@ class JsonHelper {
         $headers = [
             'Accept: application/vnd.api+json',
             'Content-Type: application/json',
-//            'Authorization: Bearer ' . $token,            
+//            'Authorization: Bearer ' . $token,
             sprintf('X-Joomla-Token: %s', $token),
         ];
 
         $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_HEADER => false, // do not include header in output
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => 'utf-8',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_CONNECTTIMEOUT => $max,
-            CURLOPT_TIMEOUT => $max,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2TLS,
-            CURLOPT_CUSTOMREQUEST => 'GET',
+        curl_setopt_array(
+            $curl,
+            [
+                CURLOPT_URL => $url,
+                CURLOPT_HEADER => false, // do not include header in output
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => 'utf-8',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_CONNECTTIMEOUT => $max,
+                CURLOPT_TIMEOUT => $max,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2TLS,
+                CURLOPT_CUSTOMREQUEST => 'GET',
 //            CURLOPT_REFERER => "com_ra_tools", // say who wants the feed
-            CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_HTTPHEADER => $headers,
 //        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false); // do not follow redirects
 //        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  // do not output result
-                ]
+            ]
         );
 
         $responseData = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         if ($responseData == false) {
             $error = curl_error($curl);
-            
+
             if ($httpCode !== 200) {
                 $message = 'Error: ' . $httpCode;
                 $message .= ', ' . $error;
                 $toolsHelper = new Toolshelper;
                 if ($toolsHelper->isSuperuser()) {
                     $message .= ' ' . $url;
-                }           
-                $this->messages[] = $message;
-                $this->messages[] = 'Error ' . $error ;
+                }
+                self::$messages[] = $message;
                 return false;
             }
         }
@@ -282,30 +226,59 @@ class JsonHelper {
             if ($httpCode == 401) {
                 $message .= 'Authorization Required (Token missing or invalid)';
             } else {
-                $message .=  $error;
+                $message .= $error;
             }
-            $this->messages[] = $message;
-            $this->messages[] = 'Endpoint: ' . $url;
-            if ($responseHeaders !== '') {
-                $this->messages[] = 'Response data: ' . trim($responseData);
+            self::$messages[] = $message;
+            if (isset($responseHeaders) && $responseHeaders !== '') {
+                self::$messages[] = 'Response data: ' . trim($responseData);
             }
 //            return false;
         }
         $details = json_decode($responseData, true);
         if ($details === null && json_last_error() !== JSON_ERROR_NONE) {
-            $this->messages[] = 'JSON decode error: ' . json_last_error_msg();
+            self::$messages[] = 'JSON decode error: ' . json_last_error_msg();
         }
-        if (JDEBUG) {
-            echo '<b>Start of details</b><br>';
-            var_dump($details);
-            echo '<br><b>End of details</b><br>';
-            echo $responseData;
-            echo '<br>========<br>';   
-        }
-        return $details;
-       }   
 
-        private function getUrl($type, $criteria) {
+        if (isset($details['errors'])) {
+            foreach ($details['errors'] as $error) {
+                self::$messages[] = 'API Error: ' . $error['title'] . ' (Code: ' . $error['code'] . ')';
+            }
+            // You might want to log these messages or display them to the user
+            // For now, just returning false as the operation failed.
+            return false;
+        }
+
+
+
+        if (isset($details['data']['attributes'])) {
+            // Single item response
+            $item = (object) $details['data']['attributes'];
+            if (JDEBUG) {
+                echo '<b>Start of item</b><br>';
+                var_dump ($item);
+                echo '<br><b>End of item</b><br>';
+                echo '<br>========<br>';
+            }
+
+            return $item;
+        } elseif (isset($details['data']) && is_array($details['data'])) {
+            // Collection response
+            $items = [];
+            foreach ($details['data'] as $itemData) {
+                if (isset($itemData['attributes'])) {
+                    $item = (object) $itemData['attributes'];
+                    $item->id = $itemData['id'];
+                    $items[] = $item;
+                }
+            }
+            return $items;
+        }       
+
+
+        return $details;
+    }   
+
+    private function getUrl($type, $criteria) {
         if ($type == 'organisation') {
             $url = $this->url . 'groups';
         } else {

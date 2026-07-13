@@ -14,6 +14,7 @@
         <field
             name="default_group"
             type="text"
+            required="true"
             label="Default Group code"
             description="Please enter the appropriate 4 character code"
             default="NS03"
@@ -22,6 +23,7 @@
             name="group_list"
             type="text"
             label="Local Groups"
+            required="true"
             description="Please enter series of 4 character codes, separated by commas"
             default="NS01,NS02,NS03,NS04,NS05,NS06,NS07,NS08,NS09,NS10,NS11,NS12,NS50,NS51"
             class="input-xxlarge"
@@ -32,6 +34,13 @@
                 description="Used when creating links in emails etc" 
                 required="true"
                 hint="https://xxxramblers.org.uk"/>
+        <field name="email_new_user" 
+            validate="email" 
+            type="email" 
+            label="Email" 
+            description="Email address to be informed when a User self-registers" 
+            hint="aaaa@bbb.com"
+        />   
     </fieldset>
     <fieldset name="walks" label="Group Walks">
         <field 
@@ -88,6 +97,36 @@
             <option value="tabs">Full list (with tabs)</option> 
         </field>                                                          
     </fieldset>
+    <fieldset name="standard_articles" label="Standard Articles">
+        <field 
+            name="note4" 
+            type="note" 
+            label="Standard Articles from a remote site"
+        />     
+        <field
+            name="site_id"
+            query="SELECT `id`, `url` FROM #__ra_api_sites WHERE state=1 ORDER BY `url`"
+            type="sql"
+            key_field="id"
+            value_field="url"
+            label="Site"
+            require="true"
+            description="Site from which the Articles are to be read">
+        </field>
+        <field name="category_id" 
+            type="text" 
+            default="" 
+            label="Category ID" 
+            description="ID of the category of articles to be displayed" 
+        />                                                                 
+        <field name="local_category_id" 
+            type="category" 
+            extension="com_content"
+            default="" 
+            label="Local Category" 
+            description="Category to be used when importing Articles" 
+        />   
+    </fieldset>
     <fieldset name="emails" label="Email logging">
         <field 
             name="note3" 
@@ -100,7 +139,7 @@
             <option value="-1">-1 Don't send the email, just create a log to ra_emails</option>
             <option value="-2">-2 Benchmark SMTP timings - don't send or log</option>
         </field>                                                          
-    </fieldset>
+    </fieldset>    
     <fieldset
         name="permissions"
         label="JCONFIG_PERMISSIONS_LABEL"

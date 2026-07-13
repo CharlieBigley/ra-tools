@@ -22,7 +22,7 @@
                             />                                                          
                             <field
                                 name="site_id"
-                                query="SELECT `id`, `url` FROM #__ra_api_sites ORDER BY `url`"
+                                query="SELECT `id`, `url` FROM #__ra_api_sites WHERE state=1 ORDER BY `url`"
                                 type="sql"
                                 key_field="id"
                                 value_field="url"

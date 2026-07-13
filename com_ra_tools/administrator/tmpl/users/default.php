@@ -89,7 +89,7 @@ $sql_lookup .= 'WHERE map.group_id=8 AND  map.user_id=';
                             echo '<th>Tools</th>';
                             if ($events) {
                                 echo '<th>Events</th>';
-                            }                          
+                            }
                             if ($mailman) {
                                 echo '<th>MailMan</th>';
                             }
@@ -143,12 +143,12 @@ $sql_lookup .= 'WHERE map.group_id=8 AND  map.user_id=';
                                 if ($members) {
                                     echo '<td>' . $this->checkGroup($item->id, 4) . '</td>';
                                 }
-                                if ($canEdit) {         
+                                if ($canEdit) {
                                     $link = $toolsHelper->buildLink($target_edit . $item->id, $item->id);
                                     echo '<td class="d-none d-lg-table-cell">' . $link . '</td>';
 //                                } else {
- //                                   echo '<td class="d-none d-lg-table-cell">' . $item->id . '</td>';
- //                               }
+//                                   echo '<td class="d-none d-lg-table-cell">' . $item->id . '</td>';
+                                }
                                 ?>
                             </tr>
                         <?php endforeach; ?>

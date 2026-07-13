@@ -22,18 +22,8 @@
  * 30/05/26 CB changed error handling in getItem, getRows and getValue to set $this->error and return false, rather than returning the error message in the return value.
  *             This is to allow the calling code to distinguish between a query that returns no rows (or a SQL NULL value) and a query that fails with an error.
  * 22/06/26 CB in showAccess, show home group (and membershipNumber), include group in list of events
- */
-/*
-  There is a long list of old style form field classes that have no equivalent in Joomla 5. For example:
-
-  JFormFieldList
-  JFormFieldText
-
-  In Joomla 5 the namespaced classes are:
-
-  \Joomla\CMS\Form\Field\ListField
-  \Joomla\CMS\Form\Field\TextField
- */
+ * 06/07/26 CB invoke ra-delivery/SmtpHelper to send email using API if component is installed and enabled 
+*/
 
 namespace Ramblers\Component\Ra_tools\Site\Helpers;
 
@@ -48,6 +38,7 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseInterface;
 use Ramblers\Component\Ra_tools\Site\Helpers\ToolsTable;
+use Ramblers\Component\Ra_delivery\Site\Helper\SmtpHelper;
 
 class ToolsHelper {
 
@@ -1455,6 +1446,12 @@ class ToolsHelper {
     function sendEmail($to, $reply_to, $subject, $message, $attachments = '', $bcc = '') {
         $body = $this->buildEmailPreamble();
         $body .= $message;
+
+        if (ComponentHelper::isEnabled('com_ra_delivery', true)) {         
+            $smtpHelper = new SmtpHelper;
+            return $smtpHelper->sendEmail($to, $reply_to, $subject, $body, $attachments, $bcc);
+
+        }
         // Some older callers still append the closing tags themselves; only add them when missing.
         if (!preg_match('/<\/body>\s*<\/html>\s*$/i', $body)) {
             $body .= '</body></html>';

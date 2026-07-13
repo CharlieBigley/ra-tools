@@ -1,17 +1,28 @@
 <?php
 
 /**
- * @version    3.5.6
+ * @version    3.7.4
  * @package    com_ra_tools
  * @author     Charlie Bigley <charlie@bigley.me.uk>
  * @copyright  2025 Charlie Bigley
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
+ *
+ * These functions are used when an email is to be sent.
+ *  type=1: send email to a committee member or event organiser
+ *  type=2: send email to walk leader (as at July 26, not yet used)
+ *  type=3: send email to all attendees of an Event
+ *
+ * All transfer control to the screen where an email can be composed, and the
+ * actual dispatch of the message is from EmailformModel / Save. After this,
+ * control is returned as specified in parameter "callback"
+ *
  * 23/01/26 CB support for emailing a single event attendee
  * 09/02/26 CB correction when emailing multiple attendees
  * 26/02/26 CB Catch errors in eventOrganiser
  * 10/03/16 CB check for invalid booking_id in eventAttendees
  * 10/03/26 CB reinstate display of addressee_name for eventOganiser
  * 19/03/26 CB don't reject EventAttendees if no booking_id
+ * 13/07/26 CV notes added
  */
 
 namespace Ramblers\Component\Ra_tools\Site\Controller;
@@ -369,7 +380,7 @@ class SystemController extends FormController {
         $sql .= "WHERE e.id=" . $id;
         $param = new CMSOject;
         $param->sub_system = 'RA WalksF';
-        $param->record_type = 1;
+        $param->record_type = 2;
         $param->caption = 'Contact for ' . $walk->title;
         $param->addressee_name = $walk->preferred_name;
         $param->addressee_email = $walk->email;

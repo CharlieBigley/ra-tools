@@ -240,6 +240,14 @@ class UserHelper {
     }
 
     public function createUserDirect($block = 1) {
+        return $this->createUserRecord($block, true);
+    }
+
+    public function createUserOnly($block = 1) {
+        return $this->createUserRecord($block, false);
+    }
+
+    protected function createUserRecord($block = 1, $createProfile = true) {
         // writes a record to the users table
         if ($this->name == 'Email Address') {
 // this is the first line of a MailChimp export
@@ -291,7 +299,9 @@ class UserHelper {
                 $this->linkUser($group_id);
             }
             $this->sendEmail();
-            $this->createProfile();
+            if ($createProfile) {
+                $this->createProfile();
+            }
             return true;
         }
         $this->error = 'Unable to create User record for ' . $this->group_code . ' ' . $this->name;

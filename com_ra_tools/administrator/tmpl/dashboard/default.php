@@ -23,6 +23,7 @@
  * 11/02/26 CB Restructure with grid layout and permission-based blocks - removed duplicates
  * 04/05/26 CB add block for Members
  * 07/06/26 CB show email deliveries
+ * 06/07/26 CB add link to Standard Articles
  */
 // No direct access
 \defined('_JEXEC') or die;
@@ -57,6 +58,7 @@ if ($toolsHelper->isSuperuser()) {
         $sysToolsItems[] = ['label' => 'List Users', 'url' => 'index.php?option=com_ra_tools&view=users'];
     }
 
+    $sysToolsItems[] = ['label' => 'Standard Articles', 'url' => 'index.php?option=com_ra_tools&view=standardarticles'];
     $sysToolsItems[] = ['label' => 'API sites', 'url' => 'index.php?option=com_ra_tools&view=apisites'];
     if (ComponentHelper::isEnabled('com_ra_delivery', true)) {
         $sysToolsItems[] = ['label' => 'List Email exceptions', 'url' => 'index.php?option=com_ra_delivery'];

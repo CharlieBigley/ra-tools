@@ -294,7 +294,7 @@ class Com_Ra_toolsInstallerScript {
             echo '<p>Version was originally ' . $this->current_version . ', ';
             echo 'Requires version >= ' . $this->version_required . '</p>';
             if (version_compare($this->current_version, '3.5.2', 'le')) {
-                $this->checkColumn('ra_emails', 'addressee_email', 'U','TEXT; ');
+                $this->checkColumn('ra_emails', 'addressee_email', 'U', 'TEXT; ');
                 $this->checkColumn('ra_clusters', 'website', 'A', 'VARCHAR(100) NOT NULL AFTER area_list; ');
             }
             if (version_compare($this->current_version, '3.4.2', 'le')) {
@@ -340,7 +340,7 @@ class Com_Ra_toolsInstallerScript {
                 //       $this->checkColumn('ra_emails', 'addressee_email', 'U', 'TEXT AFTER addressee_name; ');
                 if (version_compare($this->current_version, '2.1.2', 'ge')) {
                     $details = '`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-                        `sub_system` VARCHAR(10) NOT NULL ,
+                        `sub_system` VARCHAR(12) NOT NULL ,
                         `url` VARCHAR(100) NOT NULL ,
                         `token` VARCHAR(255) NOT NULL ,
                         `colour` VARCHAR(22) NOT NULL ,
