@@ -22,8 +22,9 @@
  * 30/05/26 CB changed error handling in getItem, getRows and getValue to set $this->error and return false, rather than returning the error message in the return value.
  *             This is to allow the calling code to distinguish between a query that returns no rows (or a SQL NULL value) and a query that fails with an error.
  * 22/06/26 CB in showAccess, show home group (and membershipNumber), include group in list of events
- * 06/07/26 CB invoke ra-delivery/SmtpHelper to send email using API if component is installed and enabled 
-*/
+ * 06/07/26 CB invoke ra-delivery/SmtpHelper to send email using API if component is installed and enabled
+ * 15/07/26 CB improved image hanling for emails: insert code required for embedLocalEmailImages
+ */
 
 namespace Ramblers\Component\Ra_tools\Site\Helpers;
 
@@ -120,6 +121,143 @@ class ToolsHelper {
         $header .= '</head>';
         $header .= '<body>';
         return $header;
+    }
+
+    private function collapseDuplicatedAbsoluteUrls($html) {
+        do {
+            $previous = $html;
+            $html = preg_replace('#https?://([^/"\'>\s]+)/(https?://\1/)#i', '$2', $html);
+            $html = preg_replace('#https?://[^"\'>\s]*/(https?://[^"\'>\s]+)#i', '$1', $html);
+        } while ($html !== $previous);
+
+        return $html;
+    }
+
+    private function getEmailAssetRoot() {
+        $root = trim((string) Uri::root());
+
+        if (!preg_match('#^https?://#i', $root)) {
+            $config = Factory::getConfig();
+            $root = $config ? trim((string) $config->get('live_site')) : '';
+        }
+
+        return rtrim($this->collapseDuplicatedAbsoluteUrls($root), '/') . '/';
+    }
+
+    private function getHostFromUrl($url) {
+        $host = parse_url($url, PHP_URL_HOST);
+
+        return is_string($host) ? strtolower($host) : '';
+    }
+
+    private function extractLocalEmailImagePath($src) {
+        $src = trim($this->collapseDuplicatedAbsoluteUrls((string) $src));
+
+        if ($src === '' || preg_match('#^(?:data:|cid:|mailto:|tel:|#)#i', $src)) {
+            return '';
+        }
+
+        if (preg_match('#^/?images/#i', $src)) {
+            return ltrim($src, '/');
+        }
+
+        if (!preg_match('#/((?:[^/"\'>\s]+/)*images/[^"\'>\s]+)#i', $src, $path_match)) {
+            return '';
+        }
+
+        $root_host = $this->getHostFromUrl($this->getEmailAssetRoot());
+        $src_host = $this->getHostFromUrl($src);
+        $has_nested_host = preg_match('#^https?://[^/"\'>\s]+/(?:https?://|[^/"\'>\s]+\.[^/"\'>\s]+/)#i', $src);
+
+        if (!$has_nested_host && $src_host !== $root_host) {
+            return '';
+        }
+
+        return preg_replace('#^(?:[^/]+/)*?(images/)#i', '$1', $path_match[1]);
+    }
+
+    public function makeEmailImageUrlsAbsolute($body) {
+        $root = $this->getEmailAssetRoot();
+        $body = $this->collapseDuplicatedAbsoluteUrls($body);
+
+        return preg_replace_callback('/(<img\b[^>]*\bsrc=)(["\'])([^"\']+)(\2)/i', function ($matches) use ($root) {
+            $src = trim($this->collapseDuplicatedAbsoluteUrls($matches[3]));
+            $local_path = $this->extractLocalEmailImagePath($src);
+
+            if ($local_path !== '') {
+                return $matches[1] . $matches[2] . $root . ltrim($local_path, '/') . $matches[4];
+            }
+
+            if ($src === '' || preg_match('#^(?:[a-z][a-z0-9+.-]*:|//|#)#i', $src)) {
+                return $matches[1] . $matches[2] . $src . $matches[4];
+            }
+
+            return $matches[1] . $matches[2] . $root . ltrim($src, '/') . $matches[4];
+        }, $body);
+    }
+
+    private function embedLocalEmailImages($body, &$inline_images, &$inline_debug) {
+        $embedded = [];
+        $inline_debug = [
+            'images' => 0,
+            'local' => 0,
+            'found' => 0,
+            'missing' => 0,
+            'last' => ''
+        ];
+
+        return preg_replace_callback('/(<img\b[^>]*\bsrc=)(["\'])([^"\']+)(\2)/i', function ($matches) use (&$embedded, &$inline_images, &$inline_debug) {
+            $inline_debug['images']++;
+            $relative_path = $this->extractLocalEmailImagePath($matches[3]);
+            $inline_debug['last'] = substr((string) $matches[3], 0, 120);
+
+            if ($relative_path === '') {
+                return $matches[0];
+            }
+            $inline_debug['local']++;
+
+            $relative_path = rawurldecode($relative_path);
+            $relative_path = str_replace('\\', '/', $relative_path);
+            $relative_path = preg_replace('#/+#', '/', $relative_path);
+
+            if (strpos($relative_path, '..') !== false) {
+                return $matches[0];
+            }
+
+            $path = $this->findEmailImagePath($relative_path);
+            if ($path == '') {
+                $inline_debug['missing']++;
+                return $matches[0];
+            }
+            $inline_debug['found']++;
+
+            $cid_host = $this->getHostFromUrl($this->getEmailAssetRoot());
+            $cid = 'ra_img_' . md5($relative_path) . '@' . ($cid_host ?: 'local');
+            if (!isset($embedded[$cid])) {
+                $inline_images[$cid] = $path;
+                $embedded[$cid] = true;
+            }
+
+            return $matches[1] . $matches[2] . 'cid:' . $cid . $matches[4];
+        }, $body);
+    }
+
+    private function findEmailImagePath($relative_path) {
+        $relative_path = ltrim($relative_path, '/');
+        $paths = [
+            JPATH_ROOT . '/' . $relative_path,
+            dirname(JPATH_ROOT) . '/' . $relative_path,
+            JPATH_ROOT . '/public_html/' . $relative_path,
+            dirname(JPATH_ROOT) . '/public_html/' . $relative_path,
+        ];
+
+        foreach ($paths as $path) {
+            if (file_exists($path)) {
+                return $path;
+            }
+        }
+
+        return '';
     }
 
     static function buildError($ExistingMessage, $NewMessage) {
@@ -952,6 +1090,7 @@ class ToolsHelper {
             $db->setQuery($sql);
             $db->execute();
             $this->rows = $db->getNumRows();
+//            print_r($this->rows);
             $rows = $db->loadObjectList();
             return $rows;
         } catch (\Exception $ex) {
@@ -1446,16 +1585,25 @@ class ToolsHelper {
     function sendEmail($to, $reply_to, $subject, $message, $attachments = '', $bcc = '') {
         $body = $this->buildEmailPreamble();
         $body .= $message;
+        // Some older callers still append the closing tags themselves; only add them when missing.
+        if (!preg_match('/<\/body>\s*<\/html>\s*$/i', $body)) {
+            $body .= '</body></html>';
+        }
 
-        if (ComponentHelper::isEnabled('com_ra_delivery', true)) {         
+        if (ComponentHelper::isEnabled('com_ra_delivery', true)) {
             $smtpHelper = new SmtpHelper;
+            Factory::getApplication()->enqueueMessage('Sending using API ', 'info');
             return $smtpHelper->sendEmail($to, $reply_to, $subject, $body, $attachments, $bcc);
-
         }
         // Some older callers still append the closing tags themselves; only add them when missing.
         if (!preg_match('/<\/body>\s*<\/html>\s*$/i', $body)) {
             $body .= '</body></html>';
         }
+
+        $body = $this->makeEmailImageUrlsAbsolute($body);
+        $inline_images = [];
+        $inline_debug = [];
+        $body = $this->embedLocalEmailImages($body, $inline_images, $inline_debug);
 
         $log_target = is_array($to) ? implode(',', $to) : (string) $to;
         $log_target = substr($log_target, 0, 240);
@@ -1527,7 +1675,14 @@ class ToolsHelper {
             $mailer->isHtml(true);
             $mailer->Encoding = 'base64';
             $mailer->setSubject($subject);
+            if (method_exists($mailer, 'addEmbeddedImage')) {
+                foreach ($inline_images as $cid => $path) {
+                    $mailer->addEmbeddedImage($path, $cid, basename($path));
+                }
+            }
             $mailer->setBody($body);
+            // Keep the final body exactly as prepared above if Joomla's wrapper adjusts setBody().
+            $mailer->Body = $body;
 
 //     Optional file attachments - must be an array
             if ($attachments !== '') {
