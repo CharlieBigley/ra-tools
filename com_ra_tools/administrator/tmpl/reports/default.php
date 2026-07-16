@@ -41,6 +41,7 @@ ToolBarHelper::title('System reports');
 // Import CSS
 $this->wa = $this->document->getWebAssetManager();
 $this->wa->registerAndUseStyle('ramblers', 'com_ra_tools/ramblers.css');
+$this->wa->registerAndUseStyle('dashboard', 'com_ra_tools/dashboard.css');
 
 $breadcrumbs = $toolsHelper->buildLink('administrator/index.php', 'Home Dashboard');
 $breadcrumbs .= '>' . $toolsHelper->buildLink('administrator/index.php?option=com_ra_tools&view=dashboard', 'RA Dashboard');
@@ -52,7 +53,7 @@ $reports = [
     'Groups by bespoke description' => 'administrator/index.php?option=com_ra_tools&task=reports.showBespoke',
     'Contact By Category' => 'administrator/index.php?option=com_ra_tools&task=reports.contactsByCategory',
 //    'Extract contacts' => 'administrator/index.php?option=com_ra_tools&task=reports.extractContacts',
-'Reset Users' => 'administrator/index.php?option=com_ra_tools&task=reports.resetUsers',
+    'Reset Users' => 'administrator/index.php?option=com_ra_tools&task=reports.resetUsers',
     'Users with duplicate name' => 'administrator/index.php?option=com_ra_tools&task=reports.duplicateName',
     'Count users by Registration date' => 'administrator/index.php?option=com_ra_tools&task=reports.showRegistrations',
     'Joomla User by Group' => 'administrator/index.php?option=com_ra_tools&task=reports.showJoomlaUsersByGroup',
@@ -94,6 +95,28 @@ $reports['Show Ramblers menus'] = 'administrator/index.php?option=com_ra_tools&t
         <input type="hidden" name="task" value="" />
         <?php echo JHtml::_('form.token'); ?>
     </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-block">
+            <div class="block-header">
+                <h2>System reports</h2>
+            </div>
+
+            <div class="block-content">
+                <?php
+                echo '<ul>';
+                foreach ($reports as $caption => $task) {
+                    echo '<li>' . $toolsHelper->buildLink($task, $caption) . '</li>';
+                }
+                echo '</ul>';
+                ?>
+            </div>
+        </div>
+    </div>
+    <?php
+    $target = 'administrator/index.php?option=com_ra_tools&view=dashboard';
+    echo $toolsHelper->backButton($target);
+    ?>
 </div>
 </form>
 <?php

@@ -3,7 +3,7 @@
 /**
  * Various common functions used throughout the project
  *
- * @version     3.7.4
+ * @version     3.7.5
  * @package     com_ra_tools
  * @copyright   Copyright (C) 2020. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
@@ -24,7 +24,8 @@
  * 22/06/26 CB in showAccess, show home group (and membershipNumber), include group in list of events
  * 06/07/26 CB invoke ra-delivery/SmtpHelper to send email using API if component is installed and enabled
  * 15/07/26 CB improved image hanling for emails: insert code required for embedLocalEmailImages
- */
+ * 17/07/26 CB added function buildDashboardReportBlock (for dashboard and reports menus)
+*/
 
 namespace Ramblers\Component\Ra_tools\Site\Helpers;
 
@@ -105,6 +106,33 @@ class ToolsHelper {
         $class = $this->lookupColourCode($colour, 'B');
         //       echo "colour=$colour, code=$code, class=$class<br>";
         return $this->buildLink($url, $text, $newWindow, $class);
+    }
+
+    public function buildDashboardReportBlock($title, array $links) {
+        if (empty($links)) {
+            return '';
+        }
+
+        $html = '<div class="dashboard-block">';
+        $html .= '<div class="block-header">';
+        $html .= '<h4>' . htmlspecialchars((string) $title, ENT_QUOTES, 'UTF-8') . '</h4>';
+        $html .= '</div>';
+        $html .= '<div class="block-content">';
+        $html .= '<ul>';
+
+        foreach ($links as $caption => $task) {
+            if (is_int($caption)) {
+                $html .= '<li>' . $task . '</li>';
+            } else {
+                $html .= '<li>' . $this->buildLink($task, $caption) . '</li>';
+            }
+        }
+
+        $html .= '</ul>';
+        $html .= '</div>';
+        $html .= '</div>';
+
+        return $html;
     }
 
     public function buildEmailPreamble() {
