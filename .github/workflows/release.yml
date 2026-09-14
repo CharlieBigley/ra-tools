@@ -10,8 +10,6 @@ on:
   push:
     paths:
       - 'plg_system_ra_tools/**'
-    branches:
-      - master
 
 jobs:
   release:
